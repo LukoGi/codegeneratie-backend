@@ -1,9 +1,6 @@
 package spring.group.spring.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,14 +12,15 @@ import java.util.Set;
 @NoArgsConstructor
 @Entity
 @Data
+@Table(name = "app_users")
 public class User {
-    // TODO finish user
+    // TODO User: finish model
     @Id
     @GeneratedValue
-    private int user_id;
+    private Integer user_id;
 
-    private String username;
+    private String first_name;
 
-    @OneToMany
+    @OneToMany(mappedBy = "user")
     private Set<BankAccount> accounts = new HashSet<>();
 }

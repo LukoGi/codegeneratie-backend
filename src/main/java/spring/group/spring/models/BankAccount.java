@@ -12,11 +12,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Data
 @Entity
+@Table(name = "bank_accounts")
 public class BankAccount {
 
     @Id
     @GeneratedValue
-    private int account_id;
+    private Integer account_id;
 
     @NonNull
     @Column(nullable = false, unique = true)
@@ -38,8 +39,18 @@ public class BankAccount {
 
     @NonNull
     @Column(nullable = false)
-    private int pincode;
+    private Integer pincode;
 
     @ManyToOne
     private User user;
+
+    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull String account_type, @NonNull Boolean is_active, BigDecimal absolute_limit, @NonNull Integer pincode, User user) {
+        this.iban = iban;
+        this.balance = balance;
+        this.account_type = account_type;
+        this.is_active = is_active;
+        this.absolute_limit = absolute_limit;
+        this.pincode = pincode;
+        this.user = user;
+    }
 }
