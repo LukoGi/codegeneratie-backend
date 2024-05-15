@@ -57,6 +57,12 @@ public class BankAccountService {
     public BankAccountResponseDTO convertToResponseDTO(BankAccount bankAccount) {
         BankAccountResponseDTO bankAccountResponseDTO = new BankAccountResponseDTO();
         bankAccountResponseDTO.setAccount_id(bankAccount.getAccount_id());
+        bankAccountResponseDTO.setUser(userService.convertToDTO(bankAccount.getUser()));
+        bankAccountResponseDTO.setIban(bankAccount.getIban());
+        bankAccountResponseDTO.setBalance(bankAccount.getBalance());
+        bankAccountResponseDTO.setAccount_Type(bankAccount.getAccount_type());
+        bankAccountResponseDTO.setIs_Active(bankAccount.getIs_active());
+        bankAccountResponseDTO.setAbsolute_Limit(bankAccount.getAbsolute_limit());
         return bankAccountResponseDTO;
     }
 
