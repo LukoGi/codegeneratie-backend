@@ -3,16 +3,13 @@ package spring.group.spring.models.dto.users;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
-
-    private Integer user_id;
+@Data
+public class UserRequest {
 
     private String first_name;
 
