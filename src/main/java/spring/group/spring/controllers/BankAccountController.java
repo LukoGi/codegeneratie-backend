@@ -1,7 +1,9 @@
 package spring.group.spring.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import spring.group.spring.exceptions.IncorrectPincodeException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
@@ -44,12 +46,17 @@ public class BankAccountController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<BankAccountDTO> atmLogin(@RequestBody BankAccountATMLoginRequest loginRequest) {
-        BankAccount bankAccount = bankAccountService.atmLogin(loginRequest);
-        if (bankAccount != null) {
-            return ResponseEntity.ok(bankAccountService.convertToDTO(bankAccount));
+    public ResponseEntity<Object> atmLogin(@RequestBody BankAccountATMLoginRequest loginRequest) {
+        // TODO add JWT token
+        try {
+            BankAccount bankAccount = bankAccountService.atmLogin(loginRequest);
+            if (bankAccount != null) {
+                return ResponseEntity.ok(bankAccountService.convertToDTO(bankAccount));
+            }
+            return ResponseEntity.notFound().build();
+        } catch (IncorrectPincodeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
 }

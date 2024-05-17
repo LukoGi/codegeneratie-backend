@@ -2,6 +2,7 @@ package spring.group.spring.services;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring.group.spring.exceptions.IncorrectPincodeException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
@@ -38,12 +39,15 @@ public class BankAccountService {
     }
 
     public BankAccount atmLogin(BankAccountATMLoginRequest loginRequest) {
-        // login request contains : fullName, iban, pincode
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
         if (bankAccount != null) {
             String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
-            if (fullName.equals(loginRequest.getFullName()) && passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
-                return bankAccount;
+            if (fullName.equals(loginRequest.getFullName())) {
+                if (passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
+                    return bankAccount;
+                } else {
+                    throw new IncorrectPincodeException("Incorrect pincode.");
+                }
             }
         }
         return null;

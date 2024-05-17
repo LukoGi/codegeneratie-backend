@@ -2,6 +2,7 @@ package spring.group.spring.config;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
@@ -14,16 +15,18 @@ import java.math.BigDecimal;
 public class DataSeeder implements ApplicationRunner {
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public DataSeeder(BankAccountRepository bankAccountRepository, UserRepository userRepository) {
+    public DataSeeder(BankAccountRepository bankAccountRepository, UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(ApplicationArguments args) {
-//        User user = seedUser();
-//        seedBankAccount(user);
+        User user = seedUser();
+        seedBankAccount(user);
     }
 
     private void seedBankAccount(User user) {
@@ -33,7 +36,7 @@ public class DataSeeder implements ApplicationRunner {
                 "savings",
                 true,
                 new BigDecimal("1000.00"),
-                "1111",
+                passwordEncoder.encode("1111"),
                 user
         );
         bankAccountRepository.save(bankAccount1);
