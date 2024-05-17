@@ -1,8 +1,10 @@
 package spring.group.spring.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
+import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
 import spring.group.spring.models.dto.bankaccounts.BankAccountDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
@@ -22,16 +24,32 @@ public class BankAccountController {
     }
 
     @GetMapping("/{id}")
-    public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
+    public ResponseEntity<BankAccountDTO> getBankAccountById(@PathVariable Integer id) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        return bankAccountService.convertToDTO(bankAccount);
+        if (bankAccount != null) {
+            return ResponseEntity.ok(bankAccountService.convertToDTO(bankAccount));
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public BankAccountResponseDTO updateBankAccount(@PathVariable Integer id, @RequestBody BankAccountRequestDTO bankAccountDTO) {
+    public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@PathVariable Integer id, @RequestBody BankAccountRequestDTO bankAccountDTO) {
         BankAccount bankAccount = bankAccountService.convertToEntity(bankAccountDTO);
         bankAccount.setAccount_id(id);
         BankAccount bankAccountResult = bankAccountService.updateBankAccount(bankAccount);
-        return bankAccountService.convertToResponseDTO(bankAccountResult);
+        if (bankAccountResult != null) {
+            return ResponseEntity.ok(bankAccountService.convertToResponseDTO(bankAccountResult));
+        }
+        return ResponseEntity.notFound().build();
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<BankAccountDTO> atmLogin(@RequestBody BankAccountATMLoginRequest loginRequest) {
+        BankAccount bankAccount = bankAccountService.atmLogin(loginRequest);
+        if (bankAccount != null) {
+            return ResponseEntity.ok(bankAccountService.convertToDTO(bankAccount));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 }
