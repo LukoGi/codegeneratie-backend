@@ -7,6 +7,8 @@ import spring.group.spring.models.dto.BankAccountRequestDTO;
 import spring.group.spring.models.dto.BankAccountResponseDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 
+import java.util.List;
+
 @Service
 public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
@@ -15,6 +17,14 @@ public class BankAccountService {
     public BankAccountService(BankAccountRepository bankAccountRepository) {
         this.bankAccountRepository = bankAccountRepository;
         this.userService = new UserService();
+    }
+
+    public BankAccount createBankAccount(BankAccount bankAccount) {
+        return bankAccountRepository.save(bankAccount);
+    }
+
+    public List<BankAccount> getAllBankAccounts() {
+        return bankAccountRepository.findAll();
     }
 
     public BankAccount getBankAccountById(Integer id) {
@@ -65,5 +75,6 @@ public class BankAccountService {
         bankAccountResponseDTO.setAbsolute_Limit(bankAccount.getAbsolute_limit());
         return bankAccountResponseDTO;
     }
+
 
 }
