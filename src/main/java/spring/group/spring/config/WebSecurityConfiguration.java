@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class WebSecurityConfiguration {
 
-    // TODO User: finish WebSecurityConfiguration
+    // TODO User: finish WebSecurityConfiguration this is just a temporary solution
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
