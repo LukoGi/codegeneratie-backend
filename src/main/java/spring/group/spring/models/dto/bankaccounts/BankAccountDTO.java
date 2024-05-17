@@ -1,8 +1,9 @@
-package spring.group.spring.models.dto;
+package spring.group.spring.models.dto.bankaccounts;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.group.spring.models.dto.users.UserDTO;
 
 import java.math.BigDecimal;
 
@@ -13,18 +14,18 @@ public class BankAccountDTO {
 
     private Integer account_Id;
 
-    private UserDTO user;
+    private Integer user_id;
 
     private String iban;
 
     private BigDecimal balance;
 
-    private String account_Type;
+    private String account_type;
 
-    private Boolean is_Active;
+    private Boolean is_active;
 
-    private BigDecimal absolute_Limit;
+    private BigDecimal absolute_limit;
 
-    private Integer pincode;
+    private String pincode;
 
 }

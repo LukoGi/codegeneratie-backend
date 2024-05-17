@@ -22,8 +22,8 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        User user = seedUser();
-        seedBankAccount(user);
+//        User user = seedUser();
+//        seedBankAccount(user);
     }
 
     private void seedBankAccount(User user) {
@@ -33,7 +33,7 @@ public class DataSeeder implements ApplicationRunner {
                 "savings",
                 true,
                 new BigDecimal("1000.00"),
-                Integer.valueOf(1111),
+                "1111",
                 user
         );
         bankAccountRepository.save(bankAccount1);
@@ -42,6 +42,7 @@ public class DataSeeder implements ApplicationRunner {
     private User seedUser() {
         User user1 = new User();
         user1.setFirst_name("John");
+        user1.setLast_name("Doe");
         userRepository.save(user1);
         return user1;
     }
