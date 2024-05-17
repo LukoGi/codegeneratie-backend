@@ -20,6 +20,7 @@ public class User {
     private Integer user_id;
 
     private String first_name;
+    private String last_name;
 
     @OneToMany(mappedBy = "user")
     private Set<BankAccount> accounts = new HashSet<>();
