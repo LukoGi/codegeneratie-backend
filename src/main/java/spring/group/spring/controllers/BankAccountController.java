@@ -5,24 +5,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.exceptions.IncorrectPincodeException;
 import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.User;
 import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
 import spring.group.spring.models.dto.bankaccounts.BankAccountDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
 import spring.group.spring.services.BankAccountService;
-import spring.group.spring.services.UserService;
 
 @RestController
 @RequestMapping("accounts")
 public class BankAccountController {
 
     private final BankAccountService bankAccountService;
-    private final UserService userService;
 
-    public BankAccountController(BankAccountService bankAccountService, UserService userService) {
+    public BankAccountController(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
-        this.userService = userService;
     }
 
     @GetMapping("/{id}")
