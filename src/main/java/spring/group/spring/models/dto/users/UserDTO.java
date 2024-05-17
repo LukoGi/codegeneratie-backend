@@ -1,4 +1,4 @@
-package spring.group.spring.models.dto;
+package spring.group.spring.models.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +12,5 @@ public class UserDTO {
     private Integer user_id;
 
     private String first_name;
+    private String last_name;
 }
