@@ -28,7 +28,7 @@ public class DataSeeder implements ApplicationRunner {
 
     private void seedBankAccount(User user) {
         BankAccount bankAccount1 = new BankAccount(
-                "NL91ABNA0417164305", // Dit moet nog ff goed aangepast worden, want anders doet cucumber nie super leuk (moet dynamic zijn
+                "NL91ABNA0417164305",
                 new BigDecimal("500.00"),
                 "savings",
                 true,
