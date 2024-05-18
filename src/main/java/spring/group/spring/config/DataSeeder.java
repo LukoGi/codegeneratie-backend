@@ -2,36 +2,42 @@ package spring.group.spring.config;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import spring.group.spring.models.BankAccount;
+import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
 import spring.group.spring.repositories.BankAccountRepository;
+import spring.group.spring.repositories.TransactionRepository;
 import spring.group.spring.repositories.UserRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 public class DataSeeder implements ApplicationRunner {
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public DataSeeder(BankAccountRepository bankAccountRepository, UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public DataSeeder(BankAccountRepository bankAccountRepository, UserRepository userRepository, TransactionRepository transactionRepository, BCryptPasswordEncoder passwordEncoder) {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
+        this.transactionRepository = transactionRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         User user = seedUser();
-        seedBankAccount(user);
-
+        BankAccount bankAccount1 = seedBankAccount(user);
+        BankAccount bankAccount2 = seedAnotherBankAccount(user);
+        seedTransactions(bankAccount1, bankAccount2, user);
     }
 
-    private void seedBankAccount(User user) {
+    private BankAccount seedBankAccount(User user) {
         BankAccount bankAccount1 = new BankAccount(
                 "NL91ABNA0417164305",
                 new BigDecimal("500.00"),
@@ -41,7 +47,20 @@ public class DataSeeder implements ApplicationRunner {
                 passwordEncoder.encode("1111"),
                 user
         );
-        bankAccountRepository.save(bankAccount1);
+        return bankAccountRepository.save(bankAccount1);
+    }
+
+    private BankAccount seedAnotherBankAccount(User user) {
+        BankAccount bankAccount2 = new BankAccount(
+                "NL91ABNA0417164306",
+                new BigDecimal("800.00"),
+                "checking",
+                true,
+                new BigDecimal("2000.00"),
+                passwordEncoder.encode("2222"),
+                user
+        );
+        return bankAccountRepository.save(bankAccount2);
     }
 
     private User seedUser() {
@@ -58,5 +77,27 @@ public class DataSeeder implements ApplicationRunner {
         user1.setDaily_transfer_limit(new BigDecimal("1000.00"));
         userRepository.save(user1);
         return user1;
+    }
+
+    private void seedTransactions(BankAccount fromAccount, BankAccount toAccount, User user) {
+        Transaction transaction1 = new Transaction();
+        transaction1.setTo_account(toAccount);
+        transaction1.setFrom_account(fromAccount);
+        transaction1.setInitiator_user(user);
+        transaction1.setTransfer_amount(new BigDecimal("50.00"));
+        transaction1.setStart_date(LocalDateTime.now());
+        transaction1.setEnd_date(LocalDateTime.now().plusDays(1));
+        transaction1.setDescription("Test Transaction 1");
+        transactionRepository.save(transaction1);
+
+        Transaction transaction2 = new Transaction();
+        transaction2.setTo_account(fromAccount);
+        transaction2.setFrom_account(toAccount);
+        transaction2.setInitiator_user(user);
+        transaction2.setTransfer_amount(new BigDecimal("100.00"));
+        transaction2.setStart_date(LocalDateTime.now());
+        transaction2.setEnd_date(LocalDateTime.now().plusDays(1));
+        transaction2.setDescription("Test Transaction 2");
+        transactionRepository.save(transaction2);
     }
 }
