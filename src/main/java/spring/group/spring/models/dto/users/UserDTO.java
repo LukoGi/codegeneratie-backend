@@ -1,38 +1,29 @@
-package spring.group.spring.models;
+package spring.group.spring.models.dto.users;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
-@Getter
-@Setter
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Data
-@Table(name = "app_users")
-public class User {
+public class UserDTO {
 
-    @Id
-    @GeneratedValue
     private Integer user_id;
 
     private String first_name;
 
     private String last_name;
 
-    @NonNull
     private String email;
 
-    @NonNull
     private String password;
 
-    @NonNull
     private String bsn_number;
 
-    @NonNull
     private String phone_number;
 
     private String role;
@@ -42,7 +33,4 @@ public class User {
     private Boolean is_archived;
 
     private BigDecimal daily_transfer_limit;
-
-    @OneToMany(mappedBy = "user")
-    private Set<BankAccount> accounts = new HashSet<>();
 }
