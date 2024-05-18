@@ -11,6 +11,8 @@ import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 
+import java.util.List;
+
 @Service
 public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
@@ -23,9 +25,15 @@ public class BankAccountService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public BankAccount createBankAccount(BankAccount bankAccount) {
+        return bankAccountRepository.save(bankAccount);
+    }
+
+    public List<BankAccount> getAllBankAccounts() {
+        return bankAccountRepository.findAll();
+    }
     // TODO Implement the following methods:
-    // getBankAccounts()
-    // createBankAccount()
+
     // atmLogin()
 
     public BankAccount getBankAccountById(Integer id) {
@@ -110,5 +118,4 @@ public class BankAccountService {
 
         return bankAccount;
     }
-
 }
