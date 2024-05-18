@@ -11,6 +11,8 @@ import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
 import spring.group.spring.services.BankAccountService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("accounts")
 public class BankAccountController {
@@ -19,6 +21,17 @@ public class BankAccountController {
 
     public BankAccountController(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
+    }
+
+    @GetMapping("/all")
+    public List<BankAccountDTO> getAllBankAccounts() {
+        List<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts();
+        return bankAccounts.stream().map(bankAccountService::convertToDTO).toList();
+    }
+    @PostMapping("/create")
+    public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
+        BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
+        return bankAccountService.convertToResponseDTO(bankAccountResult);
     }
 
     @GetMapping("/{id}")

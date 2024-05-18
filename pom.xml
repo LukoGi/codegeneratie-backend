@@ -15,6 +15,7 @@
 	<description>Spring Bank Project</description>
 	<properties>
 		<java.version>21</java.version>
+		<cucumber.version>7.11.2</cucumber.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -65,6 +66,19 @@
 			<artifactId>jakarta.persistence-api</artifactId>
 			<version>3.1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-spring</artifactId>
+			<version>${cucumber.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<build>

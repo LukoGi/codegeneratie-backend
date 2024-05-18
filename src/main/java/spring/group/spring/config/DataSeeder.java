@@ -33,7 +33,7 @@ public class DataSeeder implements ApplicationRunner {
 
     private void seedBankAccount(User user) {
         BankAccount bankAccount1 = new BankAccount(
-                "NL91ABNA0417164300",
+                "NL91ABNA0417164305",
                 new BigDecimal("500.00"),
                 "savings",
                 true,
