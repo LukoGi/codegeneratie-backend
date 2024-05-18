@@ -18,12 +18,12 @@ public class BankAccountController {
         this.bankAccountService = bankAccountService;
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<BankAccountDTO> getAllBankAccounts() {
         List<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts();
         return bankAccounts.stream().map(bankAccountService::convertToDTO).toList();
     }
-    @PostMapping
+    @PostMapping("/create")
     public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
         return bankAccountService.convertToResponseDTO(bankAccountResult);
