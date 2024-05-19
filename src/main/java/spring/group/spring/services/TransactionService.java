@@ -30,28 +30,39 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
-        Optional<BankAccount> toAccount = bankAccountRepository.findById(transactionRequestDTO.getTo_account_id());
-        Optional<BankAccount> fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFrom_account_id());
-        Optional<User> initiatorUser = userRepository.findById(transactionRequestDTO.getInitiator_user_id());
+        BankAccount toAccount = null;
+        BankAccount fromAccount = null;
+        User initiatorUser = null;
 
-        if (toAccount.isPresent() && fromAccount.isPresent() && initiatorUser.isPresent()) {
-            Transaction transaction = new Transaction();
-            transaction.setTo_account(toAccount.get());
-            transaction.setFrom_account(fromAccount.get());
-            transaction.setInitiator_user(initiatorUser.get());
-            transaction.setTransfer_amount(transactionRequestDTO.getTransfer_amount());
-            transaction.setStart_date(transactionRequestDTO.getStart_date());
-            transaction.setEnd_date(transactionRequestDTO.getEnd_date());
-            transaction.setDescription(transactionRequestDTO.getDescription());
-
-            transactionRepository.save(transaction);
-
-            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
-            responseDTO.setTransaction_id(transaction.getTransaction_id());
-
-            return responseDTO;
-        } else {
-            throw new IllegalArgumentException("Invalid account or user ID");
+        if (transactionRequestDTO.getTo_account_id() != null) {
+            toAccount = bankAccountRepository.findById(transactionRequestDTO.getTo_account_id())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getTo_account_id() + " not found"));
         }
+
+        if (transactionRequestDTO.getFrom_account_id() != null) {
+            fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFrom_account_id())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFrom_account_id() + " not found"));
+        }
+
+        if (transactionRequestDTO.getInitiator_user_id() != null) {
+            initiatorUser = userRepository.findById(transactionRequestDTO.getInitiator_user_id())
+                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionRequestDTO.getInitiator_user_id() + " not found"));
+        }
+
+        Transaction transaction = new Transaction();
+        transaction.setTo_account(toAccount);
+        transaction.setFrom_account(fromAccount);
+        transaction.setInitiator_user(initiatorUser);
+        transaction.setTransfer_amount(transactionRequestDTO.getTransfer_amount());
+        transaction.setStart_date(transactionRequestDTO.getStart_date());
+        transaction.setEnd_date(transactionRequestDTO.getEnd_date());
+        transaction.setDescription(transactionRequestDTO.getDescription());
+
+        transactionRepository.save(transaction);
+
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        responseDTO.setTransaction_id(transaction.getTransaction_id());
+
+        return responseDTO;
     }
 }

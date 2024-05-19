@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Data
 public class BankAccountDTO {
 
-    private Integer account_Id;
+    private Integer account_id;
 
     private UserNameDTO user;
 
