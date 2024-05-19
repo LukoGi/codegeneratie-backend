@@ -3,14 +3,16 @@ package spring.group.spring.services;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exceptions.IncorrectPincodeException;
+import spring.group.spring.exceptions.InsufficientFundsException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
-import spring.group.spring.models.dto.bankaccounts.BankAccountDTO;
-import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
-import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
+import spring.group.spring.models.dto.TransactionRequestDTO;
+import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,11 +20,13 @@ public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final TransactionService transactionService;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, BCryptPasswordEncoder passwordEncoder) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder) {
         this.bankAccountRepository = bankAccountRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
+        this.transactionService = transactionService;
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
@@ -61,10 +65,70 @@ public class BankAccountService {
         return null;
     }
 
+    public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
+
+        BankAccount bankAccount = bankAccountRepository.findById(id)
+                .orElse(null);
+
+        if (bankAccount == null) {
+            return null;
+        }
+
+        if (bankAccount.getBalance().compareTo(amount) < 0) {
+            throw new InsufficientFundsException("Insufficient balance");
+        }
+
+        bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
+        bankAccountRepository.save(bankAccount);
+
+        WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
+        withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
+
+        TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
+        transactionService.createTransaction(transactionRequestDTO);
+
+        return withdrawDepositResponseDTO;
+    }
+
+    public WithdrawDepositResponseDTO depositMoney(Integer id, BigDecimal amount) {
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
+
+        BankAccount bankAccount = bankAccountRepository.findById(id)
+                .orElse(null);
+
+        if (bankAccount == null) {
+            return null;
+        }
+
+        bankAccount.setBalance(bankAccount.getBalance().add(amount));
+        bankAccountRepository.save(bankAccount);
+
+        WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
+        withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
+
+        TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
+        transactionService.createTransaction(transactionRequestDTO);
+
+        return withdrawDepositResponseDTO;
+    }
+
+    private TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
+        transactionRequestDTO.setTo_account_id(toAccountId);
+        transactionRequestDTO.setFrom_account_id(fromAccountId);
+        transactionRequestDTO.setInitiator_user_id(initiatorUserId);
+        transactionRequestDTO.setTransfer_amount(transferAmount);
+        transactionRequestDTO.setStart_date(LocalDateTime.now());
+        transactionRequestDTO.setEnd_date(null);
+        transactionRequestDTO.setDescription(description);
+        return transactionRequestDTO;
+    }
+
     public BankAccountDTO convertToDTO(BankAccount bankAccount) {
         BankAccountDTO bankAccountDTO = new BankAccountDTO();
 
-        bankAccountDTO.setAccount_Id(bankAccount.getAccount_id());
+        bankAccountDTO.setAccount_id(bankAccount.getAccount_id());
         bankAccountDTO.setUser(userService.convertToNameDTO(bankAccount.getUser()));
         bankAccountDTO.setIban(bankAccount.getIban());
         bankAccountDTO.setBalance(bankAccount.getBalance());

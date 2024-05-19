@@ -20,15 +20,15 @@ public class Transaction {
     private Integer transaction_id;
 
     @ManyToOne
-    @JoinColumn(name = "to_account_id")
+    @JoinColumn(name = "to_account_id", nullable = true)
     private BankAccount to_account;
 
     @ManyToOne
-    @JoinColumn(name = "from_account_id")
+    @JoinColumn(name = "from_account_id", nullable = true)
     private BankAccount from_account;
 
     @ManyToOne
-    @JoinColumn(name = "initiator_user_id")
+    @JoinColumn(name = "initiator_user_id", nullable = true)
     private User initiator_user;
 
     private BigDecimal transfer_amount;
