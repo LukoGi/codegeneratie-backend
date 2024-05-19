@@ -65,13 +65,12 @@ public class BankAccountService {
         BankAccountDTO bankAccountDTO = new BankAccountDTO();
 
         bankAccountDTO.setAccount_Id(bankAccount.getAccount_id());
-        bankAccountDTO.setUser_id(bankAccount.getUser().getUser_id());
+        bankAccountDTO.setUser(userService.convertToNameDTO(bankAccount.getUser()));
         bankAccountDTO.setIban(bankAccount.getIban());
         bankAccountDTO.setBalance(bankAccount.getBalance());
         bankAccountDTO.setAccount_type(bankAccount.getAccount_type());
         bankAccountDTO.setIs_active(bankAccount.getIs_active());
         bankAccountDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-        bankAccountDTO.setPincode(bankAccount.getPincode());
 
         return bankAccountDTO;
     }
