@@ -75,7 +75,7 @@ public class DataSeeder implements ApplicationRunner {
         user1.setLast_name("Doe");
         user1.setUsername("JohnDoe");
         user1.setEmail("John@gmail.com");
-        user1.setPassword(passwordEncoder.encode("password"));
+        user1.setPassword("test");
         user1.setBsn_number("123456789");
         user1.setPhone_number("0612345678");
         user1.setRoles(List.of(Role.ROLE_USER));

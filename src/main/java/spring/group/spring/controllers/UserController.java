@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,7 +15,9 @@ import spring.group.spring.services.UserService;
 
 import javax.naming.AuthenticationException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping()
@@ -58,16 +61,21 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO loginRequest) throws
-            AuthenticationException {
-        return userService.login(loginRequest);
+    public ResponseEntity<Object> login(@RequestBody LoginRequestDTO loginRequest) {
+        try {
+            return ResponseEntity.ok(userService.login(loginRequest));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/home")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public String inside() {
+    public ResponseEntity<Object> inside() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return "Yippie je heb het goed gedaan \n Je bent ingelogd als " + auth.getName() + " met de rol " + auth.getAuthorities().toArray()[0] + "!";
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "test");
+        return ResponseEntity.ok(responseBody);
     }
 
 

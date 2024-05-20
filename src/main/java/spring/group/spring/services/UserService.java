@@ -17,11 +17,11 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtProvider jwtProvider) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
     }
 
@@ -41,19 +41,24 @@ public class UserService {
         user.setIs_approved(false);
         user.setIs_archived(false);
         user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00));
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
     public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException {
         User user = userRepository.findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new AuthenticationException("User not found"));
-        if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new AuthenticationException("Invalid username/password");
+
+        String rawPassword = loginRequest.getPassword();
+        String encodedPassword = user.getPassword();
+
+        if (passwordEncoder.matches(rawPassword, encodedPassword)) {
+            LoginResponseDTO response = new LoginResponseDTO();
+            response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
+            return response;
+        } else {
+            throw new AuthenticationException("Invalid password");
         }
-        LoginResponseDTO response = new LoginResponseDTO();
-        response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
-        return response;
     }
 
     public User updateUser(User user) {
