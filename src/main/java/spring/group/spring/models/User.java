@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Getter
 @Setter
@@ -18,6 +19,8 @@ public class User {
     @Id
     @GeneratedValue
     private Integer user_id;
+
+    private String username;
 
     private String first_name;
 
@@ -35,13 +38,16 @@ public class User {
     @NonNull
     private String phone_number;
 
-    private String role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Role> roles;
 
     private Boolean is_approved;
 
     private Boolean is_archived;
 
     private BigDecimal daily_transfer_limit;
+
+
 
     @OneToMany(mappedBy = "user")
     private Set<BankAccount> accounts = new HashSet<>();
