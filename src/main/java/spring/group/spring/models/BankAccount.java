@@ -29,7 +29,7 @@ public class BankAccount {
 
     @NonNull
     @Column(nullable = false)
-    private String account_type;
+    private AccountType account_type;
 
     @NonNull
     @Column(nullable = false)
@@ -44,7 +44,7 @@ public class BankAccount {
     @ManyToOne
     private User user;
 
-    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull String account_type, @NonNull Boolean is_active, BigDecimal absolute_limit, @NonNull String pincode, User user) {
+    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull AccountType account_type, @NonNull Boolean is_active, BigDecimal absolute_limit, @NonNull String pincode, User user) {
         this.iban = iban;
         this.balance = balance;
         this.account_type = account_type;

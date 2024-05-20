@@ -3,6 +3,7 @@ package spring.group.spring.models.dto.bankaccounts;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.dto.users.UserDTO;
 
 import java.math.BigDecimal;
@@ -19,7 +20,7 @@ public class BankAccountResponseDTO {
 
     private BigDecimal balance;
 
-    private String account_type;
+    private AccountType account_type;
 
     private Boolean is_active;
 

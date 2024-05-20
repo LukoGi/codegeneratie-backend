@@ -26,6 +26,9 @@ public class BankAccountService {
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
+        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
+        bankAccount.setPincode(encryptedPassword);
+
         return bankAccountRepository.save(bankAccount);
     }
 
