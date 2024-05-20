@@ -6,10 +6,14 @@ import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.TransactionResponseDTO;
+import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.repositories.TransactionRepository;
 import spring.group.spring.repositories.UserRepository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -64,5 +68,55 @@ public class TransactionService {
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
+    }
+
+    public TransactionResponseDTO updateTransaction(Integer id, TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction with ID " + id + " not found"));
+
+        if (transactionUpdateRequestDTO.getTo_account_id() != null) {
+            BankAccount toAccount = bankAccountRepository.findById(transactionUpdateRequestDTO.getTo_account_id())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionUpdateRequestDTO.getTo_account_id() + " not found"));
+            transaction.setTo_account(toAccount);
+        }
+
+        if (transactionUpdateRequestDTO.getFrom_account_id() != null) {
+            BankAccount fromAccount = bankAccountRepository.findById(transactionUpdateRequestDTO.getFrom_account_id())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionUpdateRequestDTO.getFrom_account_id() + " not found"));
+            transaction.setFrom_account(fromAccount);
+        }
+
+        if (transactionUpdateRequestDTO.getInitiator_user_id() != null) {
+            User initiatorUser = userRepository.findById(transactionUpdateRequestDTO.getInitiator_user_id())
+                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionUpdateRequestDTO.getInitiator_user_id() + " not found"));
+            transaction.setInitiator_user(initiatorUser);
+        }
+
+        if (transactionUpdateRequestDTO.getTransfer_amount() != null) {
+            transaction.setTransfer_amount(transactionUpdateRequestDTO.getTransfer_amount());
+        }
+
+        if (transactionUpdateRequestDTO.getStart_date() != null) {
+            transaction.setStart_date(transactionUpdateRequestDTO.getStart_date());
+        }
+
+        if (transactionUpdateRequestDTO.getEnd_date() != null) {
+            transaction.setEnd_date(transactionUpdateRequestDTO.getEnd_date());
+        }
+
+        if (transactionUpdateRequestDTO.getDescription() != null) {
+            transaction.setDescription(transactionUpdateRequestDTO.getDescription());
+        }
+
+        transactionRepository.save(transaction);
+
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        responseDTO.setTransaction_id(transaction.getTransaction_id());
+
+        return responseDTO;
+    }
+
+    public List<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
+        return transactionRepository.findAllTransactionsWithFilters(startDate, endDate, minAmount, maxAmount, iban);
     }
 }
