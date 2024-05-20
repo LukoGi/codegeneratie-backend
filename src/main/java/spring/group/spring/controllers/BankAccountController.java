@@ -29,9 +29,13 @@ public class BankAccountController {
         return bankAccounts.stream().map(bankAccountService::convertToDTO).toList();
     }
     @PostMapping("/create")
-    public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
+    public ResponseEntity<BankAccountResponseDTO> createBankAccount(@RequestBody BankAccount bankAccount) {
+        if (!bankAccountService.isValidIban(bankAccount.getIban())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
-        return bankAccountService.convertToResponseDTO(bankAccountResult);
+        return ResponseEntity.ok(bankAccountService.convertToResponseDTO(bankAccountResult));
     }
 
     @GetMapping("/{id}")

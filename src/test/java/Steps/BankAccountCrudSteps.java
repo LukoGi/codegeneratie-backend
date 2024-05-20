@@ -16,7 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import spring.group.spring.Application;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
+import spring.group.spring.models.User;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -47,8 +49,7 @@ public class BankAccountCrudSteps extends BaseSteps {
                 .toList();
         Assertions.assertTrue(options.contains(method.toUpperCase()));
 
-        // prob remove this agian
-        this.endpoint = endpoint;
+
         this.httpHeaders = new HttpHeaders();
         this.httpHeaders.add("Content-Type", "application/json");
 
@@ -70,7 +71,16 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @And("the bank account data is valid")
     public void theBankAccountDataIsValid() throws JsonProcessingException {
-        BankAccount bankAccount = new BankAccount("RO123456789", new BigDecimal(100), "SAVINGS", true, new BigDecimal(1000), "1234", null);
+        User user = new User();
+        user.setUser_id(1);
+        user.setFirst_name("John");
+        user.setLast_name("Doe");
+        user.setEmail("john@doe.com");
+        user.setPhone_number("1234567890");
+        user.setBsn_number("123456789");
+        user.setPassword("password");
+
+        BankAccount bankAccount = new BankAccount("DE89370400440532013000", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
             requestBody = mapper.writeValueAsString(bankAccount);
     }
 
@@ -89,51 +99,106 @@ public class BankAccountCrudSteps extends BaseSteps {
     public void theBankAccountShouldBeCreatedSuccessfully() {
         System.out.println("Response Body: " + response.getBody());
         Assertions.assertEquals(200, response.getStatusCodeValue());
-
-        // this gets a 500 error atm
     }
 
     @And("the bank account data is invalid")
-    public void theBankAccountDataIsInvalid() {
+    public void theBankAccountDataIsInvalid() throws JsonProcessingException {
+        User user = new User();
+        user.setUser_id(1);
+        user.setFirst_name("John");
+        user.setLast_name("Doe");
+        user.setEmail("john@doe.com");
+        user.setPhone_number("1234567890");
+        user.setBsn_number("123456789");
+        user.setPassword("password");
+
+        BankAccount bankAccount = new BankAccount("abc", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
+        requestBody = mapper.writeValueAsString(bankAccount);
     }
 
     @When("I create a new bank account with invalid data")
     public void iCreateANewBankAccountWithInvalidData() {
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/create",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
     }
 
     @Then("the creation of the bank account should fail")
     public void theCreationOfTheBankAccountShouldFail() {
+        Assertions.assertEquals(400, response.getStatusCodeValue());
     }
-
-    @And("the bank account ID {int} exists")
-    public void theBankAccountIDExists(int arg0) {
+    @Given("the endpoint for {string} is available for method {string} with id {int}")
+    public void theEndpointForIsAvailableForMethodWithId(String endpoint, String method, int id) {
+        response = restTemplate
+                .exchange("/" + endpoint,
+                        HttpMethod.OPTIONS,
+                        new HttpEntity<>(null, new HttpHeaders()),
+                        String.class,
+                        id);
+        List<String> options = Arrays.stream((response.getHeaders()
+                        .get("Allow")
+                        .get(0)
+                        .split(",")))
+                .toList();
+        Assertions.assertTrue(options.contains(method.toUpperCase()));
     }
-
     @When("I retrieve the bank account by ID {int}")
-    public void iRetrieveTheBankAccountByID(int arg0) {
+    public void iRetrieveTheBankAccountByID(int id) {
+        response = restTemplate
+                .exchange("/accounts/{id}",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class,
+                        id);
     }
-
     @Then("I should receive the bank account details")
     public void iShouldReceiveTheBankAccountDetails() {
+        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertNotNull(response.getBody());
     }
 
-    @And("the bank account ID {int} does not exist")
-    public void theBankAccountIDDoesNotExist(int arg0) {
-    }
 
     @Then("I should receive a bank account error message")
     public void iShouldReceiveABankAccountErrorMessage() {
+        int statusCode = response.getStatusCodeValue();
+        Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 
     @When("I update the bank account with ID {int}")
-    public void iUpdateTheBankAccountWithID(int arg0) {
+    public void iUpdateTheBankAccountWithID(int id) throws JsonProcessingException {
+        User user = new User();
+        user.setUser_id(1);
+        user.setFirst_name("John");
+        user.setLast_name("Doe");
+        user.setEmail("john@doe.com");
+        user.setPhone_number("1234567890");
+        user.setBsn_number("123456789");
+        user.setPassword("password");
+
+        // Update the bank account with the following data
+        BankAccount bankAccount = new BankAccount("RO123456789", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
+        String requestBody = mapper.writeValueAsString(bankAccount);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/update/{id}",
+                        HttpMethod.PUT,
+                        entity,
+                        String.class,
+                        id);
     }
 
     @Then("the bank account should be updated successfully")
     public void theBankAccountShouldBeUpdatedSuccessfully() {
+        Assertions.assertEquals(200, response.getStatusCodeValue());
     }
 
     @Then("the update of the bank account should fail")
     public void theUpdateOfTheBankAccountShouldFail() {
+        int statusCode = response.getStatusCodeValue();
+        Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 }
