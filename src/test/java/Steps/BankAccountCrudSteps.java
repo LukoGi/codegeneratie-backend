@@ -47,6 +47,7 @@ public class BankAccountCrudSteps extends BaseSteps {
                 .toList();
         Assertions.assertTrue(options.contains(method.toUpperCase()));
 
+        // prob remove this agian
         this.endpoint = endpoint;
         this.httpHeaders = new HttpHeaders();
         this.httpHeaders.add("Content-Type", "application/json");
@@ -88,6 +89,8 @@ public class BankAccountCrudSteps extends BaseSteps {
     public void theBankAccountShouldBeCreatedSuccessfully() {
         System.out.println("Response Body: " + response.getBody());
         Assertions.assertEquals(200, response.getStatusCodeValue());
+
+        // this gets a 500 error atm
     }
 
     @And("the bank account data is invalid")
