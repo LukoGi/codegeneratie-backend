@@ -78,6 +78,7 @@ public class BankAccountController {
 
     @PostMapping("/{id}/withdraw")
     public ResponseEntity<Object> withdrawMoney(@PathVariable Integer id, @RequestBody WithdrawDepositRequestDTO withdrawRequest) {
+
         try {
             WithdrawDepositResponseDTO response = bankAccountService.withdrawMoney(id, withdrawRequest.getAmount());
             if (response != null) {

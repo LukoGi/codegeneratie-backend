@@ -1,10 +1,14 @@
 package spring.group.spring.models.dto.users;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.group.spring.models.Role;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +27,8 @@ public class UserRequest {
 
     private String phone_number;
 
-    private String role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Role> roles;
 
     private Boolean is_approved;
 
