@@ -2,8 +2,9 @@ package spring.group.spring.services;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring.group.spring.exceptions.IncorrectPincodeException;
-import spring.group.spring.exceptions.InsufficientFundsException;
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
+import spring.group.spring.exception.exceptions.IncorrectPincodeException;
+import spring.group.spring.exception.exceptions.InsufficientFundsException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.TransactionRequestDTO;
@@ -43,12 +44,9 @@ public class BankAccountService {
     public List<BankAccount> getAllBankAccounts() {
         return bankAccountRepository.findAll();
     }
-    // TODO Implement the following methods:
-
-    // atmLogin()
 
     public BankAccount getBankAccountById(Integer id) {
-        return bankAccountRepository.findById(id).orElse(null);
+        return bankAccountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
@@ -57,33 +55,34 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
+    // TODO jwt
     public BankAccount atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
-        if (bankAccount != null) {
-            String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
-            if (fullName.equals(loginRequest.getFullName())) {
-                if (passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
-                    return bankAccount;
-                } else {
-                    throw new IncorrectPincodeException("Incorrect pincode.");
-                }
-            }
+
+        if (bankAccount == null) {
+            throw new EntityNotFoundException();
         }
-        return null;
+
+        String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
+
+        if (!fullName.equals(loginRequest.getFullname())) {
+            throw new EntityNotFoundException();
+        }
+        if (!passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
+            throw new IncorrectPincodeException();
+        }
+
+        return bankAccount;
     }
 
     public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
-                .orElse(null);
-
-        if (bankAccount == null) {
-            return null;
-        }
+                .orElseThrow(EntityNotFoundException::new);
 
         if (bankAccount.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException("Insufficient balance");
+            throw new InsufficientFundsException();
         }
 
         bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
@@ -102,11 +101,7 @@ public class BankAccountService {
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
-                .orElse(null);
-
-        if (bankAccount == null) {
-            return null;
-        }
+                .orElseThrow(EntityNotFoundException::new);
 
         bankAccount.setBalance(bankAccount.getBalance().add(amount));
         bankAccountRepository.save(bankAccount);

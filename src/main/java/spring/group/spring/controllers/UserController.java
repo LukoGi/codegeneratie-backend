@@ -1,6 +1,5 @@
 package spring.group.spring.controllers;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
@@ -14,9 +13,7 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import static org.hibernate.annotations.UuidGenerator.Style.RANDOM;
 
 @RestController
 @RequestMapping("users")
@@ -33,30 +30,30 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Integer id) {
+    public UserDTO getUserById(@PathVariable Integer id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(userService.convertToDTO(user));
+        return userService.convertToDTO(user);
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
             userDTOs.add(userService.convertToDTO(user));
         }
-        return ResponseEntity.ok(userDTOs);
+        return userDTOs;
     }
 
     @PostMapping("/createUser")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserRequest userRequestDTO) {
+    public UserDTO createUser(@RequestBody UserRequest userRequestDTO) {
         User user = userService.convertToEntity(userRequestDTO);
         User newUser = userService.createUser(user);
-        return ResponseEntity.ok(userService.convertToDTO(newUser));
+        return userService.convertToDTO(newUser);
     }
 
     @PutMapping("/acceptUser/{id}")
-    public ResponseEntity<UserDTO> acceptUser(@PathVariable Integer id) {
+    public UserDTO acceptUser(@PathVariable Integer id) {
         User user = userService.getUserById(id);
 
         BankAccount checkingAccount = createBankAccount(user, AccountType.CHECKINGS);
@@ -67,7 +64,7 @@ public class UserController {
         user.setIs_approved(true);
         User updatedUser = userService.updateUser(user);
 
-        return ResponseEntity.ok(userService.convertToDTO(updatedUser));
+        return userService.convertToDTO(updatedUser);
     }
 
     private BankAccount createBankAccount(User user, AccountType accountType) {
@@ -84,10 +81,10 @@ public class UserController {
 
 
     @PutMapping("/updateUser/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequestDTO) {
+    public UserDTO updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequestDTO) {
         User user = userService.convertToEntity(userRequestDTO);
         user.setUser_id(id);
         User updatedUser = userService.updateUser(user);
-        return ResponseEntity.ok(userService.convertToDTO(updatedUser));
+        return userService.convertToDTO(updatedUser);
     }
 }
