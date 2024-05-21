@@ -33,11 +33,12 @@ public class BankAccountService {
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
 
-
         return bankAccountRepository.save(bankAccount);
     }
 
-
+    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
+        return bankAccounts.stream().map(this::convertToResponseDTO).toList();
+    }
 
     public List<BankAccount> getAllBankAccounts() {
         return bankAccountRepository.findAll();

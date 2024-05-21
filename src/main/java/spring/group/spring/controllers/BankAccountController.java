@@ -22,9 +22,9 @@ public class BankAccountController {
     }
 
     @GetMapping("/all")
-    public List<BankAccountDTO> getAllBankAccounts() {
-        List<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts();
-        return bankAccounts.stream().map(bankAccountService::convertToDTO).toList();
+    public ResponseEntity<List<BankAccountResponseDTO>> getAllBankAccounts() {
+        List<BankAccountResponseDTO> bankAccounts = bankAccountService.convertToResponseDTO(bankAccountService.getAllBankAccounts());
+        return ResponseEntity.ok(bankAccounts);
     }
     @PostMapping("/create")
     public ResponseEntity<BankAccountResponseDTO> createBankAccount(@RequestBody BankAccount bankAccount) {
