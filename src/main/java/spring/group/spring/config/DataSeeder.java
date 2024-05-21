@@ -4,6 +4,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
@@ -41,7 +42,7 @@ public class DataSeeder implements ApplicationRunner {
         BankAccount bankAccount1 = new BankAccount(
                 "NL91ABNA0417164305",
                 new BigDecimal("500.00"),
-                "savings",
+                AccountType.CHECKINGS,
                 true,
                 new BigDecimal("1000.00"),
                 passwordEncoder.encode("1111"),
@@ -54,7 +55,7 @@ public class DataSeeder implements ApplicationRunner {
         BankAccount bankAccount2 = new BankAccount(
                 "NL91ABNA0417164306",
                 new BigDecimal("800.00"),
-                "checking",
+                AccountType.CHECKINGS,
                 true,
                 new BigDecimal("2000.00"),
                 passwordEncoder.encode("2222"),
