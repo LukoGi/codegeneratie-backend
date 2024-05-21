@@ -7,6 +7,7 @@ import io.cucumber.java.en.When;
 public class TransactionsSteps {
     @When("I retrieve all transactions")
     public void iRetrieveAllTransactions() {
+
     }
 
     @Then("I should receive all transactions")
