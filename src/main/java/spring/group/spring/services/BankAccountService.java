@@ -30,7 +30,14 @@ public class BankAccountService {
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
+        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
+        bankAccount.setPincode(encryptedPassword);
+
         return bankAccountRepository.save(bankAccount);
+    }
+
+    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
+        return bankAccounts.stream().map(this::convertToResponseDTO).toList();
     }
 
     public List<BankAccount> getAllBankAccounts() {
@@ -180,5 +187,9 @@ public class BankAccountService {
         bankAccount.setPincode(bankAccountDTO.getPincode());
 
         return bankAccount;
+    }
+
+    public boolean isValidIban(String iban) {
+        return iban != null && iban.matches("^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$");
     }
 }
