@@ -40,9 +40,6 @@ public class WebSecurityConfiguration {
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-                //.authorizeRequests(ar -> ar
-                //        .anyRequest().permitAll())
-                //.headers(h -> h.permissionsPolicy(permissionsPolicyConfig -> {}));
         return httpSecurity.build();
     }
 
