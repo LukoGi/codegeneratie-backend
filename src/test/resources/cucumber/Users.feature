@@ -18,27 +18,23 @@ Feature: Users CRUD Operations
     Then the creation of the user should fail
 
   Scenario: Successfully Retrieve a user by ID
-    Given the endpoint for "users/{id}" is available for method "GET"
-    And the user ID 1 exists
-    When I retrieve the user by ID
+    Given the endpoint for "users/{id}" is available for method "GET" with id 1
+    When I retrieve the user by ID 1
     Then I should receive the user details
 
   Scenario: Fail to retrieve a user by ID
-    Given the endpoint for "users/{id}" is available for method "GET"
-    And the user ID 1 does not exist
-    When I retrieve the user by ID
+    Given the endpoint for "users/{id}" is available for method "GET" with id 999
+    When I retrieve the user by ID 999
     Then I should receive an error message
 
   Scenario: Successfully update a user
-    Given the endpoint for "users/updateUser/{id}" is available for method "PUT"
-    And the user ID 1 exists
+    Given the endpoint for "users/{id}" is available for method "GET" with id 1
     And the user data is valid
-    When I update the user with ID 4
+    When I update the user with ID 1
     Then the user should be updated successfully
 
   Scenario: Fail to update a user
-    Given the endpoint for "users/updateUser/{id}" is available for method "PUT"
-    And the user ID 1 does not exist
+    Given the endpoint for "users/{id}" is available for method "GET" with id 999
     And the user data is valid
-    When I update the user with ID 4
+    When I update the user with ID 1
     Then the update of the user should fail

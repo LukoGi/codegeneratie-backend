@@ -40,7 +40,9 @@ public class BankAccountController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BankAccountDTO> getBankAccountById(@PathVariable Integer id) {
+
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
+
         if (bankAccount != null) {
             return ResponseEntity.ok(bankAccountService.convertToDTO(bankAccount));
         }
@@ -50,6 +52,10 @@ public class BankAccountController {
     @PutMapping("/{id}")
     public ResponseEntity<BankAccountResponseDTO> updateBankAccount(@PathVariable Integer id, @RequestBody BankAccountRequestDTO bankAccountDTO) {
         BankAccount bankAccount = bankAccountService.convertToEntity(bankAccountDTO);
+        if (!bankAccountService.isValidIban(bankAccount.getIban())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         bankAccount.setAccount_id(id);
         BankAccount bankAccountResult = bankAccountService.updateBankAccount(bankAccount);
         if (bankAccountResult != null) {

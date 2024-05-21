@@ -19,26 +19,22 @@ Feature: Transactions CRUD Operations
 
   Scenario: Successfully retrieve a transaction by ID
     Given the endpoint for "transactions/{id}" is available for method "GET"
-    And the transaction ID 1 exists
     When I retrieve the transaction by ID 1
     Then I should receive the transaction details
 
   Scenario: Fail to retrieve a transaction by ID
     Given the endpoint for "transactions/{id}" is available for method "GET"
-    And the transaction ID 1 does not exist
     When I retrieve the transaction by ID 1
     Then I should receive a transaction error message
 
   Scenario: Successfully update a transaction
     Given the endpoint for "transactions/{id}" is available for method "PUT"
-    And the transaction ID 1 exists
     And the transaction data is valid
     When I update the transaction with ID 1
     Then the transaction should be updated successfully
 
   Scenario: Fail to update a transaction
     Given the endpoint for "transactions/{id}" is available for method "PUT"
-    And the transaction ID 1 does not exist
     And the transaction data is valid
     When I update the transaction with ID 1
     Then the update of the transaction should fail

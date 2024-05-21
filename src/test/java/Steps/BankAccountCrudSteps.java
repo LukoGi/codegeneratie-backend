@@ -30,9 +30,13 @@ public class BankAccountCrudSteps extends BaseSteps {
     @Autowired
     private ObjectMapper mapper;
     private HttpHeaders httpHeaders;
-    private String endpoint;
     private String requestBody;
     private ResponseEntity<String> response;
+
+    public BankAccountCrudSteps() {
+        this.httpHeaders = new HttpHeaders();
+        this.httpHeaders.add("Content-Type", "application/json");
+    }
 
 
     @Given("the endpoint for {string} is available for method {string}")
@@ -48,11 +52,6 @@ public class BankAccountCrudSteps extends BaseSteps {
                         .split(",")))
                 .toList();
         Assertions.assertTrue(options.contains(method.toUpperCase()));
-
-
-        this.httpHeaders = new HttpHeaders();
-        this.httpHeaders.add("Content-Type", "application/json");
-
     }
 
     @When("I retrieve all bank accounts")
@@ -86,6 +85,7 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @When("I create a new bank account")
     public void iCreateANewBankAccount() {
+        System.out.println("Request Body: " + requestBody);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
                 .exchange("/accounts/create",
