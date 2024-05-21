@@ -37,12 +37,11 @@ public class WebSecurityConfiguration {
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/login").permitAll());
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/accounts/login").permitAll());
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/home").authenticated());
+        //all http requests still needs to be registered
+        httpSecurity.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-                //.authorizeRequests(ar -> ar
-                //        .anyRequest().permitAll())
-                //.headers(h -> h.permissionsPolicy(permissionsPolicyConfig -> {}));
         return httpSecurity.build();
     }
 

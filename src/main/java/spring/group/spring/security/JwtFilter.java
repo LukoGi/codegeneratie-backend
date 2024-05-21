@@ -39,6 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            filterChain.doFilter(request, response);
        /*     // Exception handling below is not mandatory. When left out, the client will receive a 403
         } catch (JwtException e) {
             // JwtException = something is wrong with the JWT (usually means it's invalid)

@@ -1,5 +1,6 @@
 package spring.group.spring.controllers;
 
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -64,7 +65,7 @@ public class UserController {
     public ResponseEntity<Object> login(@RequestBody LoginRequestDTO loginRequest) {
         try {
             return ResponseEntity.ok(userService.login(loginRequest));
-        } catch (AuthenticationException e) {
+        } catch (AuthenticationException | JwtException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
