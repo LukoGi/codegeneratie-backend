@@ -73,14 +73,9 @@ public class UserController {
     @GetMapping("/home")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Object> inside() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("message", "test");
         return ResponseEntity.ok(responseBody);
     }
-
-
-
-
 
 }
