@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.models.Role;
@@ -45,6 +46,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
     public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException {
         User user = userRepository.findUserByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new AuthenticationException("User not found"));
@@ -77,6 +83,7 @@ public class UserService {
     public UserDTO convertToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setUser_id(user.getUser_id());
+        userDTO.setUsername(user.getUsername());
         userDTO.setFirst_name(user.getFirst_name());
         userDTO.setLast_name(user.getLast_name());
         userDTO.setEmail(user.getEmail());
@@ -90,8 +97,24 @@ public class UserService {
         return userDTO;
     }
 
+    public UserDTO convertToUserDTO(User user) {
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(user.getUsername());
+        userDTO.setFirst_name(user.getFirst_name());
+        userDTO.setLast_name(user.getLast_name());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setPhone_number(user.getPhone_number());
+        userDTO.setBsn_number(user.getBsn_number());
+        userDTO.setDaily_transfer_limit(user.getDaily_transfer_limit());
+
+        return userDTO;
+    }
+
     public UserRequest convertToRequestDTO(User user) {
         UserRequest userRequest = new UserRequest();
+
+        userRequest.setUsername(user.getUsername());
         userRequest.setFirst_name(user.getFirst_name());
         userRequest.setLast_name(user.getLast_name());
         userRequest.setEmail(user.getEmail());
@@ -104,6 +127,7 @@ public class UserService {
 
         return userRequest;
     }
+
 
     public UserResponse convertToResponseDTO(User user) {
         UserResponse userResponse = new UserResponse();
@@ -127,6 +151,8 @@ public class UserService {
 
     public User convertToEntity(UserRequest userRequest) {
         User user = new User();
+        user.setUsername(userRequest.getUsername());
+        user.setPassword(userRequest.getPassword());
         user.setFirst_name(userRequest.getFirst_name());
         user.setLast_name(userRequest.getLast_name());
         user.setEmail(userRequest.getEmail());

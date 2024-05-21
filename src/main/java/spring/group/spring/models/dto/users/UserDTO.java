@@ -18,6 +18,8 @@ public class UserDTO {
 
     private Integer user_id;
 
+    private String username;
+
     private String first_name;
 
     private String last_name;

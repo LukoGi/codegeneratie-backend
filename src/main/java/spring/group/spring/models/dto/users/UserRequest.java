@@ -15,6 +15,8 @@ import java.util.List;
 @Data
 public class UserRequest {
 
+    private String username;
+
     private String first_name;
 
     private String last_name;

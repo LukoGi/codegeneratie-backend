@@ -112,12 +112,25 @@ public class UserController {
         }
     }
 
+    //for testing purposes
     @GetMapping("/home")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Object> inside() {
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("message", "test");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        responseBody.put("message", auth.getName() + auth.getAuthorities().toArray()[0] + "test");
         return ResponseEntity.ok(responseBody);
     }
+
+    @GetMapping("/userinfo")
+    public ResponseEntity<UserDTO> getMyUserInfo() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByUsername(auth.getName());
+        UserDTO userDTO = userService.convertToUserDTO(user);
+        return ResponseEntity.ok(userDTO);
+    }
+
+
+
 
 }
