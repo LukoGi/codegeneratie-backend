@@ -4,11 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.exceptions.IncorrectPincodeException;
+import spring.group.spring.exceptions.InsufficientFundsException;
 import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.dto.bankaccounts.BankAccountATMLoginRequest;
-import spring.group.spring.models.dto.bankaccounts.BankAccountDTO;
-import spring.group.spring.models.dto.bankaccounts.BankAccountRequestDTO;
-import spring.group.spring.models.dto.bankaccounts.BankAccountResponseDTO;
+import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.services.BankAccountService;
 
 import java.util.List;
@@ -76,6 +74,29 @@ public class BankAccountController {
         } catch (IncorrectPincodeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
+    }
+
+    @PostMapping("/{id}/withdraw")
+    public ResponseEntity<Object> withdrawMoney(@PathVariable Integer id, @RequestBody WithdrawDepositRequestDTO withdrawRequest) {
+        try {
+            WithdrawDepositResponseDTO response = bankAccountService.withdrawMoney(id, withdrawRequest.getAmount());
+            if (response != null) {
+                return ResponseEntity.ok(response);
+            }
+            return ResponseEntity.notFound().build();
+        }   catch (InsufficientFundsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+    }
+
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<WithdrawDepositResponseDTO> depositMoney(@PathVariable Integer id, @RequestBody WithdrawDepositRequestDTO depositRequest) {
+        WithdrawDepositResponseDTO response = bankAccountService.depositMoney(id, depositRequest.getAmount());
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

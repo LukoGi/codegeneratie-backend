@@ -3,6 +3,7 @@ package spring.group.spring.services;
 import org.springframework.stereotype.Service;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.users.UserDTO;
+import spring.group.spring.models.dto.users.UserNameDTO;
 import spring.group.spring.models.dto.users.UserRequest;
 import spring.group.spring.models.dto.users.UserResponse;
 import spring.group.spring.repositories.UserRepository;
@@ -90,6 +91,15 @@ public class UserService {
         userResponse.setBsn_number(user.getBsn_number());
 
         return userResponse;
+    }
+
+    public UserNameDTO convertToNameDTO(User user) {
+        UserNameDTO userNameDTO = new UserNameDTO();
+        userNameDTO.setUser_id(user.getUser_id());
+        userNameDTO.setFirst_name(user.getFirst_name());
+        userNameDTO.setLast_name(user.getLast_name());
+
+        return userNameDTO;
     }
 
     public User convertToEntity(UserRequest userRequest) {
