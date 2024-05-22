@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class BankAccountATMLoginRequest {
-    private String fullName;
+    private String fullname;
     private String iban;
     private Integer pincode;
 }

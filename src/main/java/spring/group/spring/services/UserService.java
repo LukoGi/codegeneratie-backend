@@ -2,7 +2,11 @@ package spring.group.spring.services;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
+
 import spring.group.spring.models.Role;
+
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.users.*;
 import spring.group.spring.repositories.UserRepository;
@@ -19,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+  
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -26,7 +31,7 @@ public class UserService {
     }
 
     public User getUserById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public List<User> getAllUsers() {
@@ -62,18 +67,17 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getUser_id()).orElse(null);
-        if (existingUser != null) {
-            existingUser.setFirst_name(user.getFirst_name());
-            existingUser.setLast_name(user.getLast_name());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhone_number(user.getPhone_number());
-            existingUser.setBsn_number(user.getBsn_number());
-            return userRepository.save(existingUser);
-        }
-        return null;
+        User existingUser = userRepository.findById(user.getUser_id()).orElseThrow(EntityNotFoundException::new);
+
+        existingUser.setFirst_name(user.getFirst_name());
+        existingUser.setLast_name(user.getLast_name());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone_number(user.getPhone_number());
+        existingUser.setBsn_number(user.getBsn_number());
+        return userRepository.save(existingUser);
     }
 
+    // TODO: Modelmapper
     public UserDTO convertToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setUser_id(user.getUser_id());
