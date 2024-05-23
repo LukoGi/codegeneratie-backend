@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.EntityNotFoundException;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BankAccountService {
@@ -22,6 +24,7 @@ public class BankAccountService {
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
+    private final ModelMapper mapper = new ModelMapper();
 
     public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder) {
         this.bankAccountRepository = bankAccountRepository;
@@ -35,10 +38,6 @@ public class BankAccountService {
         bankAccount.setPincode(encryptedPassword);
 
         return bankAccountRepository.save(bankAccount);
-    }
-
-    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
-        return bankAccounts.stream().map(this::convertToResponseDTO).toList();
     }
 
     public List<BankAccount> getAllBankAccounts() {
@@ -127,61 +126,10 @@ public class BankAccountService {
         return transactionRequestDTO;
     }
 
-    public BankAccountDTO convertToDTO(BankAccount bankAccount) {
-        BankAccountDTO bankAccountDTO = new BankAccountDTO();
-
-        bankAccountDTO.setAccount_id(bankAccount.getAccount_id());
-        bankAccountDTO.setUser(userService.convertToNameDTO(bankAccount.getUser()));
-        bankAccountDTO.setIban(bankAccount.getIban());
-        bankAccountDTO.setBalance(bankAccount.getBalance());
-        bankAccountDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-
-        return bankAccountDTO;
-    }
-
-    public BankAccountRequestDTO convertToRequestDTO(BankAccount bankAccount) {
-        BankAccountRequestDTO bankAccountRequestDTO = new BankAccountRequestDTO();
-
-        bankAccountRequestDTO.setUser_id(bankAccount.getUser().getUser_id());
-        bankAccountRequestDTO.setIban(bankAccount.getIban());
-        bankAccountRequestDTO.setBalance(bankAccount.getBalance());
-        bankAccountRequestDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountRequestDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountRequestDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-        bankAccountRequestDTO.setPincode(bankAccount.getPincode());
-
-        return bankAccountRequestDTO;
-    }
-
-    public BankAccountResponseDTO convertToResponseDTO(BankAccount bankAccount) {
-        BankAccountResponseDTO bankAccountResponseDTO = new BankAccountResponseDTO();
-        bankAccountResponseDTO.setAccount_id(bankAccount.getAccount_id());
-        bankAccountResponseDTO.setUser(userService.convertToDTO(bankAccount.getUser()));
-        bankAccountResponseDTO.setIban(bankAccount.getIban());
-        bankAccountResponseDTO.setBalance(bankAccount.getBalance());
-        bankAccountResponseDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountResponseDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountResponseDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-        return bankAccountResponseDTO;
-    }
-
-    public BankAccount convertToEntity(BankAccountRequestDTO bankAccountDTO) {
-        BankAccount bankAccount = new BankAccount();
-
-        User user = new User();
-        user.setUser_id(bankAccountDTO.getUser_id());
-
-        bankAccount.setUser(user);
-        bankAccount.setIban(bankAccountDTO.getIban());
-        bankAccount.setBalance(bankAccountDTO.getBalance());
-        bankAccount.setAccount_type(bankAccountDTO.getAccount_type());
-        bankAccount.setIs_active(bankAccountDTO.getIs_active());
-        bankAccount.setAbsolute_limit(bankAccountDTO.getAbsolute_limit());
-        bankAccount.setPincode(bankAccountDTO.getPincode());
-
-        return bankAccount;
+    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
+        return bankAccounts.stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     public boolean isValidIban(String iban) {
