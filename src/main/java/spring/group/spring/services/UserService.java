@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final ModelMapper mapper = new ModelMapper();
   
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
@@ -77,66 +79,25 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    // TODO: Modelmapper
-    public UserDTO convertToDTO(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUser_id(user.getUser_id());
-        userDTO.setFirst_name(user.getFirst_name());
-        userDTO.setLast_name(user.getLast_name());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPhone_number(user.getPhone_number());
-        userDTO.setBsn_number(user.getBsn_number());
-        userDTO.setRoles(user.getRoles());
-        userDTO.setIs_approved(user.getIs_approved());
-        userDTO.setIs_archived(user.getIs_archived());
-        userDTO.setDaily_transfer_limit(user.getDaily_transfer_limit());
+    // TODO: remove convert methods
 
-        return userDTO;
+    public UserDTO convertToDTO(User user) {
+        return mapper.map(user, UserDTO.class);
     }
 
     public UserRequest convertToRequestDTO(User user) {
-        UserRequest userRequest = new UserRequest();
-        userRequest.setFirst_name(user.getFirst_name());
-        userRequest.setLast_name(user.getLast_name());
-        userRequest.setEmail(user.getEmail());
-        userRequest.setPhone_number(user.getPhone_number());
-        userRequest.setBsn_number(user.getBsn_number());
-        userRequest.setRoles(user.getRoles());
-        userRequest.setIs_approved(user.getIs_approved());
-        userRequest.setIs_archived(user.getIs_archived());
-        userRequest.setDaily_transfer_limit(user.getDaily_transfer_limit());
-
-        return userRequest;
+        return mapper.map(user, UserRequest.class);
     }
 
     public UserResponse convertToResponseDTO(User user) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setFirst_name(user.getFirst_name());
-        userResponse.setLast_name(user.getLast_name());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setPhone_number(user.getPhone_number());
-        userResponse.setBsn_number(user.getBsn_number());
-
-        return userResponse;
+        return mapper.map(user, UserResponse.class);
     }
 
     public UserNameDTO convertToNameDTO(User user) {
-        UserNameDTO userNameDTO = new UserNameDTO();
-        userNameDTO.setUser_id(user.getUser_id());
-        userNameDTO.setFirst_name(user.getFirst_name());
-        userNameDTO.setLast_name(user.getLast_name());
-
-        return userNameDTO;
+        return mapper.map(user, UserNameDTO.class);
     }
 
     public User convertToEntity(UserRequest userRequest) {
-        User user = new User();
-        user.setFirst_name(userRequest.getFirst_name());
-        user.setLast_name(userRequest.getLast_name());
-        user.setEmail(userRequest.getEmail());
-        user.setPhone_number(userRequest.getPhone_number());
-        user.setBsn_number(userRequest.getBsn_number());
-
-        return user;
+        return mapper.map(userRequest, User.class);
     }
 }

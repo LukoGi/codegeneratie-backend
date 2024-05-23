@@ -6,6 +6,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import spring.group.spring.exception.exceptions.EntityNotFoundException;
 import spring.group.spring.exception.exceptions.IncorrectPincodeException;
 import spring.group.spring.exception.exceptions.InsufficientFundsException;
@@ -46,6 +47,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {HttpMessageNotReadableException.class})
     public ResponseEntity<Object> handleMethodNotSupportedException(HttpMessageNotReadableException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {NoResourceFoundException.class})
+    public ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException e){
+        ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 

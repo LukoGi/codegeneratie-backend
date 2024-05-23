@@ -1,5 +1,6 @@
 package spring.group.spring.controllers;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.dto.bankaccounts.*;
@@ -12,9 +13,11 @@ import java.util.List;
 public class BankAccountController {
 
     private final BankAccountService bankAccountService;
+    private final ModelMapper mapper;
 
     public BankAccountController(BankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
+        this.mapper = new ModelMapper();
     }
 
     @GetMapping("/all")
@@ -25,27 +28,27 @@ public class BankAccountController {
     @PostMapping("/create")
     public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
-        return bankAccountService.convertToResponseDTO(bankAccountResult);
+        return mapper.map(bankAccountResult, BankAccountResponseDTO.class);
     }
 
     @GetMapping("/{id}")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        return bankAccountService.convertToDTO(bankAccount);
+        return mapper.map(bankAccount, BankAccountDTO.class);
     }
 
     @PutMapping("/{id}")
     public BankAccountResponseDTO updateBankAccount(@PathVariable Integer id, @RequestBody BankAccountRequestDTO bankAccountDTO) {
-        BankAccount bankAccount = bankAccountService.convertToEntity(bankAccountDTO);
+        BankAccount bankAccount = mapper.map(bankAccountDTO, BankAccount.class);
         bankAccount.setAccount_id(id);
         BankAccount bankAccountResult = bankAccountService.updateBankAccount(bankAccount);
-        return bankAccountService.convertToResponseDTO(bankAccountResult);
+        return mapper.map(bankAccountResult, BankAccountResponseDTO.class);
     }
 
     @PostMapping("/login")
     public BankAccountDTO atmLogin(@RequestBody BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountService.atmLogin(loginRequest);
-        return bankAccountService.convertToDTO(bankAccount);
+        return mapper.map(bankAccount, BankAccountDTO.class);
     }
 
     @PostMapping("/{id}/withdraw")
