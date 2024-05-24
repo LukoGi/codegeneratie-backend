@@ -27,12 +27,18 @@ public class BankAccountController {
 
     @PostMapping("/create")
     public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
+
+        if (!bankAccountService.checkIban(bankAccount.getIban())) {
+            throw new IllegalArgumentException("Invalid IBAN");
+        }
+
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
         return mapper.map(bankAccountResult, BankAccountResponseDTO.class);
     }
 
     @GetMapping("/{id}")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
+
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);
     }

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
+import spring.group.spring.services.BankAccountService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -23,18 +24,7 @@ import java.util.List;
 public class BankAccountCrudSteps extends BaseSteps {
 
     @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
-    private ObjectMapper mapper;
-    private HttpHeaders httpHeaders;
-    private String requestBody;
-    private ResponseEntity<String> response;
-
-    public BankAccountCrudSteps() {
-        this.httpHeaders = new HttpHeaders();
-        this.httpHeaders.add("Content-Type", "application/json");
-    }
-
+    private BankAccountService bankAccountService;
 
     @Given("the endpoint for {string} is available for method {string}")
     public void theEndpointForIsAvailableForMethod(String endpoint, String method) {
@@ -95,7 +85,7 @@ public class BankAccountCrudSteps extends BaseSteps {
     @Then("the bank account should be created successfully")
     public void theBankAccountShouldBeCreatedSuccessfully() {
         System.out.println("Response Body: " + response.getBody());
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
     @And("the bank account data is invalid")
@@ -127,21 +117,6 @@ public class BankAccountCrudSteps extends BaseSteps {
     public void theCreationOfTheBankAccountShouldFail() {
         Assertions.assertEquals(400, response.getStatusCodeValue());
     }
-    @Given("the endpoint for {string} is available for method {string} with id {int}")
-    public void theEndpointForIsAvailableForMethodWithId(String endpoint, String method, int id) {
-        response = restTemplate
-                .exchange("/" + endpoint,
-                        HttpMethod.OPTIONS,
-                        new HttpEntity<>(null, new HttpHeaders()),
-                        String.class,
-                        id);
-        List<String> options = Arrays.stream((response.getHeaders()
-                        .get("Allow")
-                        .get(0)
-                        .split(",")))
-                .toList();
-        Assertions.assertTrue(options.contains(method.toUpperCase()));
-    }
     @When("I retrieve the bank account by ID {int}")
     public void iRetrieveTheBankAccountByID(int id) {
         response = restTemplate
@@ -153,14 +128,14 @@ public class BankAccountCrudSteps extends BaseSteps {
     }
     @Then("I should receive the bank account details")
     public void iShouldReceiveTheBankAccountDetails() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertEquals(200, response.getStatusCode().value());
         Assertions.assertNotNull(response.getBody());
     }
 
 
     @Then("I should receive a bank account error message")
     public void iShouldReceiveABankAccountErrorMessage() {
-        int statusCode = response.getStatusCodeValue();
+        int statusCode = response.getStatusCode().value();
         Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 
@@ -175,13 +150,12 @@ public class BankAccountCrudSteps extends BaseSteps {
         user.setBsn_number("123456789");
         user.setPassword("password");
 
-        // Update the bank account with the following data
-        BankAccount bankAccount = new BankAccount("RO123456789", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
+        BankAccount bankAccount = new BankAccount("DE89370400440532013000", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
         String requestBody = mapper.writeValueAsString(bankAccount);
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/accounts/update/{id}",
+                .exchange("/accounts/{id}",
                         HttpMethod.PUT,
                         entity,
                         String.class,
@@ -190,12 +164,12 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @Then("the bank account should be updated successfully")
     public void theBankAccountShouldBeUpdatedSuccessfully() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
     @Then("the update of the bank account should fail")
     public void theUpdateOfTheBankAccountShouldFail() {
-        int statusCode = response.getStatusCodeValue();
+        int statusCode = response.getStatusCode().value();
         Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 }

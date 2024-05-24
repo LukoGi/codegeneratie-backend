@@ -16,19 +16,6 @@ import spring.group.spring.models.User;
 
 public class UserCrudSteps extends BaseSteps {
 
-    @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
-    private ObjectMapper mapper;
-    private HttpHeaders httpHeaders;
-    private String requestBody;
-    private ResponseEntity<String> response;
-
-    public UserCrudSteps() {
-        this.httpHeaders = new HttpHeaders();
-        this.httpHeaders.add("Content-Type", "application/json");
-    }
-
     @When("I retrieve all users")
     public void iRetrieveAllUsers() {
         response = restTemplate
@@ -36,7 +23,6 @@ public class UserCrudSteps extends BaseSteps {
                         HttpMethod.GET,
                         new HttpEntity<>(null, new HttpHeaders()),
                         String.class);
-
     }
 
     @Then("I should receive all users")
