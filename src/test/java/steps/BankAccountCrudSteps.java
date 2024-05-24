@@ -8,24 +8,17 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
-import spring.group.spring.services.BankAccountService;
-
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 public class BankAccountCrudSteps extends BaseSteps {
-
-    @Autowired
-    private BankAccountService bankAccountService;
-
+    // create a JWT token to use for authentication
     @Given("the endpoint for {string} is available for method {string}")
     public void theEndpointForIsAvailableForMethod(String endpoint, String method) {
         response = restTemplate
@@ -33,6 +26,7 @@ public class BankAccountCrudSteps extends BaseSteps {
                         HttpMethod.OPTIONS,
                         new HttpEntity<>(null, new HttpHeaders()),
                         String.class);
+        System.out.println("Response Body: " + response.getBody());
         List<String> options = Arrays.stream((response.getHeaders()
                         .get("Allow")
                         .get(0)
@@ -48,17 +42,19 @@ public class BankAccountCrudSteps extends BaseSteps {
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
+
+        System.out.println("Response Body: " + response.getBody());
     }
 
     @Then("I should receive all bank accounts")
     public void iShouldReceiveAllBankAccounts() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
     @And("the bank account data is valid")
     public void theBankAccountDataIsValid() throws JsonProcessingException {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(2);
         user.setFirst_name("John");
         user.setLast_name("Doe");
         user.setEmail("john@doe.com");
@@ -85,13 +81,13 @@ public class BankAccountCrudSteps extends BaseSteps {
     @Then("the bank account should be created successfully")
     public void theBankAccountShouldBeCreatedSuccessfully() {
         System.out.println("Response Body: " + response.getBody());
-        Assertions.assertEquals(200, response.getStatusCode().value());
+        Assertions.assertEquals(201, response.getStatusCode().value());
     }
 
     @And("the bank account data is invalid")
     public void theBankAccountDataIsInvalid() throws JsonProcessingException {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(33);
         user.setFirst_name("John");
         user.setLast_name("Doe");
         user.setEmail("john@doe.com");
@@ -160,6 +156,7 @@ public class BankAccountCrudSteps extends BaseSteps {
                         entity,
                         String.class,
                         id);
+        System.out.println("Response Body: " + response.getBody());
     }
 
     @Then("the bank account should be updated successfully")

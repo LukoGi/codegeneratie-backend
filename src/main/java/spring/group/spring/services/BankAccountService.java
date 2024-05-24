@@ -59,7 +59,6 @@ public class BankAccountService {
     // TODO jwt
     public BankAccount atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
-
         if (bankAccount == null) {
             throw new EntityNotFoundException();
         }

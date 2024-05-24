@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.dto.bankaccounts.*;
@@ -26,8 +27,8 @@ public class BankAccountController {
     }
 
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
-
         if (!bankAccountService.checkIban(bankAccount.getIban())) {
             throw new IllegalArgumentException("Invalid IBAN");
         }

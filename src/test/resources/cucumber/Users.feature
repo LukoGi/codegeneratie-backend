@@ -28,13 +28,13 @@ Feature: Users CRUD Operations
     Then I should receive an error message
 
   Scenario: Successfully update a user
-    Given the endpoint for "users/1" is available for method "GET"
+    Given the endpoint for "users/updateUser/1" is available for method "PUT"
     And the user data is valid
     When I update the user with ID 1
     Then the user should be updated successfully
 
   Scenario: Fail to update a user
-    Given the endpoint for "users/52390" is available for method "GET"
-    And the user data is valid
+    Given the endpoint for "users/updateUser/52390" is available for method "PUT"
+    And the user data is invalid
     When I update the user with ID 52390
     Then the update of the user should fail
