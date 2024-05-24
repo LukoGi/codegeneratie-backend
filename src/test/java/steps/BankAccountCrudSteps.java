@@ -19,21 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 public class BankAccountCrudSteps extends BaseSteps {
     // create a JWT token to use for authentication
-    @Given("the endpoint for {string} is available for method {string}")
-    public void theEndpointForIsAvailableForMethod(String endpoint, String method) {
-        response = restTemplate
-                .exchange("/" + endpoint,
-                        HttpMethod.OPTIONS,
-                        new HttpEntity<>(null, new HttpHeaders()),
-                        String.class);
-        System.out.println("Response Body: " + response.getBody());
-        List<String> options = Arrays.stream((response.getHeaders()
-                        .get("Allow")
-                        .get(0)
-                        .split(",")))
-                .toList();
-        Assertions.assertTrue(options.contains(method.toUpperCase()));
-    }
+
 
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {

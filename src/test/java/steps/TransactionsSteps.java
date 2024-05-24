@@ -66,5 +66,7 @@ public class TransactionsSteps {
     public void theTransactionShouldBeUpdatedSuccessfully() {
     }
 
-
+    @Then("the update of the transaction should fail")
+    public void theUpdateOfTheTransactionShouldFail() {
+    }
 }
