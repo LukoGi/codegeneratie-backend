@@ -7,9 +7,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-import spring.group.spring.exception.exceptions.EntityNotFoundException;
-import spring.group.spring.exception.exceptions.IncorrectPincodeException;
-import spring.group.spring.exception.exceptions.InsufficientFundsException;
+import spring.group.spring.exception.exceptions.*;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -53,6 +51,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {NoResourceFoundException.class})
     public ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException e){
         ApiError apiError = new ApiError(HttpStatus.NOT_FOUND, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {IncorrectFullnameOnCardException.class})
+    public ResponseEntity<Object> handleIncorrectFullnameOnCardException(IncorrectFullnameOnCardException e){
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e){
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
