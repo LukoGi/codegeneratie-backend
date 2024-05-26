@@ -3,14 +3,13 @@ package spring.group.spring.services;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring.group.spring.exception.exceptions.EntityNotFoundException;
-import spring.group.spring.exception.exceptions.IncorrectPincodeException;
-import spring.group.spring.exception.exceptions.InsufficientFundsException;
+import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
+import spring.group.spring.security.JwtProvider;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,12 +24,14 @@ public class BankAccountService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
     private final ModelMapper mapper = new ModelMapper();
+    private final JwtProvider jwtProvider;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.bankAccountRepository = bankAccountRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.transactionService = transactionService;
+        this.jwtProvider = jwtProvider;
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
@@ -54,8 +55,7 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
-    // TODO jwt
-    public BankAccount atmLogin(BankAccountATMLoginRequest loginRequest) {
+    public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
 
         if (bankAccount == null) {
@@ -65,13 +65,16 @@ public class BankAccountService {
         String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
 
         if (!fullName.equals(loginRequest.getFullname())) {
-            throw new EntityNotFoundException();
+            throw new IncorrectFullnameOnCardException();
         }
         if (!passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
             throw new IncorrectPincodeException();
         }
 
-        return bankAccount;
+        BankAccountATMLoginResponse response = mapper.map(bankAccount, BankAccountATMLoginResponse.class);
+        response.setToken(jwtProvider.createToken(bankAccount.getUser().getUsername(), bankAccount.getUser().getRoles()));
+
+        return response;
     }
 
     public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
@@ -130,6 +133,13 @@ public class BankAccountService {
         return bankAccounts.stream()
                 .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    public void isUserAccountOwner(String username, Integer accountId) {
+        String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();
+        if (!bankAccountUsername.equals(username)) {
+            throw new AccessDeniedException("You are not the owner of this account");
+        }
     }
 
     public boolean isValidIban(String iban) {
