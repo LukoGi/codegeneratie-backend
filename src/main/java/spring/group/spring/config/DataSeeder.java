@@ -81,7 +81,7 @@ public class DataSeeder implements ApplicationRunner {
         user1.setBsn_number("123456789");
         user1.setPhone_number("0612345678");
         user1.setRoles(List.of(Role.ROLE_USER));
-        user1.setIs_approved(true);
+        user1.setIs_approved(false);
         user1.setIs_archived(false);
         user1.setDaily_transfer_limit(new BigDecimal("1000.00"));
         userService.createUser(user1);

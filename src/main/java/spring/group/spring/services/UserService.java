@@ -36,6 +36,22 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    public List<User> getApprovedUsers() {
+        return userRepository.findApprovedUsers();
+    }
+
+    public List<User> getUnapprovedUsers() {
+        return userRepository.findUnapprovedUsers();
+    }
+
+
+
+    public User archiveUser(Integer id) {
+        User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        user.setIs_archived(true);
+        return userRepository.save(user);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -45,7 +61,9 @@ public class UserService {
             throw new IllegalArgumentException("Username is already taken");
         }
         user.setRoles(Arrays.asList(Role.ROLE_USER));
-        user.setIs_approved(false);
+        if(user.getIs_approved() == null) {
+            user.setIs_approved(false);
+        }
         user.setIs_archived(false);
         user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -66,6 +84,7 @@ public class UserService {
         } else {
             throw new AuthenticationException("Invalid password");
         }
+
     }
 
     public User updateUser(User user) {
@@ -83,8 +102,6 @@ public class UserService {
         return userRepository.findUserByUsername(username).orElseThrow(EntityNotFoundException::new);
     }
 
-    // TODO: remove convert methods
-
     public UserDTO convertToDTO(User user) {
         return mapper.map(user, UserDTO.class);
     }
@@ -100,8 +117,6 @@ public class UserService {
     public UserNameDTO convertToNameDTO(User user) {
         return mapper.map(user, UserNameDTO.class);
     }
-
-
 
     public User convertToEntity(UserRequest userRequest) {
         return mapper.map(userRequest, User.class);
