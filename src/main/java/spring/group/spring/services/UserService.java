@@ -79,6 +79,10 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    public User getUserByUsername(String username) {
+        return userRepository.findUserByUsername(username).orElseThrow(EntityNotFoundException::new);
+    }
+
     // TODO: remove convert methods
 
     public UserDTO convertToDTO(User user) {
@@ -96,6 +100,8 @@ public class UserService {
     public UserNameDTO convertToNameDTO(User user) {
         return mapper.map(user, UserNameDTO.class);
     }
+
+
 
     public User convertToEntity(UserRequest userRequest) {
         return mapper.map(userRequest, User.class);
