@@ -6,6 +6,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import spring.group.spring.models.AccountType;
@@ -113,12 +115,25 @@ public class UserController {
         }
     }
 
+    //for testing purposes
     @GetMapping("/home")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Object> inside() {
         Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("message", "test");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        responseBody.put("message", auth.getName() + auth.getAuthorities().toArray()[0] + "test");
         return ResponseEntity.ok(responseBody);
     }
+
+    @GetMapping("/userinfo")
+    public ResponseEntity<UserDTO> getMyUserInfo() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getUserByUsername(auth.getName());
+        UserDTO userDTO = userService.convertToDTO(user);
+        return ResponseEntity.ok(userDTO);
+    }
+
+
+
 
 }
