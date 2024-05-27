@@ -2,8 +2,12 @@ package spring.group.spring.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
+
+import org.springframework.http.HttpStatus;
+
 import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.exception.exceptions.AccessDeniedException;
 import spring.group.spring.models.BankAccount;
@@ -33,13 +37,19 @@ public class BankAccountController {
     }
 
     @PostMapping("/create")
+    @ResponseStatus(HttpStatus.CREATED)
     public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
+        if (!bankAccountService.checkIban(bankAccount.getIban())) {
+            throw new IllegalArgumentException("Invalid IBAN");
+        }
+
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
         return mapper.map(bankAccountResult, BankAccountResponseDTO.class);
     }
 
     @GetMapping("/{id}")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
+
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);
     }

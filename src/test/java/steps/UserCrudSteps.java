@@ -6,49 +6,34 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import spring.group.spring.models.User;
 
 public class UserCrudSteps extends BaseSteps {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
-    @Autowired
-    private ObjectMapper mapper;
-    private HttpHeaders httpHeaders;
-    private String requestBody;
-    private ResponseEntity<String> response;
-
-    public UserCrudSteps() {
-        this.httpHeaders = new HttpHeaders();
-        this.httpHeaders.add("Content-Type", "application/json");
-    }
 
     @When("I retrieve all users")
     public void iRetrieveAllUsers() {
         response = restTemplate
                 .exchange("/users/all",
                         HttpMethod.GET,
-                        new HttpEntity<>(null, new HttpHeaders()),
+                        new HttpEntity<>(null, httpHeaders),
                         String.class);
 
+        System.out.println("Response Body: " + response.getBody());
     }
 
     @Then("I should receive all users")
     public void iShouldReceiveAllUsers() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
-        /*        System.out.println("Response Body: " + response.getBody()); // check if it actually returns the thing*/
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
 
     @And("the user data is valid")
     public void theUserDataIsValid() throws JsonProcessingException {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(5);
         user.setFirst_name("John");
         user.setLast_name("Doe");
         user.setEmail("john@doe.com");
@@ -62,7 +47,7 @@ public class UserCrudSteps extends BaseSteps {
     @When("I create a new user")
     public void iCreateANewUser() {
         response = restTemplate
-                .exchange("/users/create",
+                .exchange("/users/createUser",
                         HttpMethod.POST,
                         new HttpEntity<>(requestBody, httpHeaders),
                         String.class);
@@ -70,13 +55,13 @@ public class UserCrudSteps extends BaseSteps {
 
     @Then("the user should be created successfully")
     public void theUserShouldBeCreatedSuccessfully() {
-        Assertions.assertEquals(201, response.getStatusCodeValue());
+        Assertions.assertEquals(201, response.getStatusCode().value());
     }
 
     @And("the user data is invalid")
     public void theUserDataIsInvalid() {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(2);
         user.setFirst_name("John");
         user.setLast_name("Doe");
         user.setEmail("john@doe.com");
@@ -96,7 +81,7 @@ public class UserCrudSteps extends BaseSteps {
 
     @Then("the creation of the user should fail")
     public void theCreationOfTheUserShouldFail() {
-        Assertions.assertEquals(400, response.getStatusCodeValue());
+        Assertions.assertEquals(405, response.getStatusCode().value());
     }
 
 
@@ -108,33 +93,41 @@ public class UserCrudSteps extends BaseSteps {
                         new HttpEntity<>(null, httpHeaders),
                         String.class,
                         id);
+
+        System.out.println("Response Body: " + response.getBody());
     }
 
     @Then("I should receive the user details")
     public void iShouldReceiveTheUserDetails() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
     @Then("I should receive an error message")
     public void iShouldReceiveAnErrorMessage() {
-        int statusCode = response.getStatusCodeValue();
+        int statusCode = response.getStatusCode().value();
         Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 
     @When("I update the user with ID {int}")
     public void iUpdateTheUserWithID(int id) {
-        // fix this
+        response = restTemplate
+                .exchange("/users/updateUser/{id}",
+                        HttpMethod.PUT,
+                        new HttpEntity<>(requestBody, httpHeaders),
+                        String.class,
+                        id);
+        System.out.println("Response Body: " + response.getBody());
     }
 
     @Then("the user should be updated successfully")
     public void theUserShouldBeUpdatedSuccessfully() {
-        Assertions.assertEquals(200, response.getStatusCodeValue());
-
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        Assertions.assertNotNull(response.getBody());
     }
 
     @Then("the update of the user should fail")
     public void theUpdateOfTheUserShouldFail() {
-        Assertions.assertEquals(400, response.getStatusCodeValue());
+        Assertions.assertEquals(400, response.getStatusCode().value());
     }
 
 

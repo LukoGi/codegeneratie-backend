@@ -5,7 +5,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.User;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
@@ -15,7 +14,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BankAccountService {
@@ -50,6 +48,10 @@ public class BankAccountService {
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
+        if (bankAccountRepository.findById(bankAccount.getAccount_id()).isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
         return bankAccountRepository.save(bankAccount);
@@ -57,7 +59,6 @@ public class BankAccountService {
 
     public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
-
         if (bankAccount == null) {
             throw new EntityNotFoundException();
         }
@@ -132,8 +133,9 @@ public class BankAccountService {
     public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
         return bankAccounts.stream()
                 .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
+
 
     public void isUserAccountOwner(String username, Integer accountId) {
         String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();
@@ -141,8 +143,16 @@ public class BankAccountService {
             throw new AccessDeniedException("You are not the owner of this account");
         }
     }
-
+  
     public boolean isValidIban(String iban) {
-        return iban != null && iban.matches("^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$");
+        return iban != null && iban.matches("^[A-Z]{2}\\d{2}[A-Z\\d]{4}\\d{7}[A-Z\\d]{0,16}$");
+    }
+
+    public boolean getBankAccountByIban(String iban) {
+        return bankAccountRepository.findByIban(iban) != null;
+    }
+
+    public boolean checkIban(String iban) {
+        return isValidIban(iban) && !getBankAccountByIban(iban);
     }
 }

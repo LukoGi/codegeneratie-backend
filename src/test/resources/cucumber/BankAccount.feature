@@ -18,23 +18,23 @@ Feature: Bank Accounts CRUD Operations
     Then the creation of the bank account should fail
 
   Scenario: Successfully retrieve a bank account by ID
-    Given the endpoint for "accounts/{id}" is available for method "GET" with id 1
+    Given the endpoint for "accounts/1" is available for method "GET"
     When I retrieve the bank account by ID 1
     Then I should receive the bank account details
 
   Scenario: Fail to retrieve a bank account by ID
-    Given the endpoint for "accounts/{id}" is available for method "GET" with id 999
+    Given the endpoint for "accounts/999" is available for method "GET"
     When I retrieve the bank account by ID 999
     Then I should receive a bank account error message
 
   Scenario: Successfully update a bank account
-    Given the endpoint for "accounts/{id}" is available for method "PUT" with id 1
+    Given the endpoint for "accounts/1" is available for method "PUT"
     And the bank account data is valid
     When I update the bank account with ID 1
     Then the bank account should be updated successfully
 
   Scenario: Fail to update a bank account
-    Given the endpoint for "accounts/{id}" is available for method "PUT" with id 999
+    Given the endpoint for "accounts/999" is available for method "PUT"
     And the bank account data is valid
     When I update the bank account with ID 999
     Then the update of the bank account should fail
