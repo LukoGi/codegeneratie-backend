@@ -68,6 +68,7 @@ public class UserController {
     }
 
     @PutMapping("/acceptUser/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO acceptUser(@PathVariable Integer id) {
         User user = userService.getUserById(id);
 
@@ -115,22 +116,32 @@ public class UserController {
         }
     }
 
-    //for testing purposes
-    @GetMapping("/home")
-    @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity<Object> inside() {
-        Map<String, String> responseBody = new HashMap<>();
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        responseBody.put("message", auth.getName() + auth.getAuthorities().toArray()[0] + "test");
-        return ResponseEntity.ok(responseBody);
-    }
-
     @GetMapping("/userinfo")
     public ResponseEntity<UserDTO> getMyUserInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByUsername(auth.getName());
         UserDTO userDTO = userService.convertToDTO(user);
         return ResponseEntity.ok(userDTO);
+    }
+
+    @GetMapping("/getApprovedUsers")
+    public List<UserDTO> getApprovedUsers() {
+        List<User> users = userService.getApprovedUsers();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users) {
+            userDTOs.add(userService.convertToDTO(user));
+        }
+        return userDTOs;
+    }
+
+    @GetMapping("/getUnapprovedUsers")
+    public List<UserDTO> getUnapprovedUsers() {
+        List<User> users = userService.getUnapprovedUsers();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users) {
+            userDTOs.add(userService.convertToDTO(user));
+        }
+        return userDTOs;
     }
 
 
