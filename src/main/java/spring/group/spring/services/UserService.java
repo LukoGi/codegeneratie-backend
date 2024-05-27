@@ -1,9 +1,13 @@
 package spring.group.spring.services;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
+
 import spring.group.spring.models.Role;
+
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.users.*;
 import spring.group.spring.repositories.UserRepository;
@@ -20,6 +24,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final ModelMapper mapper = new ModelMapper();
+  
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -27,7 +33,7 @@ public class UserService {
     }
 
     public User getUserById(Integer id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public List<User> getAllUsers() {
@@ -44,11 +50,6 @@ public class UserService {
         user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
-    }
-
-    public User getUserByUsername(String username) {
-        return userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException {
@@ -68,97 +69,35 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getUser_id()).orElse(null);
-        if (existingUser != null) {
-            existingUser.setFirst_name(user.getFirst_name());
-            existingUser.setLast_name(user.getLast_name());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhone_number(user.getPhone_number());
-            existingUser.setBsn_number(user.getBsn_number());
-            return userRepository.save(existingUser);
-        }
-        return null;
+        User existingUser = userRepository.findById(user.getUser_id()).orElseThrow(EntityNotFoundException::new);
+
+        existingUser.setFirst_name(user.getFirst_name());
+        existingUser.setLast_name(user.getLast_name());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setPhone_number(user.getPhone_number());
+        existingUser.setBsn_number(user.getBsn_number());
+        return userRepository.save(existingUser);
     }
+
+    // TODO: remove convert methods
 
     public UserDTO convertToDTO(User user) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUser_id(user.getUser_id());
-        userDTO.setUsername(user.getUsername());
-        userDTO.setFirst_name(user.getFirst_name());
-        userDTO.setLast_name(user.getLast_name());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPhone_number(user.getPhone_number());
-        userDTO.setBsn_number(user.getBsn_number());
-        userDTO.setRoles(user.getRoles());
-        userDTO.setIs_approved(user.getIs_approved());
-        userDTO.setIs_archived(user.getIs_archived());
-        userDTO.setDaily_transfer_limit(user.getDaily_transfer_limit());
-
-        return userDTO;
-    }
-
-    public UserDTO convertToUserDTO(User user) {
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(user.getUsername());
-        userDTO.setFirst_name(user.getFirst_name());
-        userDTO.setLast_name(user.getLast_name());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPhone_number(user.getPhone_number());
-        userDTO.setBsn_number(user.getBsn_number());
-        userDTO.setDaily_transfer_limit(user.getDaily_transfer_limit());
-
-        return userDTO;
+        return mapper.map(user, UserDTO.class);
     }
 
     public UserRequest convertToRequestDTO(User user) {
-        UserRequest userRequest = new UserRequest();
-
-        userRequest.setUsername(user.getUsername());
-        userRequest.setFirst_name(user.getFirst_name());
-        userRequest.setLast_name(user.getLast_name());
-        userRequest.setEmail(user.getEmail());
-        userRequest.setPhone_number(user.getPhone_number());
-        userRequest.setBsn_number(user.getBsn_number());
-        userRequest.setRoles(user.getRoles());
-        userRequest.setIs_approved(user.getIs_approved());
-        userRequest.setIs_archived(user.getIs_archived());
-        userRequest.setDaily_transfer_limit(user.getDaily_transfer_limit());
-
-        return userRequest;
+        return mapper.map(user, UserRequest.class);
     }
 
-
     public UserResponse convertToResponseDTO(User user) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setFirst_name(user.getFirst_name());
-        userResponse.setLast_name(user.getLast_name());
-        userResponse.setEmail(user.getEmail());
-        userResponse.setPhone_number(user.getPhone_number());
-        userResponse.setBsn_number(user.getBsn_number());
-
-        return userResponse;
+        return mapper.map(user, UserResponse.class);
     }
 
     public UserNameDTO convertToNameDTO(User user) {
-        UserNameDTO userNameDTO = new UserNameDTO();
-        userNameDTO.setUser_id(user.getUser_id());
-        userNameDTO.setFirst_name(user.getFirst_name());
-        userNameDTO.setLast_name(user.getLast_name());
-
-        return userNameDTO;
+        return mapper.map(user, UserNameDTO.class);
     }
 
     public User convertToEntity(UserRequest userRequest) {
-        User user = new User();
-        user.setUsername(userRequest.getUsername());
-        user.setPassword(userRequest.getPassword());
-        user.setFirst_name(userRequest.getFirst_name());
-        user.setLast_name(userRequest.getLast_name());
-        user.setEmail(userRequest.getEmail());
-        user.setPhone_number(userRequest.getPhone_number());
-        user.setBsn_number(userRequest.getBsn_number());
-
-        return user;
+        return mapper.map(userRequest, User.class);
     }
 }

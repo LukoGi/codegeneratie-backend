@@ -1,14 +1,14 @@
 package spring.group.spring.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import spring.group.spring.exceptions.IncorrectPincodeException;
-import spring.group.spring.exceptions.InsufficientFundsException;
+import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.User;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
+import spring.group.spring.security.JwtProvider;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,12 +21,15 @@ public class BankAccountService {
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
+    private final ModelMapper mapper = new ModelMapper();
+    private final JwtProvider jwtProvider;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.bankAccountRepository = bankAccountRepository;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.transactionService = transactionService;
+        this.jwtProvider = jwtProvider;
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
@@ -36,54 +39,53 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
-    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
-        return bankAccounts.stream().map(this::convertToResponseDTO).toList();
-    }
-
     public List<BankAccount> getAllBankAccounts() {
         return bankAccountRepository.findAll();
     }
-    // TODO Implement the following methods:
-
-    // atmLogin()
 
     public BankAccount getBankAccountById(Integer id) {
-        return bankAccountRepository.findById(id).orElse(null);
+        return bankAccountRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
+        if (bankAccountRepository.findById(bankAccount.getAccount_id()).isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
         return bankAccountRepository.save(bankAccount);
     }
 
-    public BankAccount atmLogin(BankAccountATMLoginRequest loginRequest) {
+    public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
-        if (bankAccount != null) {
-            String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
-            if (fullName.equals(loginRequest.getFullName())) {
-                if (passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
-                    return bankAccount;
-                } else {
-                    throw new IncorrectPincodeException("Incorrect pincode.");
-                }
-            }
+        if (bankAccount == null) {
+            throw new EntityNotFoundException();
         }
-        return null;
+
+        String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
+
+        if (!fullName.equals(loginRequest.getFullname())) {
+            throw new IncorrectFullnameOnCardException();
+        }
+        if (!passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
+            throw new IncorrectPincodeException();
+        }
+
+        BankAccountATMLoginResponse response = mapper.map(bankAccount, BankAccountATMLoginResponse.class);
+        response.setToken(jwtProvider.createToken(bankAccount.getUser().getUsername(), bankAccount.getUser().getRoles()));
+
+        return response;
     }
 
     public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
-                .orElse(null);
-
-        if (bankAccount == null) {
-            return null;
-        }
+                .orElseThrow(EntityNotFoundException::new);
 
         if (bankAccount.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException("Insufficient balance");
+            throw new InsufficientFundsException();
         }
 
         bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
@@ -102,11 +104,7 @@ public class BankAccountService {
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
-                .orElse(null);
-
-        if (bankAccount == null) {
-            return null;
-        }
+                .orElseThrow(EntityNotFoundException::new);
 
         bankAccount.setBalance(bankAccount.getBalance().add(amount));
         bankAccountRepository.save(bankAccount);
@@ -132,64 +130,29 @@ public class BankAccountService {
         return transactionRequestDTO;
     }
 
-    public BankAccountDTO convertToDTO(BankAccount bankAccount) {
-        BankAccountDTO bankAccountDTO = new BankAccountDTO();
-
-        bankAccountDTO.setAccount_id(bankAccount.getAccount_id());
-        bankAccountDTO.setUser(userService.convertToNameDTO(bankAccount.getUser()));
-        bankAccountDTO.setIban(bankAccount.getIban());
-        bankAccountDTO.setBalance(bankAccount.getBalance());
-        bankAccountDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-
-        return bankAccountDTO;
+    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
+        return bankAccounts.stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .toList();
     }
 
-    public BankAccountRequestDTO convertToRequestDTO(BankAccount bankAccount) {
-        BankAccountRequestDTO bankAccountRequestDTO = new BankAccountRequestDTO();
 
-        bankAccountRequestDTO.setUser_id(bankAccount.getUser().getUser_id());
-        bankAccountRequestDTO.setIban(bankAccount.getIban());
-        bankAccountRequestDTO.setBalance(bankAccount.getBalance());
-        bankAccountRequestDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountRequestDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountRequestDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-        bankAccountRequestDTO.setPincode(bankAccount.getPincode());
-
-        return bankAccountRequestDTO;
+    public void isUserAccountOwner(String username, Integer accountId) {
+        String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();
+        if (!bankAccountUsername.equals(username)) {
+            throw new AccessDeniedException("You are not the owner of this account");
+        }
     }
-
-    public BankAccountResponseDTO convertToResponseDTO(BankAccount bankAccount) {
-        BankAccountResponseDTO bankAccountResponseDTO = new BankAccountResponseDTO();
-        bankAccountResponseDTO.setAccount_id(bankAccount.getAccount_id());
-        bankAccountResponseDTO.setUser(userService.convertToDTO(bankAccount.getUser()));
-        bankAccountResponseDTO.setIban(bankAccount.getIban());
-        bankAccountResponseDTO.setBalance(bankAccount.getBalance());
-        bankAccountResponseDTO.setAccount_type(bankAccount.getAccount_type());
-        bankAccountResponseDTO.setIs_active(bankAccount.getIs_active());
-        bankAccountResponseDTO.setAbsolute_limit(bankAccount.getAbsolute_limit());
-        return bankAccountResponseDTO;
-    }
-
-    public BankAccount convertToEntity(BankAccountRequestDTO bankAccountDTO) {
-        BankAccount bankAccount = new BankAccount();
-
-        User user = new User();
-        user.setUser_id(bankAccountDTO.getUser_id());
-
-        bankAccount.setUser(user);
-        bankAccount.setIban(bankAccountDTO.getIban());
-        bankAccount.setBalance(bankAccountDTO.getBalance());
-        bankAccount.setAccount_type(bankAccountDTO.getAccount_type());
-        bankAccount.setIs_active(bankAccountDTO.getIs_active());
-        bankAccount.setAbsolute_limit(bankAccountDTO.getAbsolute_limit());
-        bankAccount.setPincode(bankAccountDTO.getPincode());
-
-        return bankAccount;
-    }
-
+  
     public boolean isValidIban(String iban) {
-        return iban != null && iban.matches("^[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}$");
+        return iban != null && iban.matches("^[A-Z]{2}\\d{2}[A-Z\\d]{4}\\d{7}[A-Z\\d]{0,16}$");
+    }
+
+    public boolean getBankAccountByIban(String iban) {
+        return bankAccountRepository.findByIban(iban) != null;
+    }
+
+    public boolean checkIban(String iban) {
+        return isValidIban(iban) && !getBankAccountByIban(iban);
     }
 }

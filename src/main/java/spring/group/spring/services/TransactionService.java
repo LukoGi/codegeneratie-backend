@@ -1,6 +1,7 @@
 package spring.group.spring.services;
 
 import org.springframework.stereotype.Service;
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
@@ -14,7 +15,6 @@ import spring.group.spring.repositories.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -30,7 +30,7 @@ public class TransactionService {
     }
 
     public Transaction getTransactionById(Integer id) {
-        return transactionRepository.findById(id).orElse(null);
+        return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
