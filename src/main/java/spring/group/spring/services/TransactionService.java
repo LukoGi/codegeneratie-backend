@@ -1,6 +1,8 @@
 package spring.group.spring.services;
 
 import org.springframework.stereotype.Service;
+import spring.group.spring.exception.exceptions.AbsoluteTransferLimitHitException;
+import spring.group.spring.exception.exceptions.DailyTransferLimitHitException;
 import spring.group.spring.exception.exceptions.EntityNotFoundException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
@@ -101,5 +103,27 @@ public class TransactionService {
 
     public List<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
         return transactionRepository.findAllTransactionsWithFilters(startDate, endDate, minAmount, maxAmount, iban);
+    }
+
+    private boolean CheckIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
+        CheckIfAbsoluteLimitIsHit(fromAccount, transferAmount);
+        CheckIfDailyLimitIsHit(fromAccount, transferAmount);
+        return true;
+    }
+
+    private void CheckIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+        BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
+        BigDecimal newBalance = fromAccount.getBalance().subtract(transferAmount);
+        if (newBalance.compareTo(absoluteLimit) < 0){
+            throw new AbsoluteTransferLimitHitException();
+        }
+    }
+
+    private void CheckIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+//        BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
+//        BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransactions(fromAccount, LocalDateTime.now());
+//        if (sumOfTodaysTransactions.add(transferAmount).compareTo(dailyLimit) > 0){
+//            throw new DailyTransferLimitHitException();
+//        }
     }
 }
