@@ -100,7 +100,7 @@ public class DataSeeder implements ApplicationRunner {
         user2.setRoles(List.of(Role.ROLE_USER));
         user2.setIs_approved(true);
         user2.setIs_archived(false);
-        user2.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        user2.setDaily_transfer_limit(new BigDecimal("200.00"));
         userService.createUser(user2);
         return user2;
     }

@@ -105,10 +105,9 @@ public class TransactionService {
         return transactionRepository.findAllTransactionsWithFilters(startDate, endDate, minAmount, maxAmount, iban);
     }
 
-    private boolean CheckIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void CheckIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
         CheckIfAbsoluteLimitIsHit(fromAccount, transferAmount);
         CheckIfDailyLimitIsHit(fromAccount, transferAmount);
-        return true;
     }
 
     private void CheckIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
@@ -122,7 +121,8 @@ public class TransactionService {
     private void CheckIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
-        if (sumOfTodaysTransactions.add(transferAmount).compareTo(dailyLimit) > 0){
+        BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
+        if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
             throw new DailyTransferLimitHitException();
         }
     }
