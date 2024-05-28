@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class BankAccountController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public BankAccountResponseDTO createBankAccount(@RequestBody BankAccount bankAccount) {
+    public BankAccountResponseDTO createBankAccount(@Valid @RequestBody BankAccount bankAccount) {
         if (!bankAccountService.checkIban(bankAccount.getIban())) {
             throw new IllegalArgumentException("Invalid IBAN");
         }
@@ -55,7 +56,7 @@ public class BankAccountController {
     }
 
     @PutMapping("/{id}")
-    public BankAccountResponseDTO updateBankAccount(@PathVariable Integer id, @RequestBody BankAccountRequestDTO bankAccountDTO) {
+    public BankAccountResponseDTO updateBankAccount(@PathVariable Integer id, @Valid @RequestBody BankAccountRequestDTO bankAccountDTO) {
         BankAccount bankAccount = mapper.map(bankAccountDTO, BankAccount.class);
         bankAccount.setAccount_id(id);
         BankAccount bankAccountResult = bankAccountService.updateBankAccount(bankAccount);
@@ -63,14 +64,14 @@ public class BankAccountController {
     }
 
     @PostMapping("/login")
-    public BankAccountATMLoginResponse atmLogin(@RequestBody BankAccountATMLoginRequest loginRequest) {
+    public BankAccountATMLoginResponse atmLogin(@Valid @RequestBody BankAccountATMLoginRequest loginRequest) {
         BankAccountATMLoginResponse bankAccount = bankAccountService.atmLogin(loginRequest);
         return bankAccount;
     }
 
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @RequestBody WithdrawDepositRequestDTO withdrawRequest, HttpServletRequest request) {
+    public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         String username = jwtProvider.getUsernameFromToken(token);
         bankAccountService.isUserAccountOwner(username, id);
@@ -79,7 +80,7 @@ public class BankAccountController {
 
     @PostMapping("/{id}/deposit")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public WithdrawDepositResponseDTO depositMoney(@PathVariable Integer id, @RequestBody WithdrawDepositRequestDTO depositRequest, HttpServletRequest request) {
+    public WithdrawDepositResponseDTO depositMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO depositRequest, HttpServletRequest request) {
         String token = request.getHeader("Authorization").substring(7);
         String username = jwtProvider.getUsernameFromToken(token);
         bankAccountService.isUserAccountOwner(username, id);

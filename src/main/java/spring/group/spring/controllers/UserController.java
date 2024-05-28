@@ -2,6 +2,7 @@ package spring.group.spring.controllers;
 
 
 import io.jsonwebtoken.JwtException;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +62,7 @@ public class UserController {
 
     @PostMapping("/createUser")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO createUser(@RequestBody UserRequest userRequestDTO) {
+    public UserDTO createUser(@Valid @RequestBody UserRequest userRequestDTO) {
         User user = userService.convertToEntity(userRequestDTO);
         User newUser = userService.createUser(user);
         return mapper.map(newUser, UserDTO.class);
@@ -97,7 +98,7 @@ public class UserController {
 
 
     @PutMapping("/updateUser/{id}")
-    public UserDTO updateUser(@PathVariable Integer id, @RequestBody UserRequest userRequestDTO) {
+    public UserDTO updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequestDTO) {
         if (userRequestDTO == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "UserRequest cannot be null");
         }
@@ -108,7 +109,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         try {
             return ResponseEntity.ok(userService.login(loginRequest));
         } catch (AuthenticationException | JwtException e) {
