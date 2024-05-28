@@ -1,5 +1,7 @@
 package spring.group.spring.models.dto.bankaccounts;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class BankAccountATMLoginRequest {
+    @NotBlank
     private String fullname;
+    @NotBlank
     private String iban;
+    @NotNull
     private Integer pincode;
 }

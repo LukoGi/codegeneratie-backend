@@ -1,5 +1,6 @@
 package spring.group.spring.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.TransactionRequestDTO;
@@ -27,12 +28,12 @@ public class TransactionController {
     }
 
     @PostMapping
-    public TransactionResponseDTO createTransaction(@RequestBody TransactionRequestDTO transactionRequestDTO) {
+    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
         return transactionService.createTransaction(transactionRequestDTO);
     }
 
     @PutMapping("/{id}")
-    public TransactionResponseDTO updateTransaction(@PathVariable Integer id, @RequestBody TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
+    public TransactionResponseDTO updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
         return transactionService.updateTransaction(id, transactionUpdateRequestDTO);
     }
 
