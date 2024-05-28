@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 public class TransactionCreateRequestDTO {
 
     private String to_account_iban;
-    private String from_account_iban;
     private Integer initiator_user_id;
     private BigDecimal transfer_amount;
     private String description;

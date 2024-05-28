@@ -62,7 +62,7 @@ public class DataSeeder implements ApplicationRunner {
         BankAccount bankAccount2 = new BankAccount(
                 "NL91ABNA0417164306",
                 new BigDecimal("800.00"),
-                AccountType.CHECKINGS,
+                AccountType.SAVINGS,
                 true,
                 new BigDecimal("2000.00"),
                 passwordEncoder.encode("2222"),

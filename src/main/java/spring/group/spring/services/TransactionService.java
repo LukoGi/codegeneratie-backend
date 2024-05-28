@@ -2,6 +2,7 @@ package spring.group.spring.services;
 
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.EntityNotFoundException;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
@@ -16,6 +17,7 @@ import spring.group.spring.repositories.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -34,6 +36,11 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
+    // The method works fine but the problem is that in the DataSeeder the bankaccounts
+    // are not added to the user's accounts list. This will cause the user to not have any
+    // and because of that the method will throw an exception. To fix this, the bankaccounts
+    // should be added to the user's accounts list in the DataSeeder. But this is quite difficult.
+    // After that is fixed only proper naming (methods, etc), balancechanges, error handling, etc
     public TransactionResponseDTO createTransactionFromIban(TransactionCreateRequestDTO transactionCreateRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
@@ -44,15 +51,20 @@ public class TransactionService {
             throw new IllegalArgumentException("BankAccount with IBAN " + transactionCreateRequestDTO.getTo_account_iban() + " not found");
         }
 
-        fromAccount = bankAccountRepository.findByIban(transactionCreateRequestDTO.getFrom_account_iban());
-        if (fromAccount == null) {
-            throw new IllegalArgumentException("BankAccount with IBAN " + transactionCreateRequestDTO.getFrom_account_iban() + " not found");
-        }
-
         if (transactionCreateRequestDTO.getInitiator_user_id() != null) {
             initiatorUser = userRepository.findById(transactionCreateRequestDTO.getInitiator_user_id())
                     .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " not found"));
         }
+
+        Optional<BankAccount> optionalFromAccount = initiatorUser.getAccounts().stream()
+                .filter(account -> account.getAccount_type() == AccountType.CHECKINGS && account.getIs_active())
+                .findFirst();
+
+        if (!optionalFromAccount.isPresent()) {
+            throw new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " does not have an active checking account");
+        }
+
+        fromAccount = optionalFromAccount.get();
 
         Transaction transaction = new Transaction();
         transaction.setTo_account(toAccount);
