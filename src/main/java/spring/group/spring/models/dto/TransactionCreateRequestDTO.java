@@ -3,31 +3,17 @@ package spring.group.spring.models.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionUpdateRequestDTO {
+public class TransactionCreateRequestDTO {
 
-    @NonNull
-    private Integer to_account_id;
-
-    @NonNull
-    private Integer from_account_id;
-
-    @NonNull
+    private String to_account_iban;
+    private String from_account_iban;
     private Integer initiator_user_id;
-
-    @NonNull
     private BigDecimal transfer_amount;
-
-    @NonNull
-    private LocalDateTime date;
-
-    @NonNull
     private String description;
 }

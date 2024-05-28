@@ -111,8 +111,7 @@ public class DataSeeder implements ApplicationRunner {
         transaction1.setFrom_account(fromAccount);
         transaction1.setInitiator_user(user);
         transaction1.setTransfer_amount(new BigDecimal("50.00"));
-        transaction1.setStart_date(LocalDateTime.now());
-        transaction1.setEnd_date(LocalDateTime.now().plusDays(1));
+        transaction1.setDate(LocalDateTime.now());
         transaction1.setDescription("Test Transaction 1");
         transactionRepository.save(transaction1);
 
@@ -121,8 +120,7 @@ public class DataSeeder implements ApplicationRunner {
         transaction2.setFrom_account(toAccount);
         transaction2.setInitiator_user(user);
         transaction2.setTransfer_amount(new BigDecimal("100.00"));
-        transaction2.setStart_date(LocalDateTime.now());
-        transaction2.setEnd_date(LocalDateTime.now().plusDays(1));
+        transaction2.setDate(LocalDateTime.now());
         transaction2.setDescription("Test Transaction 2");
         transactionRepository.save(transaction2);
     }

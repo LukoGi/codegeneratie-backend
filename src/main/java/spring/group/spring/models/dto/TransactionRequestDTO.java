@@ -16,8 +16,6 @@ public class TransactionRequestDTO {
     private Integer from_account_id;
     private Integer initiator_user_id;
     private BigDecimal transfer_amount;
-    private LocalDateTime start_date;
-    private LocalDateTime end_date;
+    private LocalDateTime date;
     private String description;
 }
-

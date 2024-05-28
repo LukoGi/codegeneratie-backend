@@ -124,8 +124,7 @@ public class BankAccountService {
         transactionRequestDTO.setFrom_account_id(fromAccountId);
         transactionRequestDTO.setInitiator_user_id(initiatorUserId);
         transactionRequestDTO.setTransfer_amount(transferAmount);
-        transactionRequestDTO.setStart_date(LocalDateTime.now());
-        transactionRequestDTO.setEnd_date(null);
+        transactionRequestDTO.setDate(LocalDateTime.now());
         transactionRequestDTO.setDescription(description);
         return transactionRequestDTO;
     }
