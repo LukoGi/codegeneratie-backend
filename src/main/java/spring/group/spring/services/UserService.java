@@ -80,6 +80,7 @@ public class UserService {
         if (passwordEncoder.matches(rawPassword, encodedPassword)) {
             LoginResponseDTO response = new LoginResponseDTO();
             response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
+            response.setUser_id(user.getUser_id());
             return response;
         } else {
             throw new AuthenticationException("Invalid password");
