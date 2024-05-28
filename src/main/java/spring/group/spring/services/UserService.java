@@ -65,7 +65,7 @@ public class UserService {
             user.setIs_approved(false);
         }
         user.setIs_archived(false);
-        user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00));
+        //user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00)); I see no reason why this default daily transfer limit is here
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }

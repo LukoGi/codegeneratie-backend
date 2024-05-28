@@ -72,6 +72,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
+
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
@@ -82,6 +83,17 @@ public class GlobalExceptionHandler {
         String errorMessage = "Validation failed for the following fields: " + errorsMap;
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage);
+    }
+  
+    @ExceptionHandler(value = {AbsoluteTransferLimitHitException.class})
+    public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteTransferLimitHitException e){
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {DailyTransferLimitHitException.class})
+    public ResponseEntity<Object> handleDailyTransferLimitHitException(DailyTransferLimitHitException e){
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
