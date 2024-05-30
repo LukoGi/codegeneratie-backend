@@ -56,15 +56,26 @@ public class TransactionService {
                     .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " not found"));
         }
 
-        Optional<BankAccount> optionalFromAccount = initiatorUser.getAccounts().stream()
-                .filter(account -> account.getAccount_type() == AccountType.CHECKINGS && account.getIs_active())
-                .findFirst();
+        fromAccount = bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(
+                        transactionCreateRequestDTO.getInitiator_user_id(), AccountType.CHECKINGS, true)
+                .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " does not have an active checking account"));
 
-        if (!optionalFromAccount.isPresent()) {
-            throw new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " does not have an active checking account");
+        // Check if the fromAccount has sufficient balance
+        if (fromAccount.getBalance().compareTo(transactionCreateRequestDTO.getTransfer_amount()) < 0) {
+            throw new IllegalArgumentException("Insufficient balance in the from account");
         }
 
-        fromAccount = optionalFromAccount.get();
+        // Deduct the transaction amount from the balance of the fromAccount
+        BigDecimal newFromAccountBalance = fromAccount.getBalance().subtract(transactionCreateRequestDTO.getTransfer_amount());
+        fromAccount.setBalance(newFromAccountBalance);
+
+        // Increase the balance of the toAccount by the transaction amount
+        BigDecimal newToAccountBalance = toAccount.getBalance().add(transactionCreateRequestDTO.getTransfer_amount());
+        toAccount.setBalance(newToAccountBalance);
+
+        // Save the updated fromAccount and toAccount
+        bankAccountRepository.save(fromAccount);
+        bankAccountRepository.save(toAccount);
 
         Transaction transaction = new Transaction();
         transaction.setTo_account(toAccount);
