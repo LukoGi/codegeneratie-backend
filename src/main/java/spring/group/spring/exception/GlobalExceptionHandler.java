@@ -83,8 +83,7 @@ public class GlobalExceptionHandler {
         String errorMessage = "Validation failed for the following fields: " + errorsMap;
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage);
-
-        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+        return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
   
