@@ -1,15 +1,15 @@
 package spring.group.spring.services;
 
 import org.springframework.stereotype.Service;
-import spring.group.spring.exception.exceptions.AbsoluteTransferLimitHitException;
-import spring.group.spring.exception.exceptions.DailyTransferLimitHitException;
-import spring.group.spring.exception.exceptions.EntityNotFoundException;
+import spring.group.spring.exception.exceptions.*;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.TransactionRequestDTO;
-import spring.group.spring.models.dto.TransactionResponseDTO;
-import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
+import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.repositories.TransactionRepository;
 import spring.group.spring.repositories.UserRepository;
@@ -33,6 +33,70 @@ public class TransactionService {
 
     public Transaction getTransactionById(Integer id) {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public TransactionResponseDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        try {
+            User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
+            BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
+            BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
+
+            checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+            updateAccountBalances(fromAccount, toAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+            Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
+
+            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+            responseDTO.setTransaction_id(transaction.getTransaction_id());
+
+            return responseDTO;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while creating the transaction", e);
+        }
+    }
+
+    private User getInitiatorUser(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    private BankAccount getToAccount(String iban) {
+        return bankAccountRepository.findByIban(iban);
+    }
+
+    private BankAccount getFromAccount(Integer userId) {
+        return bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
+                .orElseThrow(ActiveCheckingAccountNotFoundException::new);
+    }
+
+    private void checkAccountBalance(BankAccount fromAccount, BigDecimal transferAmount) {
+        if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
+            throw new InsufficientFundsException();
+        }
+    }
+
+    private void updateAccountBalances(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
+        BigDecimal newFromAccountBalance = fromAccount.getBalance().subtract(transferAmount);
+        fromAccount.setBalance(newFromAccountBalance);
+
+        BigDecimal newToAccountBalance = toAccount.getBalance().add(transferAmount);
+        toAccount.setBalance(newToAccountBalance);
+
+        bankAccountRepository.save(fromAccount);
+        bankAccountRepository.save(toAccount);
+    }
+
+    private Transaction createTransactionEntity(BankAccount toAccount, BankAccount fromAccount, User initiatorUser, TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        Transaction transaction = new Transaction();
+        transaction.setTo_account(toAccount);
+        transaction.setFrom_account(fromAccount);
+        transaction.setInitiator_user(initiatorUser);
+        transaction.setTransfer_amount(transactionCreateFromIbanRequestDTO.getTransfer_amount());
+        transaction.setDate(LocalDateTime.now());
+        transaction.setDescription(transactionCreateFromIbanRequestDTO.getDescription());
+
+        return transactionRepository.save(transaction);
     }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
@@ -60,8 +124,7 @@ public class TransactionService {
         transaction.setFrom_account(fromAccount);
         transaction.setInitiator_user(initiatorUser);
         transaction.setTransfer_amount(transactionRequestDTO.getTransfer_amount());
-        transaction.setStart_date(transactionRequestDTO.getStart_date());
-        transaction.setEnd_date(transactionRequestDTO.getEnd_date());
+        transaction.setDate(transactionRequestDTO.getDate());
         transaction.setDescription(transactionRequestDTO.getDescription());
 
         transactionRepository.save(transaction);
@@ -89,8 +152,7 @@ public class TransactionService {
         transaction.setInitiator_user(initiatorUser);
 
         transaction.setTransfer_amount(transactionUpdateRequestDTO.getTransfer_amount());
-        transaction.setStart_date(transactionUpdateRequestDTO.getStart_date());
-        transaction.setEnd_date(transactionUpdateRequestDTO.getEnd_date());
+        transaction.setDate(transactionUpdateRequestDTO.getDate());
         transaction.setDescription(transactionUpdateRequestDTO.getDescription());
 
         Transaction updatedTransaction = transactionRepository.save(transaction);
@@ -101,8 +163,8 @@ public class TransactionService {
         return responseDTO;
     }
 
-    public List<Transaction> getAllTransactions(LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
-        return transactionRepository.findAllTransactionsWithFilters(startDate, endDate, minAmount, maxAmount, iban);
+    public List<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
+        return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban);
     }
 
     public void CheckIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {

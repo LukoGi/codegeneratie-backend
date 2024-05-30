@@ -32,7 +32,6 @@ public class Transaction {
     private User initiator_user;
 
     private BigDecimal transfer_amount;
-    private LocalDateTime start_date;
-    private LocalDateTime end_date;
+    private LocalDateTime date;
     private String description;
 }

@@ -12,14 +12,12 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Integer>, TransactionRepositoryCustom {
 
     @Query("SELECT t FROM Transaction t WHERE "
-            + "(:startDate IS NULL OR t.start_date >= :startDate) AND "
-            + "(:endDate IS NULL OR t.end_date <= :endDate) AND "
+            + "(:date IS NULL OR t.date >= :date) AND "
             + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
             + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
             + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
     List<Transaction> findAllTransactionsWithFilters(
-            @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
+            @Param("date") LocalDateTime date,
             @Param("minAmount") BigDecimal minAmount,
             @Param("maxAmount") BigDecimal maxAmount,
             @Param("iban") String iban);

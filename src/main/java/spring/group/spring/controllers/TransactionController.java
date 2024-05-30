@@ -3,9 +3,10 @@ package spring.group.spring.controllers;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
-import spring.group.spring.models.dto.TransactionRequestDTO;
-import spring.group.spring.models.dto.TransactionResponseDTO;
-import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
+import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
 import spring.group.spring.services.TransactionService;
 
 import java.math.BigDecimal;
@@ -32,6 +33,11 @@ public class TransactionController {
         return transactionService.createTransaction(transactionRequestDTO);
     }
 
+    @PostMapping("/createWithIban")
+    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
+    }
+
     @PutMapping("/{id}")
     public TransactionResponseDTO updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
         return transactionService.updateTransaction(id, transactionUpdateRequestDTO);
@@ -39,15 +45,13 @@ public class TransactionController {
 
     @GetMapping
     public List<Transaction> getAllTransactions(
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
             @RequestParam(required = false) String iban) {
 
-        LocalDateTime startDateTime = (startDate != null) ? LocalDateTime.parse(startDate) : null;
-        LocalDateTime endDateTime = (endDate != null) ? LocalDateTime.parse(endDate) : null;
+        LocalDateTime dateTime = (date != null) ? LocalDateTime.parse(date) : null;
 
-        return transactionService.getAllTransactions(startDateTime, endDateTime, minAmount, maxAmount, iban);
+        return transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban);
     }
 }
