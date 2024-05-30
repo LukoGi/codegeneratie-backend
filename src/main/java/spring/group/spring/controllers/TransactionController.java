@@ -3,10 +3,10 @@ package spring.group.spring.controllers;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
-import spring.group.spring.models.dto.TransactionRequestDTO;
-import spring.group.spring.models.dto.TransactionResponseDTO;
-import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
-import spring.group.spring.models.dto.TransactionCreateFromIbanRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
+import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
 import spring.group.spring.services.TransactionService;
 
 import java.math.BigDecimal;

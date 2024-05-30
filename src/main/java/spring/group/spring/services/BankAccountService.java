@@ -5,7 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.dto.TransactionRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;

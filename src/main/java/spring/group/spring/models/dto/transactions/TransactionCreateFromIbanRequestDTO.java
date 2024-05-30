@@ -1,4 +1,4 @@
-package spring.group.spring.models.dto;
+package spring.group.spring.models.dto.transactions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
