@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionCreateRequestDTO {
+public class TransactionCreateFromIbanRequestDTO {
 
     private String to_account_iban;
     private Integer initiator_user_id;

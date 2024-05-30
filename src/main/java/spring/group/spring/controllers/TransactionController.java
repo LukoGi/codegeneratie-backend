@@ -6,7 +6,7 @@ import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.TransactionResponseDTO;
 import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
-import spring.group.spring.models.dto.TransactionCreateRequestDTO;
+import spring.group.spring.models.dto.TransactionCreateFromIbanRequestDTO;
 import spring.group.spring.services.TransactionService;
 
 import java.math.BigDecimal;
@@ -34,8 +34,8 @@ public class TransactionController {
     }
 
     @PostMapping("/createWithIban")
-    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateRequestDTO transactionCreateRequestDTO) {
-        return transactionService.createTransactionFromIban(transactionCreateRequestDTO);
+    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
 
     @PutMapping("/{id}")

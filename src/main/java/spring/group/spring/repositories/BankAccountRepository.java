@@ -10,6 +10,7 @@ import java.util.Optional;
 
 public interface BankAccountRepository extends JpaRepository<BankAccount, Integer> {
     BankAccount findByIban(String iban);
+
     @Query("SELECT b FROM BankAccount b WHERE b.user.user_id = :userId AND b.account_type = :accountType AND b.is_active = :isActive")
     Optional<BankAccount> findByUserUser_idAndAccountTypeAndIsActive(@Param("userId") Integer userId, @Param("accountType") AccountType accountType, @Param("isActive") Boolean isActive);
 }

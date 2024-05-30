@@ -1,14 +1,12 @@
 package spring.group.spring.services;
 
 import org.springframework.stereotype.Service;
-import spring.group.spring.exception.exceptions.AbsoluteTransferLimitHitException;
-import spring.group.spring.exception.exceptions.DailyTransferLimitHitException;
-import spring.group.spring.exception.exceptions.EntityNotFoundException;
+import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.TransactionCreateRequestDTO;
+import spring.group.spring.models.dto.TransactionCreateFromIbanRequestDTO;
 import spring.group.spring.models.dto.TransactionRequestDTO;
 import spring.group.spring.models.dto.TransactionResponseDTO;
 import spring.group.spring.models.dto.TransactionUpdateRequestDTO;
@@ -19,7 +17,6 @@ import spring.group.spring.repositories.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -38,61 +35,68 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    // The method works fine but the problem is that in the DataSeeder the bankaccounts
-    // are not added to the user's accounts list. This will cause the user to not have any
-    // and because of that the method will throw an exception. To fix this, the bankaccounts
-    // should be added to the user's accounts list in the DataSeeder. But this is quite difficult.
-    // After that is fixed only proper naming (methods, etc), balancechanges, error handling, etc
-    public TransactionResponseDTO createTransactionFromIban(TransactionCreateRequestDTO transactionCreateRequestDTO) {
-        BankAccount toAccount = null;
-        BankAccount fromAccount = null;
-        User initiatorUser = null;
+    public TransactionResponseDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        try {
+            User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
+            BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
+            BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
 
-        toAccount = bankAccountRepository.findByIban(transactionCreateRequestDTO.getTo_account_iban());
-        if (toAccount == null) {
-            throw new IllegalArgumentException("BankAccount with IBAN " + transactionCreateRequestDTO.getTo_account_iban() + " not found");
+            checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+            updateAccountBalances(fromAccount, toAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+            Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
+
+            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+            responseDTO.setTransaction_id(transaction.getTransaction_id());
+
+            return responseDTO;
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred while creating the transaction", e);
         }
+    }
 
-        if (transactionCreateRequestDTO.getInitiator_user_id() != null) {
-            initiatorUser = userRepository.findById(transactionCreateRequestDTO.getInitiator_user_id())
-                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " not found"));
+    private User getInitiatorUser(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(EntityNotFoundException::new);
+    }
+
+    private BankAccount getToAccount(String iban) {
+        return bankAccountRepository.findByIban(iban);
+    }
+
+    private BankAccount getFromAccount(Integer userId) {
+        return bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
+                .orElseThrow(ActiveCheckingAccountNotFoundException::new);
+    }
+
+    private void checkAccountBalance(BankAccount fromAccount, BigDecimal transferAmount) {
+        if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
+            throw new InsufficientFundsException();
         }
+    }
 
-        fromAccount = bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(
-                        transactionCreateRequestDTO.getInitiator_user_id(), AccountType.CHECKINGS, true)
-                .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionCreateRequestDTO.getInitiator_user_id() + " does not have an active checking account"));
-
-        // Check if the fromAccount has sufficient balance
-        if (fromAccount.getBalance().compareTo(transactionCreateRequestDTO.getTransfer_amount()) < 0) {
-            throw new IllegalArgumentException("Insufficient balance in the from account");
-        }
-
-        // Deduct the transaction amount from the balance of the fromAccount
-        BigDecimal newFromAccountBalance = fromAccount.getBalance().subtract(transactionCreateRequestDTO.getTransfer_amount());
+    private void updateAccountBalances(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
+        BigDecimal newFromAccountBalance = fromAccount.getBalance().subtract(transferAmount);
         fromAccount.setBalance(newFromAccountBalance);
 
-        // Increase the balance of the toAccount by the transaction amount
-        BigDecimal newToAccountBalance = toAccount.getBalance().add(transactionCreateRequestDTO.getTransfer_amount());
+        BigDecimal newToAccountBalance = toAccount.getBalance().add(transferAmount);
         toAccount.setBalance(newToAccountBalance);
 
-        // Save the updated fromAccount and toAccount
         bankAccountRepository.save(fromAccount);
         bankAccountRepository.save(toAccount);
+    }
 
+    private Transaction createTransactionEntity(BankAccount toAccount, BankAccount fromAccount, User initiatorUser, TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         Transaction transaction = new Transaction();
         transaction.setTo_account(toAccount);
         transaction.setFrom_account(fromAccount);
         transaction.setInitiator_user(initiatorUser);
-        transaction.setTransfer_amount(transactionCreateRequestDTO.getTransfer_amount());
+        transaction.setTransfer_amount(transactionCreateFromIbanRequestDTO.getTransfer_amount());
         transaction.setDate(LocalDateTime.now());
-        transaction.setDescription(transactionCreateRequestDTO.getDescription());
+        transaction.setDescription(transactionCreateFromIbanRequestDTO.getDescription());
 
-        transactionRepository.save(transaction);
-
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
-        responseDTO.setTransaction_id(transaction.getTransaction_id());
-
-        return responseDTO;
+        return transactionRepository.save(transaction);
     }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
