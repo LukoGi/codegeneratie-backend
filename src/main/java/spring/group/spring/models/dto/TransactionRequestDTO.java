@@ -1,5 +1,7 @@
 package spring.group.spring.models.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,7 +17,10 @@ public class TransactionRequestDTO {
     private Integer to_account_id;
     private Integer from_account_id;
     private Integer initiator_user_id;
+    @NotNull
     private BigDecimal transfer_amount;
+    @NotNull
     private LocalDateTime date;
+    @NotBlank
     private String description;
 }

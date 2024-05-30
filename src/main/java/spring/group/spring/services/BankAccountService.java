@@ -84,6 +84,9 @@ public class BankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
+        // TODO Put this in a better spot this is purely for testing purposes
+        transactionService.CheckIfLimitsAreExceeded(bankAccount, amount);
+
         if (bankAccount.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException();
         }

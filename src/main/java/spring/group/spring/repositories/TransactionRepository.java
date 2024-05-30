@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
+public interface TransactionRepository extends JpaRepository<Transaction, Integer>, TransactionRepositoryCustom {
 
     @Query("SELECT t FROM Transaction t WHERE "
             + "(:date IS NULL OR t.date >= :date) AND "
