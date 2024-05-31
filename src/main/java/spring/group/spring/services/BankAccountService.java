@@ -18,15 +18,13 @@ import java.util.List;
 @Service
 public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
-    private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
     private final ModelMapper mapper = new ModelMapper();
     private final JwtProvider jwtProvider;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, UserService userService, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.bankAccountRepository = bankAccountRepository;
-        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.transactionService = transactionService;
         this.jwtProvider = jwtProvider;
@@ -84,21 +82,18 @@ public class BankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
-        // TODO Put this in a better spot this is purely for testing purposes
-        transactionService.CheckIfLimitsAreExceeded(bankAccount, amount);
-
         if (bankAccount.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException();
         }
 
         bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
-        bankAccountRepository.save(bankAccount);
 
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
         TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
+        bankAccountRepository.save(bankAccount);
 
         return withdrawDepositResponseDTO;
     }
@@ -110,13 +105,13 @@ public class BankAccountService {
                 .orElseThrow(EntityNotFoundException::new);
 
         bankAccount.setBalance(bankAccount.getBalance().add(amount));
-        bankAccountRepository.save(bankAccount);
 
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
         TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
         transactionService.createTransaction(transactionRequestDTO);
+        bankAccountRepository.save(bankAccount);
 
         return withdrawDepositResponseDTO;
     }

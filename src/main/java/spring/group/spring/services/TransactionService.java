@@ -43,6 +43,8 @@ public class TransactionService {
 
             checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
 
+            checkIfLimitsAreExceeded(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
             updateAccountBalances(fromAccount, toAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
 
             Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
@@ -112,6 +114,8 @@ public class TransactionService {
         if (transactionRequestDTO.getFrom_account_id() != null) {
             fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFrom_account_id())
                     .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFrom_account_id() + " not found"));
+
+            checkIfLimitsAreExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
         }
 
         if (transactionRequestDTO.getInitiator_user_id() != null) {
@@ -167,23 +171,25 @@ public class TransactionService {
         return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban);
     }
 
-    public void CheckIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
-        CheckIfAbsoluteLimitIsHit(fromAccount, transferAmount);
-        CheckIfDailyLimitIsHit(fromAccount, transferAmount);
+    public void checkIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
+        checkIfAbsoluteLimitIsHit(fromAccount, transferAmount);
+        checkIfDailyLimitIsHit(fromAccount, transferAmount);
     }
 
-    private void CheckIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
         BigDecimal newBalance = fromAccount.getBalance().subtract(transferAmount);
+
         if (newBalance.compareTo(absoluteLimit) < 0){
             throw new AbsoluteTransferLimitHitException();
         }
     }
 
-    private void CheckIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
         BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
+
         if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
             throw new DailyTransferLimitHitException();
         }

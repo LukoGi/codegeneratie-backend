@@ -72,7 +72,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
@@ -85,7 +84,6 @@ public class GlobalExceptionHandler {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
-
   
     @ExceptionHandler(value = {AbsoluteTransferLimitHitException.class})
     public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteTransferLimitHitException e){
@@ -96,6 +94,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {DailyTransferLimitHitException.class})
     public ResponseEntity<Object> handleDailyTransferLimitHitException(DailyTransferLimitHitException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+
+    // Last Method to handle all other exceptions
+    @ExceptionHandler(value = {Exception.class})
+    public ResponseEntity<Object> handleException(Exception e){
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 

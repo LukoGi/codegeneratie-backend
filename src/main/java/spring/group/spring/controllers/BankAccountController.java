@@ -6,11 +6,9 @@ import org.modelmapper.ModelMapper;
 
 import org.springframework.http.HttpStatus;
 
-import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.*;
-import spring.group.spring.exception.exceptions.AccessDeniedException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.security.JwtProvider;
@@ -50,7 +48,6 @@ public class BankAccountController {
 
     @GetMapping("/{id}")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
-
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);
     }
@@ -65,8 +62,7 @@ public class BankAccountController {
 
     @PostMapping("/login")
     public BankAccountATMLoginResponse atmLogin(@Valid @RequestBody BankAccountATMLoginRequest loginRequest) {
-        BankAccountATMLoginResponse bankAccount = bankAccountService.atmLogin(loginRequest);
-        return bankAccount;
+        return bankAccountService.atmLogin(loginRequest);
     }
 
     @PostMapping("/{id}/withdraw")
