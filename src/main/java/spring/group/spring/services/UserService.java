@@ -36,15 +36,9 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<User> getApprovedUsers() {
-        return userRepository.findApprovedUsers();
-    }
-
     public List<User> getUnapprovedUsers() {
         return userRepository.findUnapprovedUsers();
     }
-
-
 
     public User archiveUser(Integer id) {
         User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -60,12 +54,7 @@ public class UserService {
         if (!userRepository.findUserByUsername(user.getUsername()).isEmpty()) {
             throw new IllegalArgumentException("Username is already taken");
         }
-        user.setRoles(Arrays.asList(Role.ROLE_USER));
-        if(user.getIs_approved() == null) {
-            user.setIs_approved(false);
-        }
-        user.setIs_archived(false);
-        //user.setDaily_transfer_limit(BigDecimal.valueOf(1000.00)); I see no reason why this default daily transfer limit is here
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -101,6 +90,13 @@ public class UserService {
 
     public User getUserByUsername(String username) {
         return userRepository.findUserByUsername(username).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<User> getUsersWithoutBankAccount() {
+        if(userRepository.findByAccountsIsEmpty().isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        return userRepository.findByAccountsIsEmpty();
     }
 
     public UserDTO convertToDTO(User user) {
