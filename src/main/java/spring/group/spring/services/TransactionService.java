@@ -194,4 +194,8 @@ public class TransactionService {
             throw new DailyTransferLimitHitException();
         }
     }
+
+    public List<Transaction> getTransactionsByCustomerId(Integer customerId) {
+        return transactionRepository.findAllByInitiator_user_Id(customerId);
+    }
 }

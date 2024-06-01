@@ -21,4 +21,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             @Param("minAmount") BigDecimal minAmount,
             @Param("maxAmount") BigDecimal maxAmount,
             @Param("iban") String iban);
+
+    List<Transaction> findAllByInitiator_user_Id(Integer customerId);
+
 }

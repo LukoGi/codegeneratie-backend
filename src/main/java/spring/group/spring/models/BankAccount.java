@@ -42,7 +42,6 @@ public class BankAccount {
     @NotNull
     private Boolean is_active;
 
-    // TODO ask if this is allowed to be null
     private BigDecimal absolute_limit;
 
     @NonNull

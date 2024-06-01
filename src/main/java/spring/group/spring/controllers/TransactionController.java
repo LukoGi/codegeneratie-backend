@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
@@ -28,6 +29,8 @@ public class TransactionController {
         return transactionService.getTransactionById(id);
     }
 
+
+
     @PostMapping("/create")
     public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
         return transactionService.createTransaction(transactionRequestDTO);
@@ -44,6 +47,7 @@ public class TransactionController {
     }
 
     @GetMapping
+    // @PreAuthorize("hasRole('Employee ')")
     public List<Transaction> getAllTransactions(
             @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
@@ -54,4 +58,10 @@ public class TransactionController {
 
         return transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban);
     }
+
+    @GetMapping("/customer/{customerId}")
+    public List<Transaction> getTransactionsByCustomerId(@PathVariable Integer customerId) {
+        return transactionService.getTransactionsByCustomerId(customerId);
+    }
+
 }
