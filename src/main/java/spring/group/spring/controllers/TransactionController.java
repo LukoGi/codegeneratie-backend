@@ -58,7 +58,6 @@ public class TransactionController {
     @GetMapping("/customer/{customerId}")
     public List<TransactionsDTO> getTransactionsByCustomerId(@PathVariable Integer customerId) {
         List<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId);
-        return transactions.stream().map(transactionService::convertToDTO).collect(Collectors.toList());
+        return transactions.stream().map(transactionService::convertToDTO).toList();
     }
-
 }
