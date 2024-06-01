@@ -1,15 +1,13 @@
 package spring.group.spring.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
-import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.*;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.repositories.TransactionRepository;
 import spring.group.spring.repositories.UserRepository;
@@ -24,6 +22,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final ModelMapper mapper = new ModelMapper();
 
     public TransactionService(TransactionRepository transactionRepository, BankAccountRepository bankAccountRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
@@ -197,5 +196,14 @@ public class TransactionService {
 
     public List<Transaction> getTransactionsByCustomerId(Integer customerId) {
         return transactionRepository.findAllByInitiatorUserId(customerId);
+    }
+
+    public TransactionsDTO convertToDTO(Transaction transaction) {
+        TransactionsDTO transactionsDTO = mapper.map(transaction, TransactionsDTO.class);
+        String recipientName = transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name();
+        transactionsDTO.setRecipientName(recipientName);
+        String initiatorName = transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name();
+        transactionsDTO.setInitiatorName(initiatorName);
+        return transactionsDTO;
     }
 }

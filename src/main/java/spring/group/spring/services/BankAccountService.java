@@ -7,6 +7,7 @@ import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
+import spring.group.spring.models.dto.transactions.TransactionsDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;
 
@@ -147,6 +148,10 @@ public class BankAccountService {
 
     public boolean getBankAccountByIban(String iban) {
         return bankAccountRepository.findByIban(iban) != null;
+    }
+
+    public TransactionsDTO convertToDTO(BankAccount bankAccount) {
+        return mapper.map(bankAccount, TransactionsDTO.class);
     }
 
     public boolean checkIban(String iban) {

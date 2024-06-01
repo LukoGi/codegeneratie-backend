@@ -4,15 +4,13 @@ import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
-import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
-import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
+import spring.group.spring.models.dto.transactions.*;
 import spring.group.spring.services.TransactionService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("transactions")
@@ -58,8 +56,9 @@ public class TransactionController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<Transaction> getTransactionsByCustomerId(@PathVariable Integer customerId) {
-        return transactionService.getTransactionsByCustomerId(customerId);
+    public List<TransactionsDTO> getTransactionsByCustomerId(@PathVariable Integer customerId) {
+        List<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId);
+        return transactions.stream().map(transactionService::convertToDTO).collect(Collectors.toList());
     }
 
 }
