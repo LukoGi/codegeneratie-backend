@@ -22,6 +22,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             @Param("maxAmount") BigDecimal maxAmount,
             @Param("iban") String iban);
 
-    List<Transaction> findAllByInitiator_user_Id(Integer customerId);
-
+    @Query("SELECT t FROM Transaction t WHERE t.initiator_user.user_id = :customerId")
+    List<Transaction> findAllByInitiatorUserId(@Param("customerId") Integer customerId);
 }

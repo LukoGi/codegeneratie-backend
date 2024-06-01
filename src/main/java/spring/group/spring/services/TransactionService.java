@@ -196,6 +196,6 @@ public class TransactionService {
     }
 
     public List<Transaction> getTransactionsByCustomerId(Integer customerId) {
-        return transactionRepository.findAllByInitiator_user_Id(customerId);
+        return transactionRepository.findAllByInitiatorUserId(customerId);
     }
 }
