@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
@@ -56,8 +57,12 @@ public class TransactionController {
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<TransactionsDTO> getTransactionsByCustomerId(@PathVariable Integer customerId) {
-        List<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId);
-        return transactions.stream().map(transactionService::convertToDTO).toList();
+    public List<TransactionsDTO> getTransactionsByCustomerId(
+            @PathVariable Integer customerId,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer limit) {
+
+        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId, offset, limit);
+        return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
     }
 }

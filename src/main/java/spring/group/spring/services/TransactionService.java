@@ -1,6 +1,9 @@
 package spring.group.spring.services;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
@@ -194,8 +197,9 @@ public class TransactionService {
         }
     }
 
-    public List<Transaction> getTransactionsByCustomerId(Integer customerId) {
-        return transactionRepository.findAllByInitiatorUserId(customerId);
+    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllByInitiatorUserId(customerId, pageable);
     }
 
     public TransactionsDTO convertToDTO(Transaction transaction) {
