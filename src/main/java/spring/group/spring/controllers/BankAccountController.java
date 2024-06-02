@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,15 @@ public class BankAccountController {
     @GetMapping("/all")
     public List<BankAccountResponseDTO> getAllBankAccounts() {
         return bankAccountService.convertToResponseDTO(bankAccountService.getAllBankAccounts());
+    }
+
+    @GetMapping("/all/pageable")
+    public Page<BankAccountResponseDTO> getAllBankAccountsPageable(
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer limit
+    ) {
+        Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccountsPageable(offset, limit);
+        return bankAccounts.map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class));
     }
 
     @PostMapping("/create")

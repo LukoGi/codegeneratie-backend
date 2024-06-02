@@ -1,6 +1,8 @@
 package spring.group.spring.services;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
@@ -157,4 +159,9 @@ public class BankAccountService {
     public boolean checkIban(String iban) {
         return isValidIban(iban) && !getBankAccountByIban(iban);
     }
+
+    public Page<BankAccount> getAllBankAccountsPageable(int page, int size) {
+        return bankAccountRepository.findAll(PageRequest.of(page, size));
+    }
+
 }
