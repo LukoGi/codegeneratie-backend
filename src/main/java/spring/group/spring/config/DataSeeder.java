@@ -43,7 +43,7 @@ public class DataSeeder implements ApplicationRunner {
 
         // we now have 2 admins :)
         seedAdminUser();
-        seedAdmin();
+        User admin = seedAdmin();
 
         BankAccount bankAccount1 = seedBankAccount(user);
         BankAccount bankAccount2 = seedAnotherBankAccount(user2);
