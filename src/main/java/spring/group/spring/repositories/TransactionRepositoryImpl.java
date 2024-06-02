@@ -16,7 +16,12 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
 
     @Override
     public BigDecimal getSumOfTodaysTransaction(BankAccount fromAccount, LocalDateTime now) {
-        String sql = "SELECT SUM(t.transfer_amount) FROM Transaction t WHERE t.from_account = :fromAccount AND CAST(t.date AS date) = CAST(:now AS date)";
+        String sql = "SELECT SUM(t.transfer_amount) FROM Transaction t " +
+                "JOIN BankAccount ba1 ON t.from_account.id = ba1.user.id " +
+                "JOIN BankAccount ba2 ON t.to_account.id = ba2.user.id " +
+                "WHERE t.from_account = :fromAccount " +
+                "AND CAST(t.date AS date) = CAST(:now AS date) " +
+                "AND ba1.user.id != ba2.user.id";
         Query query = em.createQuery(sql);
         query.setParameter("fromAccount", fromAccount);
         query.setParameter("now", now);
