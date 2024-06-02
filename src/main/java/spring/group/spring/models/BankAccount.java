@@ -42,6 +42,9 @@ public class BankAccount {
     @NotNull
     private Boolean is_active;
 
+    @NonNull
+    @Column(nullable = false)
+    @NotNull
     private BigDecimal absolute_limit;
 
     @NonNull

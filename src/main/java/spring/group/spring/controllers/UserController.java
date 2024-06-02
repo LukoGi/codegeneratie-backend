@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
+import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
 import spring.group.spring.models.dto.users.LoginRequestDTO;
 import spring.group.spring.models.dto.users.UserDTO;
 import spring.group.spring.models.dto.users.UserRequest;
@@ -58,6 +59,7 @@ public class UserController {
             userDTOs.add(userService.convertToDTO(user));
         }
         return userDTOs;
+
     }
 
     @PostMapping("/createUser")
@@ -69,7 +71,7 @@ public class UserController {
     }
 
     @PutMapping("/acceptUser/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO acceptUser(@PathVariable Integer id) {
         User user = userService.getUserById(id);
 
@@ -125,16 +127,6 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @GetMapping("/getApprovedUsers")
-    public List<UserDTO> getApprovedUsers() {
-        List<User> users = userService.getApprovedUsers();
-        List<UserDTO> userDTOs = new ArrayList<>();
-        for (User user : users) {
-            userDTOs.add(userService.convertToDTO(user));
-        }
-        return userDTOs;
-    }
-
     @GetMapping("/getUnapprovedUsers")
     public List<UserDTO> getUnapprovedUsers() {
         List<User> users = userService.getUnapprovedUsers();
@@ -145,7 +137,24 @@ public class UserController {
         return userDTOs;
     }
 
+    @GetMapping("/getUsersWithoutBankAccount")
+    public List<UserDTO> getUsersWithoutBankAccount() {
+        List<User> users = userService.getUsersWithoutBankAccount();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (User user : users) {
+            userDTOs.add(userService.convertToDTO(user));
+        }
+        return userDTOs;
+    }
 
+    @PostMapping("{id}/setDailyLimit")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
+        User user = userService.getUserById(id);
+        user.setDaily_transfer_limit(dailyLimit);
+        User updatedUser = userService.updateUser(user);
+        return ResponseEntity.ok().build();
+    }
 
 
 }
