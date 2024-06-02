@@ -47,6 +47,7 @@ public class DataSeeder implements ApplicationRunner {
 
         BankAccount bankAccount1 = seedBankAccount(user);
         BankAccount bankAccount2 = seedAnotherBankAccount(user2);
+        BankAccount bankAccount = seedSavingsAccount(user2);
         BankAccount bankAccount3 = seedLastBankAccount(admin);
 
         seedTransactions(bankAccount1, bankAccount2, user);
@@ -179,5 +180,18 @@ public class DataSeeder implements ApplicationRunner {
         transaction2.setDate(LocalDateTime.now());
         transaction2.setDescription("Test Transaction 2");
         transactionRepository.save(transaction2);
+    }
+
+    private BankAccount seedSavingsAccount(User user) {
+        BankAccount bankAccount = new BankAccount(
+                "NL91ABNA0417164308",
+                new BigDecimal("1800.00"),
+                AccountType.SAVINGS,
+                true,
+                new BigDecimal("200.00"),
+                passwordEncoder.encode("2222"),
+                user
+        );
+        return bankAccountRepository.save(bankAccount);
     }
 }
