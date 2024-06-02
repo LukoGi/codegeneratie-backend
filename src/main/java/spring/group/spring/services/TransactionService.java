@@ -104,6 +104,7 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
+    // TODO: maybe make this method smaller / split it into mulitple methods for better readability ;(
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
@@ -119,10 +120,11 @@ public class TransactionService {
                     .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFrom_account_id() + " not found"));
 
             checkIfAbsoluteLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
-        }
-
-        if (!(toAccount == null) && !(fromAccount == null)){
-            checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+            if (transactionRequestDTO.getTo_account_id() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
+                checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+            } else if (transactionRequestDTO.getTo_account_id() == null) {
+                checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+            }
         }
 
         if (transactionRequestDTO.getInitiator_user_id() != null) {
@@ -146,6 +148,7 @@ public class TransactionService {
         return responseDTO;
     }
 
+    // TODO: maybe make this method smaller / split it into mulitple methods for better readability ;(
     public TransactionResponseDTO updateTransaction(Integer id, TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
         Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction with ID " + id + " not found"));
