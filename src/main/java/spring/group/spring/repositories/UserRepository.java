@@ -12,15 +12,14 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer>, UserRepositoryCustom {
     Optional<User> findUserByUsername(String username);
 
-    //List<User> findByIs_approvedTrue();
     //List<User> findByIs_approvedFalse();
 
 
-    @Query("SELECT u FROM User u WHERE u.is_approved = true")
-    List<User> findApprovedUsers();
 
     @Query("SELECT u FROM User u WHERE u.is_approved = false")
     List<User> findUnapprovedUsers();
+
+    List<User>findByAccountsIsEmpty();
 
 
 

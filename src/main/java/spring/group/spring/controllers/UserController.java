@@ -59,6 +59,7 @@ public class UserController {
             userDTOs.add(userService.convertToDTO(user));
         }
         return userDTOs;
+
     }
 
     @PostMapping("/createUser")
@@ -70,7 +71,7 @@ public class UserController {
     }
 
     @PutMapping("/acceptUser/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO acceptUser(@PathVariable Integer id) {
         User user = userService.getUserById(id);
 
@@ -126,9 +127,9 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @GetMapping("/getApprovedUsers")
-    public List<UserDTO> getApprovedUsers() {
-        List<User> users = userService.getApprovedUsers();
+    @GetMapping("/getUnapprovedUsers")
+    public List<UserDTO> getUnapprovedUsers() {
+        List<User> users = userService.getUnapprovedUsers();
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
             userDTOs.add(userService.convertToDTO(user));
@@ -136,9 +137,9 @@ public class UserController {
         return userDTOs;
     }
 
-    @GetMapping("/getUnapprovedUsers")
-    public List<UserDTO> getUnapprovedUsers() {
-        List<User> users = userService.getUnapprovedUsers();
+    @GetMapping("/getUsersWithoutBankAccount")
+    public List<UserDTO> getUsersWithoutBankAccount() {
+        List<User> users = userService.getUsersWithoutBankAccount();
         List<UserDTO> userDTOs = new ArrayList<>();
         for (User user : users) {
             userDTOs.add(userService.convertToDTO(user));

@@ -50,7 +50,6 @@ public class BankAccountController {
 
     @GetMapping("/{id}")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
-
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);
     }
@@ -65,8 +64,7 @@ public class BankAccountController {
 
     @PostMapping("/login")
     public BankAccountATMLoginResponse atmLogin(@Valid @RequestBody BankAccountATMLoginRequest loginRequest) {
-        BankAccountATMLoginResponse bankAccount = bankAccountService.atmLogin(loginRequest);
-        return bankAccount;
+        return bankAccountService.atmLogin(loginRequest);
     }
 
     @PostMapping("/{id}/withdraw")
