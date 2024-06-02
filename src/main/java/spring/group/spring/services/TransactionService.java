@@ -1,15 +1,16 @@
 package spring.group.spring.services;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.transactions.TransactionCreateFromIbanRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
-import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
-import spring.group.spring.models.dto.transactions.TransactionUpdateRequestDTO;
+import spring.group.spring.models.dto.transactions.*;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.repositories.TransactionRepository;
 import spring.group.spring.repositories.UserRepository;
@@ -24,6 +25,7 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
+    private final ModelMapper mapper = new ModelMapper();
 
     public TransactionService(TransactionRepository transactionRepository, BankAccountRepository bankAccountRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
@@ -177,8 +179,9 @@ public class TransactionService {
         return responseDTO;
     }
 
-    public List<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
-        return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban);
+    public Page<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
     }
 
     // If not used by any other method, consider removing
@@ -204,5 +207,19 @@ public class TransactionService {
         if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
             throw new DailyTransferLimitHitException();
         }
+    }
+
+    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllByInitiatorUserId(customerId, pageable);
+    }
+
+    public TransactionsDTO convertToDTO(Transaction transaction) {
+        TransactionsDTO transactionsDTO = mapper.map(transaction, TransactionsDTO.class);
+        String recipientName = transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name();
+        transactionsDTO.setRecipientName(recipientName);
+        String initiatorName = transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name();
+        transactionsDTO.setInitiatorName(initiatorName);
+        return transactionsDTO;
     }
 }

@@ -79,6 +79,7 @@ public class UserService {
             LoginResponseDTO response = new LoginResponseDTO();
             response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
             response.setUser_id(user.getUser_id());
+            response.setRoles(user.getRoles());
             return response;
         } else {
             throw new AuthenticationException("Invalid password");

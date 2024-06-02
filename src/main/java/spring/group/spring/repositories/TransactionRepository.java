@@ -4,6 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import spring.group.spring.models.Transaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,9 +18,15 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
             + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
             + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
-    List<Transaction> findAllTransactionsWithFilters(
+    Page<Transaction> findAllTransactionsWithFilters(
             @Param("date") LocalDateTime date,
             @Param("minAmount") BigDecimal minAmount,
             @Param("maxAmount") BigDecimal maxAmount,
-            @Param("iban") String iban);
+            @Param("iban") String iban,
+            Pageable pageable);
+
+
+
+    @Query("SELECT t FROM Transaction t WHERE t.initiator_user.user_id = :customerId")
+    Page<Transaction> findAllByInitiatorUserId(@Param("customerId") Integer customerId, Pageable pageable);
 }
