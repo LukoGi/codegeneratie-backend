@@ -35,6 +35,7 @@ public class BankAccountService {
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
 
+
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -156,5 +157,11 @@ public class BankAccountService {
 
     public boolean checkIban(String iban) {
         return isValidIban(iban) && !getBankAccountByIban(iban);
+    }
+
+    public BankAccount closeBankAccount(int accountId) {
+        BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
+        bankAccount.setIs_active(false);
+        return bankAccountRepository.save(bankAccount);
     }
 }

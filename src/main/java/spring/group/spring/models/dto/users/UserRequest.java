@@ -49,6 +49,5 @@ public class UserRequest {
     @NotNull
     private Boolean is_archived;
 
-    @NotNull
     private BigDecimal daily_transfer_limit;
 }

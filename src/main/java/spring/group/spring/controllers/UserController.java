@@ -15,6 +15,7 @@ import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
+import spring.group.spring.models.dto.users.AcceptUserRequestDTO;
 import spring.group.spring.models.dto.users.LoginRequestDTO;
 import spring.group.spring.models.dto.users.UserDTO;
 import spring.group.spring.models.dto.users.UserRequest;
@@ -72,21 +73,22 @@ public class UserController {
 
     @PutMapping("/acceptUser/{id}")
     //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    public UserDTO acceptUser(@PathVariable Integer id) {
+    public UserDTO acceptUser(@PathVariable Integer id, @RequestBody AcceptUserRequestDTO acceptUserRequestDTO) {
         User user = userService.getUserById(id);
 
-        BankAccount checkingAccount = createBankAccount(user, AccountType.CHECKINGS);
+        BankAccount checkingAccount = createBankAccount(user, AccountType.CHECKINGS, acceptUserRequestDTO.getAbsolute_transfer_limit());
         bankAccountService.createBankAccount(checkingAccount);
-        BankAccount savingsAccount = createBankAccount(user, AccountType.SAVINGS);
+        BankAccount savingsAccount = createBankAccount(user, AccountType.SAVINGS, acceptUserRequestDTO.getAbsolute_transfer_limit());
         bankAccountService.createBankAccount(savingsAccount);
 
         user.setIs_approved(true);
+        user.setDaily_transfer_limit(acceptUserRequestDTO.getDaily_transfer_limit());
         User updatedUser = userService.updateUser(user);
 
         return userService.convertToDTO(updatedUser);
     }
 
-    private BankAccount createBankAccount(User user, AccountType accountType) {
+    private BankAccount createBankAccount(User user, AccountType accountType, BigDecimal absolute_limit) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setIban("NL" + (100000000 + SECURE_RANDOM.nextInt(900000000)));
         bankAccount.setUser(user);
@@ -94,6 +96,7 @@ public class UserController {
         bankAccount.setBalance(BigDecimal.ZERO);
         bankAccount.setPincode(String.format("%04d", SECURE_RANDOM.nextInt(10000)));
         bankAccount.setAccount_type(accountType);
+        bankAccount.setAbsolute_limit(absolute_limit);
 
         return bankAccount;
     }
