@@ -169,8 +169,9 @@ public class TransactionService {
         return responseDTO;
     }
 
-    public List<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban) {
-        return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban);
+    public Page<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
     }
 
     public void checkIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {

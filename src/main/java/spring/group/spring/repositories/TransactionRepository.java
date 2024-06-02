@@ -18,11 +18,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
             + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
             + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
-    List<Transaction> findAllTransactionsWithFilters(
+    Page<Transaction> findAllTransactionsWithFilters(
             @Param("date") LocalDateTime date,
             @Param("minAmount") BigDecimal minAmount,
             @Param("maxAmount") BigDecimal maxAmount,
-            @Param("iban") String iban);
+            @Param("iban") String iban,
+            Pageable pageable);
 
 
 

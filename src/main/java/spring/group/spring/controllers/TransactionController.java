@@ -2,7 +2,6 @@ package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.*;
@@ -11,7 +10,6 @@ import spring.group.spring.services.TransactionService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("transactions")
@@ -43,17 +41,18 @@ public class TransactionController {
         return transactionService.updateTransaction(id, transactionUpdateRequestDTO);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     // @PreAuthorize("hasRole('Employee ')")
-    public List<Transaction> getAllTransactions(
+    public Page<Transaction> getAllTransactions(
             @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
-            @RequestParam(required = false) String iban) {
-
+            @RequestParam(required = false) String iban,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer limit) {
         LocalDateTime dateTime = (date != null) ? LocalDateTime.parse(date) : null;
 
-        return transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban);
+        return transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban, offset, limit);
     }
 
     @GetMapping("/customer/{customerId}")
