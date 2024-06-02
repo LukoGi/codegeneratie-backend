@@ -96,7 +96,7 @@ public class BankAccountController {
     }
 
     // TODO: integrate this into the update endpoint
-    @PostMapping("/{id}/setAbsoluteLimit")
+    @PutMapping("/{id}/setAbsoluteLimit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);

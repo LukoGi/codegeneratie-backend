@@ -149,7 +149,7 @@ public class UserController {
     }
 
     // TODO: inegrate this into the user update endpoint
-    @PostMapping("{id}/setDailyLimit")
+    @PutMapping("{id}/setDailyLimit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
         User user = userService.getUserById(id);
