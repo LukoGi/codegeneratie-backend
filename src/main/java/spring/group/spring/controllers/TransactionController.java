@@ -65,4 +65,9 @@ public class TransactionController {
         Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId, offset, limit);
         return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
     }
+
+    @PostMapping("/transfer")
+    public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
+        return transactionService.transferFunds(transferRequestDTO);
+    }
 }

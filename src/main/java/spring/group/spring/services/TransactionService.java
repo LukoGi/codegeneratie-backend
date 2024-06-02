@@ -222,4 +222,40 @@ public class TransactionService {
         transactionsDTO.setInitiatorName(initiatorName);
         return transactionsDTO;
     }
+
+    public TransactionResponseDTO transferFunds(TransferRequestDTO transferRequestDTO) {
+        User user = userRepository.findById(transferRequestDTO.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        BankAccount fromAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(transferRequestDTO.getFromAccountType().toUpperCase()))
+                .orElseThrow(() -> new IllegalArgumentException("From account not found"));
+
+        BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(transferRequestDTO.getToAccountType().toUpperCase()))
+                .orElseThrow(() -> new IllegalArgumentException("To account not found"));
+
+        if (fromAccount.getBalance().compareTo(transferRequestDTO.getTransferAmount()) < 0) {
+            throw new InsufficientFundsException();
+        }
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(transferRequestDTO.getTransferAmount()));
+        toAccount.setBalance(toAccount.getBalance().add(transferRequestDTO.getTransferAmount()));
+
+        bankAccountRepository.save(fromAccount);
+        bankAccountRepository.save(toAccount);
+
+        Transaction transaction = new Transaction();
+        transaction.setFrom_account(fromAccount);
+        transaction.setTo_account(toAccount);
+        transaction.setInitiator_user(user);
+        transaction.setTransfer_amount(transferRequestDTO.getTransferAmount());
+        transaction.setDate(LocalDateTime.now());
+        transaction.setDescription("Transfer between checkings/savings accounts");
+
+        transactionRepository.save(transaction);
+
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        responseDTO.setTransaction_id(transaction.getTransaction_id());
+
+        return responseDTO;
+    }
 }
