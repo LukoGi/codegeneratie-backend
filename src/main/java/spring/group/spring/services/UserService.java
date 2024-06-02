@@ -60,7 +60,9 @@ public class UserService {
         if (!userRepository.findUserByUsername(user.getUsername()).isEmpty()) {
             throw new IllegalArgumentException("Username is already taken");
         }
-        user.setRoles(Arrays.asList(Role.ROLE_USER));
+        if (user.getRoles().isEmpty()){
+            user.setRoles(Arrays.asList(Role.ROLE_USER));
+        }
         if(user.getIs_approved() == null) {
             user.setIs_approved(false);
         }

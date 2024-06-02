@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
+import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
 import spring.group.spring.models.dto.users.LoginRequestDTO;
 import spring.group.spring.models.dto.users.UserDTO;
 import spring.group.spring.models.dto.users.UserRequest;
@@ -145,7 +146,14 @@ public class UserController {
         return userDTOs;
     }
 
-
+    @PostMapping("{id}/setDailyLimit")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
+        User user = userService.getUserById(id);
+        user.setDaily_transfer_limit(dailyLimit);
+        User updatedUser = userService.updateUser(user);
+        return ResponseEntity.ok().build();
+    }
 
 
 }

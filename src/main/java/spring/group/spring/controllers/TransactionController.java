@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.TransactionRequestDTO;

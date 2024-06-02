@@ -6,16 +6,16 @@ import org.modelmapper.ModelMapper;
 
 import org.springframework.http.HttpStatus;
 
-import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import org.springframework.web.bind.annotation.*;
-import spring.group.spring.exception.exceptions.AccessDeniedException;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.security.JwtProvider;
 import spring.group.spring.services.BankAccountService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -87,6 +87,13 @@ public class BankAccountController {
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
-
+    @PostMapping("/{id}/setAbsoluteLimit")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
+        BankAccount bankAccount = bankAccountService.getBankAccountById(id);
+        bankAccount.setAbsolute_limit(absoluteLimit);
+        BankAccount bankAccountResult = bankAccountService.updateBankAccount(bankAccount);
+        return ResponseEntity.ok().build();
+    }
 
 }
