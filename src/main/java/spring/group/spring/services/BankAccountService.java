@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.BankAccount;
+import spring.group.spring.models.User;
 import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.models.dto.transactions.TransactionsDTO;
@@ -23,12 +24,14 @@ public class BankAccountService {
     private final TransactionService transactionService;
     private final ModelMapper mapper = new ModelMapper();
     private final JwtProvider jwtProvider;
+    private final UserService userService;
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+    public BankAccountService(BankAccountRepository bankAccountRepository, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider, UserService userService) {
         this.bankAccountRepository = bankAccountRepository;
         this.passwordEncoder = passwordEncoder;
         this.transactionService = transactionService;
         this.jwtProvider = jwtProvider;
+        this.userService = userService;
     }
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
@@ -148,6 +151,11 @@ public class BankAccountService {
 
     public boolean getBankAccountByIban(String iban) {
         return bankAccountRepository.findByIban(iban) != null;
+    }
+
+    public List<BankAccount> getBankAccountsByUserId(Integer userId) {
+        User user = userService.getUserById(userId);
+        return bankAccountRepository.findByUser(user);
     }
 
     public TransactionsDTO convertToDTO(BankAccount bankAccount) {

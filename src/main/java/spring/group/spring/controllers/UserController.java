@@ -52,6 +52,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDTO> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserDTO> userDTOs = new ArrayList<>();
@@ -147,6 +148,7 @@ public class UserController {
         return userDTOs;
     }
 
+    // TODO: inegrate this into the user update endpoint
     @PostMapping("{id}/setDailyLimit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
