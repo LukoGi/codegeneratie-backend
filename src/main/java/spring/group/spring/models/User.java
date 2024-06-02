@@ -18,29 +18,33 @@ public class User {
     @GeneratedValue
     private Integer user_id;
 
+    @NonNull
     private String username;
 
     private String first_name;
 
     private String last_name;
 
-    @NonNull
+
     private String email;
 
     @NonNull
     private String password;
 
-    @NonNull
+
     private String bsn_number;
 
-    @NonNull
+
     private String phone_number;
 
+    @NonNull
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
 
+    @NonNull
     private Boolean is_approved;
 
+    @NonNull
     private Boolean is_archived;
 
     private BigDecimal daily_transfer_limit;

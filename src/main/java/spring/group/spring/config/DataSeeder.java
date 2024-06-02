@@ -40,7 +40,11 @@ public class DataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         User user = seedUser();
         User user2 = seedAnotherUser();
-        User admin = seedAdmin();
+
+        // we now have 2 admins :)
+        seedAdminUser();
+        seedAdmin();
+
         BankAccount bankAccount1 = seedBankAccount(user);
         BankAccount bankAccount2 = seedAnotherBankAccount(user2);
         BankAccount bankAccount3 = seedLastBankAccount(admin);
@@ -121,6 +125,24 @@ public class DataSeeder implements ApplicationRunner {
         return user2;
     }
 
+
+    private User seedAdminUser() {
+        User user3 = new User();
+        user3.setFirst_name("Admin");
+        user3.setLast_name("Admin");
+        user3.setUsername("Admin");
+        user3.setEmail(null);
+        user3.setPassword("admin");
+        user3.setBsn_number(null);
+        user3.setPhone_number(null);
+        user3.setRoles(List.of(Role.ROLE_ADMIN));
+        user3.setIs_approved(true);
+        user3.setIs_archived(false);
+        user3.setDaily_transfer_limit(null);
+        userService.createUser(user3);
+        return user3;
+    }
+ 
     private User seedAdmin() {
         User admin = new User();
         admin.setFirst_name("Jan");
@@ -136,6 +158,7 @@ public class DataSeeder implements ApplicationRunner {
         admin.setDaily_transfer_limit(new BigDecimal("1000.00"));
         userService.createUser(admin);
         return admin;
+
     }
 
     private void seedTransactions(BankAccount fromAccount, BankAccount toAccount, User user) {

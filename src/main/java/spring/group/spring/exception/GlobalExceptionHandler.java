@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import spring.group.spring.exception.exceptions.*;
 
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class GlobalExceptionHandler {
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errorMessage);
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
-  
+
     @ExceptionHandler(value = {AbsoluteTransferLimitHitException.class})
     public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteTransferLimitHitException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -97,12 +98,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-
     // Last Method to handle all other exceptions
     @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<Object> handleException(Exception e){
         ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
-
 }
