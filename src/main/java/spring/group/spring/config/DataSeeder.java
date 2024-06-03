@@ -50,7 +50,7 @@ public class DataSeeder implements ApplicationRunner {
         BankAccount bankAccount = seedSavingsAccount(user2);
         BankAccount bankAccount3 = seedLastBankAccount(admin);
 
-        seedTransactions(bankAccount1, bankAccount2, user);
+        //seedTransactions(bankAccount1, bankAccount2, user);
     }
 
     private BankAccount seedBankAccount(User user) {
