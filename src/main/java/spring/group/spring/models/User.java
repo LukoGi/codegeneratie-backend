@@ -1,6 +1,7 @@
 package spring.group.spring.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 
 import java.math.BigDecimal;
