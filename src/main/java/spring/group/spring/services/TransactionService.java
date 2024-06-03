@@ -202,6 +202,9 @@ public class TransactionService {
     private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
+        if (sumOfTodaysTransactions == null){
+            sumOfTodaysTransactions = new BigDecimal(0);
+        }
         BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
 
         if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
