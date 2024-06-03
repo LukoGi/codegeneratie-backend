@@ -17,6 +17,7 @@ import spring.group.spring.services.BankAccountService;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("accounts")
@@ -67,6 +68,15 @@ public class BankAccountController {
         return bankAccountService.atmLogin(loginRequest);
     }
 
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<BankAccountResponseDTO> getBankAccountsByUserId(@PathVariable Integer userId) {
+        List<BankAccount> bankAccounts = bankAccountService.getBankAccountsByUserId(userId);
+        return bankAccounts.stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasRole('ROLE_USER')")
     public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest, HttpServletRequest request) {
@@ -85,7 +95,8 @@ public class BankAccountController {
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
-    @PostMapping("/{id}/setAbsoluteLimit")
+    // TODO: integrate this into the update endpoint
+    @PutMapping("/{id}/setAbsoluteLimit")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
