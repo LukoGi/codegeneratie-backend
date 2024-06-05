@@ -35,14 +35,12 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-       // try {
+        try {
             Authentication authentication = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             filterChain.doFilter(request, response);
-       /*     // Exception handling below is not mandatory. When left out, the client will receive a 403
         } catch (JwtException e) {
-            // JwtException = something is wrong with the JWT (usually means it's invalid)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid JWT token");
             response.getWriter().flush();
@@ -55,6 +53,6 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        */
+
     }
 }
