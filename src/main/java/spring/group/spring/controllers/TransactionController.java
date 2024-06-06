@@ -37,11 +37,6 @@ public class TransactionController {
         return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
 
-    @PutMapping("/{id}")
-    public TransactionResponseDTO updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
-        return transactionService.updateTransaction(id, transactionUpdateRequestDTO);
-    }
-
     @GetMapping("/all")
     // @PreAuthorize("hasRole('Employee ')")
     public Page<Transaction> getAllTransactions(

@@ -150,35 +150,6 @@ public class TransactionService {
         return responseDTO;
     }
 
-    // TODO: maybe make this method smaller / split it into mulitple methods for better readability ;(
-    public TransactionResponseDTO updateTransaction(Integer id, TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
-        Transaction transaction = transactionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Transaction with ID " + id + " not found"));
-
-        BankAccount toAccount = bankAccountRepository.findById(transactionUpdateRequestDTO.getTo_account_id())
-                .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionUpdateRequestDTO.getTo_account_id() + " not found"));
-        transaction.setTo_account(toAccount);
-
-        BankAccount fromAccount = bankAccountRepository.findById(transactionUpdateRequestDTO.getFrom_account_id())
-                .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionUpdateRequestDTO.getFrom_account_id() + " not found"));
-        transaction.setFrom_account(fromAccount);
-
-        User initiatorUser = userRepository.findById(transactionUpdateRequestDTO.getInitiator_user_id())
-                .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionUpdateRequestDTO.getInitiator_user_id() + " not found"));
-        transaction.setInitiator_user(initiatorUser);
-
-        transaction.setTransfer_amount(transactionUpdateRequestDTO.getTransfer_amount());
-        transaction.setDate(transactionUpdateRequestDTO.getDate());
-        transaction.setDescription(transactionUpdateRequestDTO.getDescription());
-
-        Transaction updatedTransaction = transactionRepository.save(transaction);
-
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
-        responseDTO.setTransaction_id(updatedTransaction.getTransaction_id());
-
-        return responseDTO;
-    }
-
     public Page<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
         Pageable pageable = PageRequest.of(offset, limit);
         return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
