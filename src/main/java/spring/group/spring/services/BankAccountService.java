@@ -54,9 +54,11 @@ public class BankAccountService {
         if (bankAccountRepository.findById(bankAccount.getAccount_id()).isEmpty()) {
             throw new EntityNotFoundException();
         }
+        if (isPincodeEncrypted(bankAccount.getPincode())) {
+            String encryptedPincode = passwordEncoder.encode(bankAccount.getPincode());
+            bankAccount.setPincode(encryptedPincode);
+        }
 
-        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
-        bankAccount.setPincode(encryptedPassword);
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -169,5 +171,10 @@ public class BankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
         bankAccount.setIs_active(false);
         return bankAccountRepository.save(bankAccount);
+    }
+
+    private boolean isPincodeEncrypted(String pincode) {
+        String encryptedPincode = passwordEncoder.encode(pincode);
+        return !passwordEncoder.matches(pincode, encryptedPincode);
     }
 }
