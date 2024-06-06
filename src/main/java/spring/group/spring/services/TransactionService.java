@@ -43,7 +43,7 @@ public class TransactionService {
             BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
 
             if (toAccount.getAccount_type() == AccountType.SAVINGS) {
-                throw new TransactionToSavingsAccountException();
+                throw new TransactionWithSavingsAccountException();
             }
 
             checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
@@ -242,34 +242,57 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
-        // Retrieve the from and to accounts using their IBAN
+        try{
+            BankAccount fromAccount = retrieveAndValidateAccounts(employeeTransferRequestDTO);
+
+            checkTransferLimits(fromAccount, employeeTransferRequestDTO.getTransferAmount());
+
+            performTransfer(fromAccount, employeeTransferRequestDTO);
+
+            return recordTransaction(fromAccount, employeeTransferRequestDTO);
+        }catch (Exception e) {
+            throw new RuntimeException("An error occurred while creating the transaction", e);
+        }
+    }
+
+    private BankAccount retrieveAndValidateAccounts(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         BankAccount fromAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getFromAccountIban());
         BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
 
-        // Validate accounts and amounts
         if (fromAccount == null || toAccount == null) {
-            throw new IllegalArgumentException("Invalid IBANs provided.");
+            throw new EntityNotFoundException();
         }
         if (fromAccount.getAccount_type() != AccountType.CHECKINGS || toAccount.getAccount_type() != AccountType.CHECKINGS) {
-            throw new IllegalArgumentException("Both accounts must be checking accounts.");
+            throw new TransactionWithSavingsAccountException();
         }
         if (fromAccount.getBalance().compareTo(employeeTransferRequestDTO.getTransferAmount()) < 0) {
             throw new InsufficientFundsException();
         }
 
-        // Check for transfer limits
-        checkIfDailyLimitIsHit(fromAccount, employeeTransferRequestDTO.getTransferAmount());
-        checkIfAbsoluteLimitIsHit(fromAccount, employeeTransferRequestDTO.getTransferAmount());
+        return fromAccount;
+    }
 
-        // Perform the transfer
-        fromAccount.setBalance(fromAccount.getBalance().subtract(employeeTransferRequestDTO.getTransferAmount()));
-        toAccount.setBalance(toAccount.getBalance().add(employeeTransferRequestDTO.getTransferAmount()));
+    private void checkTransferLimits(BankAccount fromAccount, BigDecimal transferAmount) {
+        checkIfDailyLimitIsHit(fromAccount, transferAmount);
+        checkIfAbsoluteLimitIsHit(fromAccount, transferAmount);
+    }
+
+    private void performTransfer(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+        BigDecimal transferAmount = employeeTransferRequestDTO.getTransferAmount();
+        BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
+
+        fromAccount.setBalance(fromAccount.getBalance().subtract(transferAmount));
+        toAccount.setBalance(toAccount.getBalance().add(transferAmount));
 
         bankAccountRepository.save(fromAccount);
         bankAccountRepository.save(toAccount);
+    }
 
-        // Record the transaction
-        User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId()).orElseThrow(EntityNotFoundException::new);
+    private TransactionResponseDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+        User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId())
+                .orElseThrow(EntityNotFoundException::new);
+        BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
+
         Transaction transaction = new Transaction();
         transaction.setFrom_account(fromAccount);
         transaction.setTo_account(toAccount);
@@ -280,7 +303,6 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        // Return the response DTO
         TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
         return responseDTO;
