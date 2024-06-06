@@ -55,7 +55,7 @@ public class UserController {
         return mapper.map(user, UserDTO.class);
     }
 
-    @PostMapping("/createUser")
+    @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO createUser(@Valid @RequestBody UserRequest userRequestDTO) {
         User user = mapper.map(userRequestDTO, User.class);
