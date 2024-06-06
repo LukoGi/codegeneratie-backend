@@ -16,9 +16,7 @@ import spring.group.spring.services.UserService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class DataSeeder implements ApplicationRunner {
