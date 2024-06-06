@@ -139,11 +139,9 @@ public class BankAccountService {
     }
 
 
-    public void isUserAccountOwner(String username, Integer accountId) {
+    public boolean isUserAccountOwner(String username, Integer accountId) {
         String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();
-        if (!bankAccountUsername.equals(username)) {
-            throw new AccessDeniedException("You are not the owner of this account");
-        }
+        return bankAccountUsername.equals(username);
     }
   
     public boolean isValidIban(String iban) {

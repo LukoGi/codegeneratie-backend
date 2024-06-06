@@ -78,20 +78,14 @@ public class BankAccountController {
     }
 
     @PostMapping("/{id}/withdraw")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest, HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        String username = jwtProvider.getUsernameFromToken(token);
-        bankAccountService.isUserAccountOwner(username, id);
         return bankAccountService.withdrawMoney(id, withdrawRequest.getAmount());
     }
 
     @PostMapping("/{id}/deposit")
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public WithdrawDepositResponseDTO depositMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO depositRequest, HttpServletRequest request) {
-        String token = request.getHeader("Authorization").substring(7);
-        String username = jwtProvider.getUsernameFromToken(token);
-        bankAccountService.isUserAccountOwner(username, id);
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
