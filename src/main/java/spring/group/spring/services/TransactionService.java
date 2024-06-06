@@ -17,7 +17,6 @@ import spring.group.spring.repositories.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class TransactionService {
@@ -106,7 +105,7 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    // TODO: maybe make this method smaller / split it into mulitple methods for better readability ;(
+    // TODO: maybe make this method smaller / split it into multiple methods for better readability ;(
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
@@ -153,12 +152,6 @@ public class TransactionService {
     public Page<Transaction> getAllTransactions(LocalDateTime date, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
         Pageable pageable = PageRequest.of(offset, limit);
         return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
-    }
-
-    // If not used by any other method, consider removing
-    public void checkIfLimitsAreExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
-        checkIfAbsoluteLimitIsHit(fromAccount, transferAmount);
-        checkIfDailyLimitIsHit(fromAccount, transferAmount);
     }
 
     private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
@@ -231,5 +224,16 @@ public class TransactionService {
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
+    }
+
+    public TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
+        transactionRequestDTO.setTo_account_id(toAccountId);
+        transactionRequestDTO.setFrom_account_id(fromAccountId);
+        transactionRequestDTO.setInitiator_user_id(initiatorUserId);
+        transactionRequestDTO.setTransfer_amount(transferAmount);
+        transactionRequestDTO.setDate(LocalDateTime.now());
+        transactionRequestDTO.setDescription(description);
+        return transactionRequestDTO;
     }
 }
