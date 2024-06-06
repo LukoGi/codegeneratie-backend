@@ -3,6 +3,8 @@ package spring.group.spring.controllers;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,11 @@ public class BankAccountController {
     }
 
     @GetMapping("/")
-    public List<BankAccountResponseDTO> getAllBankAccounts() {
-        return bankAccountService.convertToResponseDTO(bankAccountService.getAllBankAccounts());
+    public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
+        Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts(pageable);
+        return bankAccounts.getContent().stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")

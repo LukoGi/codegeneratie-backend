@@ -1,6 +1,7 @@
 package spring.group.spring.services;
 
-import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-    private final ModelMapper mapper = new ModelMapper();
-  
+
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -44,8 +44,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     public User createUser(User user) {
@@ -96,25 +96,5 @@ public class UserService {
             throw new EntityNotFoundException();
         }
         return userRepository.findByAccountsIsEmpty(Role.ROLE_USER);
-    }
-
-    public UserDTO convertToDTO(User user) {
-        return mapper.map(user, UserDTO.class);
-    }
-
-    public UserRequest convertToRequestDTO(User user) {
-        return mapper.map(user, UserRequest.class);
-    }
-
-    public UserResponse convertToResponseDTO(User user) {
-        return mapper.map(user, UserResponse.class);
-    }
-
-    public UserNameDTO convertToNameDTO(User user) {
-        return mapper.map(user, UserNameDTO.class);
-    }
-
-    public User convertToEntity(UserRequest userRequest) {
-        return mapper.map(userRequest, User.class);
     }
 }

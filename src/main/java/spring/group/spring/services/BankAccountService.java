@@ -1,6 +1,8 @@
 package spring.group.spring.services;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
@@ -43,8 +45,8 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
-    public List<BankAccount> getAllBankAccounts() {
-        return bankAccountRepository.findAll();
+    public Page<BankAccount> getAllBankAccounts(Pageable pageable){
+        return bankAccountRepository.findAll(pageable);
     }
 
     public BankAccount getBankAccountById(Integer id) {
@@ -123,15 +125,6 @@ public class BankAccountService {
 
         return withdrawDepositResponseDTO;
     }
-
-
-
-    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
-        return bankAccounts.stream()
-                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
-                .toList();
-    }
-
 
     public boolean isUserAccountOwner(String username, Integer accountId) {
         String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();

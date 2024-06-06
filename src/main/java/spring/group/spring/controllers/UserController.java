@@ -4,6 +4,8 @@ package spring.group.spring.controllers;
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +24,6 @@ import spring.group.spring.services.UserService;
 
 import javax.naming.AuthenticationException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,33 +42,30 @@ public class UserController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<UserDTO> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        List<UserDTO> userDTOs = new ArrayList<>();
-        for (User user : users) {
-            userDTOs.add(userService.convertToDTO(user));
-        }
-        return userDTOs;
-
+    public List<UserDTO> getAllUsers(Pageable pageable) {
+        Page<User> users = userService.getAllUsers(pageable);
+        return users.getContent().stream()
+                .map(user -> mapper.map(user, UserDTO.class))
+                .toList();
     }
 
     @GetMapping("/{id}")
     public UserDTO getUserById(@PathVariable Integer id) {
         User user = userService.getUserById(id);
-        return userService.convertToDTO(user);
+        return mapper.map(user, UserDTO.class);
     }
 
     @PostMapping("/createUser")
     @ResponseStatus(HttpStatus.CREATED)
     public UserDTO createUser(@Valid @RequestBody UserRequest userRequestDTO) {
-        User user = userService.convertToEntity(userRequestDTO);
+        User user = mapper.map(userRequestDTO, User.class);
         User newUser = userService.createUser(user);
         return mapper.map(newUser, UserDTO.class);
     }
 
     @PutMapping("/{id}")
     public UserDTO updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequestDTO) {
-        User user = userService.convertToEntity(userRequestDTO);
+        User user = mapper.map(userRequestDTO, User.class);
         user.setUser_id(id);
         User updatedUser = userService.updateUser(user);
         return mapper.map(updatedUser, UserDTO.class);
@@ -87,7 +85,7 @@ public class UserController {
         user.setDaily_transfer_limit(acceptUserRequestDTO.getDaily_transfer_limit());
         User updatedUser = userService.updateUser(user);
 
-        return userService.convertToDTO(updatedUser);
+        return mapper.map(updatedUser, UserDTO.class);
     }
 
     @PostMapping("/login")
@@ -103,28 +101,20 @@ public class UserController {
     public ResponseEntity<UserDTO> getMyUserInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByUsername(auth.getName());
-        UserDTO userDTO = userService.convertToDTO(user);
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
         return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping("/getUnapprovedUsers")
     public List<UserDTO> getUnapprovedUsers() {
         List<User> users = userService.getUnapprovedUsers();
-        List<UserDTO> userDTOs = new ArrayList<>();
-        for (User user : users) {
-            userDTOs.add(userService.convertToDTO(user));
-        }
-        return userDTOs;
+        return users.stream().map(user -> mapper.map(user, UserDTO.class)).toList();
     }
 
     @GetMapping("/getUsersWithoutBankAccount")
     public List<UserDTO> getUsersWithoutBankAccount() {
         List<User> users = userService.getUsersWithoutBankAccount();
-        List<UserDTO> userDTOs = new ArrayList<>();
-        for (User user : users) {
-            userDTOs.add(userService.convertToDTO(user));
-        }
-        return userDTOs;
+        return users.stream().map(user -> mapper.map(user, UserDTO.class)).toList();
     }
 
     // TODO: integrate this into the user update endpoint
