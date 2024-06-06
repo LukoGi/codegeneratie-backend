@@ -22,27 +22,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable Integer id) {
-        return transactionService.getTransactionById(id);
-    }
-
-    @PostMapping("/create")
-    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
-        return transactionService.createTransaction(transactionRequestDTO);
-    }
-
-    @PostMapping("/createWithIban")
-    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
-        return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
-    }
-
-    @PutMapping("/{id}")
-    public TransactionResponseDTO updateTransaction(@PathVariable Integer id, @Valid @RequestBody TransactionUpdateRequestDTO transactionUpdateRequestDTO) {
-        return transactionService.updateTransaction(id, transactionUpdateRequestDTO);
-    }
-
-    @GetMapping("/all")
+    @GetMapping("/")
     // @PreAuthorize("hasRole('Employee ')")
     public Page<Transaction> getAllTransactions(
             @RequestParam(required = false) String date,
@@ -54,6 +34,21 @@ public class TransactionController {
         LocalDateTime dateTime = (date != null) ? LocalDateTime.parse(date) : null;
 
         return transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban, offset, limit);
+    }
+
+    @GetMapping("/{id}")
+    public Transaction getTransactionById(@PathVariable Integer id) {
+        return transactionService.getTransactionById(id);
+    }
+
+    @PostMapping("/")
+    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
+        return transactionService.createTransaction(transactionRequestDTO);
+    }
+
+    @PostMapping("/createWithIban")
+    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+        return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
 
     @GetMapping("/customer/{customerId}")

@@ -49,16 +49,4 @@ public class JwtProvider {
             throw new JwtException("Bearer token not valid");
         }
     }
-
-    public String getUsernameFromToken(String token) {
-        PublicKey publicKey = keyProvider.getPublicKey();
-        try {
-            Claims claims =
-                    Jwts.parser().verifyWith(publicKey).build().parseSignedClaims(token).getPayload();
-            return claims.getSubject();
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtException("Bearer token not valid");
-        }
-    }
-
 }

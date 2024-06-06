@@ -98,10 +98,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    // Last Method to handle all other exceptions
-//    @ExceptionHandler(value = {Exception.class})
-//    public ResponseEntity<Object> handleException(Exception e){
-//        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-//        return new ResponseEntity<>(apiError, apiError.getStatus());
-//    }
+    @ExceptionHandler(value = {Exception.class})
+    public ResponseEntity<Object> handleException(Exception e){
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
 }
