@@ -65,4 +65,9 @@ public class TransactionController {
     public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
+
+    @PostMapping("/employeeTransfer")
+    public TransactionResponseDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+        return transactionService.employeeTransferFunds(employeeTransferRequestDTO);
+    }
 }
