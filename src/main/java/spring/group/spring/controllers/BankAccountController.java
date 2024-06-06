@@ -78,6 +78,7 @@ public class BankAccountController {
                 .collect(Collectors.toList());
     }
 
+    // Kian Note: Onderbouw waarom ik dit heb gedaan
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest) {
