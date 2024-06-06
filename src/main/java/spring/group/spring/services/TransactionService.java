@@ -42,6 +42,10 @@ public class TransactionService {
             BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
             BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
 
+            if (toAccount.getAccount_type() == AccountType.SAVINGS) {
+                throw new TransactionToSavingsAccountException();
+            }
+
             checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
 
             if (!toAccount.getUser().equals(fromAccount.getUser())) {
