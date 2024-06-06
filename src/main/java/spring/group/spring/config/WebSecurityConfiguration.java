@@ -58,7 +58,8 @@ public class WebSecurityConfiguration {
                 "http://localhost:5175",
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
-                "https://lukogi.github.io/codegeneratie-frontend"
+                "https://lukogi.github.io/codegeneratie-frontend",
+                "https://lukogi.github.io"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
