@@ -240,4 +240,49 @@ public class TransactionService {
         transactionRequestDTO.setDescription(description);
         return transactionRequestDTO;
     }
+
+    public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+        // Retrieve the from and to accounts using their IBAN
+        BankAccount fromAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getFromAccountIban());
+        BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
+
+        // Validate accounts and amounts
+        if (fromAccount == null || toAccount == null) {
+            throw new IllegalArgumentException("Invalid IBANs provided.");
+        }
+        if (fromAccount.getAccount_type() != AccountType.CHECKINGS || toAccount.getAccount_type() != AccountType.CHECKINGS) {
+            throw new IllegalArgumentException("Both accounts must be checking accounts.");
+        }
+        if (fromAccount.getBalance().compareTo(employeeTransferRequestDTO.getTransferAmount()) < 0) {
+            throw new InsufficientFundsException();
+        }
+
+        // Check for transfer limits
+        checkIfDailyLimitIsHit(fromAccount, employeeTransferRequestDTO.getTransferAmount());
+        checkIfAbsoluteLimitIsHit(fromAccount, employeeTransferRequestDTO.getTransferAmount());
+
+        // Perform the transfer
+        fromAccount.setBalance(fromAccount.getBalance().subtract(employeeTransferRequestDTO.getTransferAmount()));
+        toAccount.setBalance(toAccount.getBalance().add(employeeTransferRequestDTO.getTransferAmount()));
+
+        bankAccountRepository.save(fromAccount);
+        bankAccountRepository.save(toAccount);
+
+        // Record the transaction
+        User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId()).orElseThrow(EntityNotFoundException::new);
+        Transaction transaction = new Transaction();
+        transaction.setFrom_account(fromAccount);
+        transaction.setTo_account(toAccount);
+        transaction.setInitiator_user(employee);
+        transaction.setTransfer_amount(employeeTransferRequestDTO.getTransferAmount());
+        transaction.setDate(LocalDateTime.now());
+        transaction.setDescription(employeeTransferRequestDTO.getDescription());
+
+        transactionRepository.save(transaction);
+
+        // Return the response DTO
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        responseDTO.setTransaction_id(transaction.getTransaction_id());
+        return responseDTO;
+    }
 }
