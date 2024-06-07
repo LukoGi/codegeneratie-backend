@@ -157,7 +157,7 @@ public class BankAccountService {
 
     public BankAccount createBankAccountEntity(User user, AccountType accountType, BigDecimal absolute_limit) {
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setIban("NL" + (100000000 + SECURE_RANDOM.nextInt(900000000)));
+        bankAccount.setIban("NL" + String.format("%02d", SECURE_RANDOM.nextInt(10)) + "INHO0" + String.format("%09d", SECURE_RANDOM.nextInt(1000000000)));
         bankAccount.setUser(user);
         bankAccount.setIs_active(true);
         bankAccount.setBalance(BigDecimal.ZERO);
