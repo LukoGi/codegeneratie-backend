@@ -27,6 +27,18 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
 
 
-    @Query("SELECT t FROM Transaction t WHERE t.initiator_user.user_id = :customerId")
-    Page<Transaction> findAllByInitiatorUserId(@Param("customerId") Integer customerId, Pageable pageable);
+    @Query("SELECT t FROM Transaction t WHERE t.initiator_user.user_id = :customerId AND "
+            + "(:startDate IS NULL OR t.date >= :startDate) AND "
+            + "(:endDate IS NULL OR t.date <= :endDate) AND "
+            + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
+            + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
+            + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
+    Page<Transaction> findAllByInitiatorUserIdWithFilters(
+            @Param("customerId") Integer customerId,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,
+            @Param("minAmount") BigDecimal minAmount,
+            @Param("maxAmount") BigDecimal maxAmount,
+            @Param("iban") String iban,
+            Pageable pageable);
 }

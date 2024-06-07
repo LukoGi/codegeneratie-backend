@@ -180,9 +180,9 @@ public class TransactionService {
         }
     }
 
-    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, Integer offset, Integer limit) {
+    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
         Pageable pageable = PageRequest.of(offset, limit);
-        return transactionRepository.findAllByInitiatorUserId(customerId, pageable);
+        return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 
     public TransactionsDTO convertToDTO(Transaction transaction) {

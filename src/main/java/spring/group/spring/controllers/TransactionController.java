@@ -2,6 +2,7 @@ package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
@@ -54,12 +55,17 @@ public class TransactionController {
     @GetMapping("/customer/{customerId}")
     public List<TransactionsDTO> getTransactionsByCustomerId(
             @PathVariable Integer customerId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(required = false) String iban,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer limit) {
-
-        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId, offset, limit);
+        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
         return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
     }
+
 
     @PostMapping("/transfer")
     public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
