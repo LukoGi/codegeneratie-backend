@@ -126,4 +126,13 @@ public class UserController {
         userService.updateUser(user);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/myAccounts")
+    public List<BankAccount> getBankAccountsByUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.getUserByUsername(username);
+        return bankAccountService.getBankAccountsByUserId(user.getUser_id());
+    }
 }
