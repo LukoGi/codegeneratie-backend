@@ -1,20 +1,22 @@
 package spring.group.spring.services;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.group.spring.exception.exceptions.*;
+import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
-import spring.group.spring.models.dto.transactions.TransactionsDTO;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
+import java.security.SecureRandom;
 import java.util.List;
 
 @Service
@@ -25,6 +27,7 @@ public class BankAccountService {
     private final ModelMapper mapper = new ModelMapper();
     private final JwtProvider jwtProvider;
     private final UserService userService;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public BankAccountService(BankAccountRepository bankAccountRepository, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider, UserService userService) {
         this.bankAccountRepository = bankAccountRepository;
@@ -42,8 +45,8 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
-    public List<BankAccount> getAllBankAccounts() {
-        return bankAccountRepository.findAll();
+    public Page<BankAccount> getAllBankAccounts(Pageable pageable){
+        return bankAccountRepository.findAll(pageable);
     }
 
     public BankAccount getBankAccountById(Integer id) {
@@ -54,9 +57,11 @@ public class BankAccountService {
         if (bankAccountRepository.findById(bankAccount.getAccount_id()).isEmpty()) {
             throw new EntityNotFoundException();
         }
+        if (isPincodeEncrypted(bankAccount.getPincode())) {
+            String encryptedPincode = passwordEncoder.encode(bankAccount.getPincode());
+            bankAccount.setPincode(encryptedPincode);
+        }
 
-        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
-        bankAccount.setPincode(encryptedPassword);
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -96,7 +101,7 @@ public class BankAccountService {
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
-        TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
         bankAccountRepository.save(bankAccount);
 
@@ -114,36 +119,16 @@ public class BankAccountService {
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
-        TransactionRequestDTO transactionRequestDTO = createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
         transactionService.createTransaction(transactionRequestDTO);
         bankAccountRepository.save(bankAccount);
 
         return withdrawDepositResponseDTO;
     }
 
-    private TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
-        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
-        transactionRequestDTO.setTo_account_id(toAccountId);
-        transactionRequestDTO.setFrom_account_id(fromAccountId);
-        transactionRequestDTO.setInitiator_user_id(initiatorUserId);
-        transactionRequestDTO.setTransfer_amount(transferAmount);
-        transactionRequestDTO.setDate(LocalDateTime.now());
-        transactionRequestDTO.setDescription(description);
-        return transactionRequestDTO;
-    }
-
-    public List<BankAccountResponseDTO> convertToResponseDTO(List<BankAccount> bankAccounts) {
-        return bankAccounts.stream()
-                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
-                .toList();
-    }
-
-
-    public void isUserAccountOwner(String username, Integer accountId) {
+    public boolean isUserAccountOwner(String username, Integer accountId) {
         String bankAccountUsername = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new).getUser().getUsername();
-        if (!bankAccountUsername.equals(username)) {
-            throw new AccessDeniedException("You are not the owner of this account");
-        }
+        return bankAccountUsername.equals(username);
     }
   
     public boolean isValidIban(String iban) {
@@ -159,9 +144,6 @@ public class BankAccountService {
         return bankAccountRepository.findByUser(user);
     }
 
-    public TransactionsDTO convertToDTO(BankAccount bankAccount) {
-        return mapper.map(bankAccount, TransactionsDTO.class);
-    }
 
     public boolean checkIban(String iban) {
         return isValidIban(iban) && !getBankAccountByIban(iban);
@@ -171,5 +153,23 @@ public class BankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
         bankAccount.setIs_active(false);
         return bankAccountRepository.save(bankAccount);
+    }
+
+    public BankAccount createBankAccountEntity(User user, AccountType accountType, BigDecimal absolute_limit) {
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setIban("NL" + (100000000 + SECURE_RANDOM.nextInt(900000000)));
+        bankAccount.setUser(user);
+        bankAccount.setIs_active(true);
+        bankAccount.setBalance(BigDecimal.ZERO);
+        bankAccount.setPincode(String.format("%04d", SECURE_RANDOM.nextInt(10000)));
+        bankAccount.setAccount_type(accountType);
+        bankAccount.setAbsolute_limit(absolute_limit);
+
+        return bankAccount;
+    }
+
+    private boolean isPincodeEncrypted(String pincode) {
+        String encryptedPincode = passwordEncoder.encode(pincode);
+        return !passwordEncoder.matches(pincode, encryptedPincode);
     }
 }
