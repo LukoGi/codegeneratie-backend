@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.users.AcceptUserRequestDTO;
-import spring.group.spring.models.dto.users.LoginRequestDTO;
-import spring.group.spring.models.dto.users.UserDTO;
-import spring.group.spring.models.dto.users.UserRequest;
+import spring.group.spring.models.dto.users.*;
 import spring.group.spring.services.BankAccountService;
 import spring.group.spring.services.UserService;
 
@@ -85,20 +82,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        try {
-            return ResponseEntity.ok(userService.login(loginRequest));
-        } catch (AuthenticationException | JwtException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO loginRequest) throws AuthenticationException {
+            return userService.login(loginRequest);
     }
 
     @GetMapping("/userinfo")
-    public ResponseEntity<UserDTO> getMyUserInfo() {
+    public UserDTO getMyUserInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByUsername(auth.getName());
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        return ResponseEntity.ok(userDTO);
+        return mapper.map(user, UserDTO.class);
     }
 
     @GetMapping("/getUnapprovedUsers")

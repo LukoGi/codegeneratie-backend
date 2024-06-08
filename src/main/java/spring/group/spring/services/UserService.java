@@ -53,9 +53,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException {
+    public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException{
         User user = userRepository.findUserByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new AuthenticationException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("Invalid Credentials"));
 
         String rawPassword = loginRequest.getPassword();
         String encodedPassword = user.getPassword();
@@ -67,7 +67,7 @@ public class UserService {
             response.setRoles(user.getRoles());
             return response;
         } else {
-            throw new AuthenticationException("Invalid password");
+            throw new AuthenticationException("Invalid Credentials");
         }
 
     }
