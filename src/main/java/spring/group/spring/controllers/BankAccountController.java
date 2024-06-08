@@ -33,7 +33,7 @@ public class BankAccountController {
         Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts(pageable);
         return bankAccounts.getContent().stream()
                 .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/{id}")
