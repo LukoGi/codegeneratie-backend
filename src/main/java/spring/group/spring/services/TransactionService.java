@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,19 +19,14 @@ import spring.group.spring.repositories.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 @Service
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
-    private final ModelMapper mapper = new ModelMapper();
-
-    public TransactionService(TransactionRepository transactionRepository, BankAccountRepository bankAccountRepository, UserRepository userRepository) {
-        this.transactionRepository = transactionRepository;
-        this.bankAccountRepository = bankAccountRepository;
-        this.userRepository = userRepository;
-    }
+    private final ModelMapper mapper;
 
     public Transaction getTransactionById(Integer id) {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);

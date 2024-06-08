@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,29 +20,20 @@ import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class BankAccountService {
     private final BankAccountRepository bankAccountRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
-    private final ModelMapper mapper = new ModelMapper();
+    private final ModelMapper mapper;
     private final JwtProvider jwtProvider;
     private final UserService userService;
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    public BankAccountService(BankAccountRepository bankAccountRepository, TransactionService transactionService, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider, UserService userService) {
-        this.bankAccountRepository = bankAccountRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.transactionService = transactionService;
-        this.jwtProvider = jwtProvider;
-        this.userService = userService;
-    }
-
     public BankAccount createBankAccount(BankAccount bankAccount) {
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
-
-
         return bankAccountRepository.save(bankAccount);
     }
 

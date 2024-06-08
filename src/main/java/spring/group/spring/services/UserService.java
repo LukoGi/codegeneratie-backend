@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,18 +18,13 @@ import spring.group.spring.security.JwtProvider;
 import javax.naming.AuthenticationException;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtProvider = jwtProvider;
-    }
 
     public User getUserById(Integer id) {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
@@ -57,9 +53,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException {
+    public LoginResponseDTO login(LoginRequestDTO loginRequest) throws AuthenticationException{
         User user = userRepository.findUserByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new AuthenticationException("User not found"));
+                .orElseThrow(() -> new AuthenticationException("Invalid Credentials"));
 
         String rawPassword = loginRequest.getPassword();
         String encodedPassword = user.getPassword();
@@ -71,7 +67,7 @@ public class UserService {
             response.setRoles(user.getRoles());
             return response;
         } else {
-            throw new AuthenticationException("Invalid password");
+            throw new AuthenticationException("Invalid Credentials");
         }
 
     }
