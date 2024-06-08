@@ -3,6 +3,7 @@ package spring.group.spring.controllers;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.users.AcceptUserRequestDTO;
-import spring.group.spring.models.dto.users.LoginRequestDTO;
-import spring.group.spring.models.dto.users.UserDTO;
-import spring.group.spring.models.dto.users.UserRequest;
+import spring.group.spring.models.dto.users.*;
 import spring.group.spring.services.BankAccountService;
 import spring.group.spring.services.UserService;
 
@@ -27,18 +25,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("users")
 public class UserController {
 
     private final UserService userService;
     private final BankAccountService bankAccountService;
     private final ModelMapper mapper;
-
-    public UserController(UserService userService, BankAccountService bankAccountService) {
-        this.userService = userService;
-        this.bankAccountService = bankAccountService;
-        this.mapper = new ModelMapper();
-    }
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -89,20 +82,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        try {
-            return ResponseEntity.ok(userService.login(loginRequest));
-        } catch (AuthenticationException | JwtException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public LoginResponseDTO login(@Valid @RequestBody LoginRequestDTO loginRequest) throws AuthenticationException {
+            return userService.login(loginRequest);
     }
 
     @GetMapping("/userinfo")
-    public ResponseEntity<UserDTO> getMyUserInfo() {
+    public UserDTO getMyUserInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.getUserByUsername(auth.getName());
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        return ResponseEntity.ok(userDTO);
+        return mapper.map(user, UserDTO.class);
     }
 
     @GetMapping("/getUnapprovedUsers")
@@ -125,5 +113,14 @@ public class UserController {
         user.setDaily_transfer_limit(dailyLimit);
         userService.updateUser(user);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/myAccounts")
+    public List<BankAccount> getBankAccountsByUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userService.getUserByUsername(username);
+        return bankAccountService.getBankAccountsByUserId(user.getUser_id());
     }
 }

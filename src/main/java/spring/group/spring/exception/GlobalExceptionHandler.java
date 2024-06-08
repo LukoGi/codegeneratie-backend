@@ -12,6 +12,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import spring.group.spring.exception.exceptions.*;
 
+import javax.naming.AuthenticationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +97,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleDailyTransferLimitHitException(DailyTransferLimitHitException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        return new ResponseEntity<>(apiError.getMessage(), apiError.getStatus());
     }
 
     @ExceptionHandler(value = {Exception.class})

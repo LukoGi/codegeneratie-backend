@@ -36,7 +36,6 @@ public class WebSecurityConfiguration {
         httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/login").permitAll());
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/accounts/login").permitAll());
-        httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/home").authenticated());
         httpSecurity.authorizeHttpRequests(requests -> requests.requestMatchers("/userinfo").authenticated());
         //all http requests still needs to be registered
         httpSecurity.authorizeHttpRequests(requests -> requests.anyRequest().permitAll());

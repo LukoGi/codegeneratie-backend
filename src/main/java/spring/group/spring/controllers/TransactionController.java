@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -13,14 +14,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;
-
-    public TransactionController(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
 
     @GetMapping("/")
     //@PreAuthorize("hasRole('ROLE_ADMIN')")
