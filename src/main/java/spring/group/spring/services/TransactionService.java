@@ -27,14 +27,6 @@ public class TransactionService {
     private final BankAccountRepository bankAccountRepository;
     private final UserRepository userRepository;
 
-
-    public TransactionService(TransactionRepository transactionRepository, BankAccountRepository bankAccountRepository, UserRepository userRepository) {
-        this.transactionRepository = transactionRepository;
-        this.bankAccountRepository = bankAccountRepository;
-        this.userRepository = userRepository;
-    }
-    private final ModelMapper mapper;
-
     public Transaction getTransactionById(Integer id) {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
