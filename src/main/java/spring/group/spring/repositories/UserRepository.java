@@ -11,11 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer>, UserRepositoryCustom {
+public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findUserByUsername(String username);
-
-    //List<User> findByIs_approvedFalse();
-
 
 
     @Query("SELECT u FROM User u WHERE u.is_approved = false")
