@@ -26,6 +26,7 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final ModelMapper mapper = new ModelMapper();
 
+
     public TransactionService(TransactionRepository transactionRepository, BankAccountRepository bankAccountRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.bankAccountRepository = bankAccountRepository;
@@ -185,12 +186,26 @@ public class TransactionService {
         return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 
-    public TransactionsDTO convertToDTO(Transaction transaction) {
-        TransactionsDTO transactionsDTO = mapper.map(transaction, TransactionsDTO.class);
-        String recipientName = transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name();
-        transactionsDTO.setRecipientName(recipientName);
-        String initiatorName = transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name();
-        transactionsDTO.setInitiatorName(initiatorName);
+    public TransactionOverviewDTO convertToDTO(Transaction transaction) {
+        TransactionOverviewDTO transactionsDTO = new TransactionOverviewDTO();
+
+        transactionsDTO.setDate(transaction.getDate());
+        transactionsDTO.setTransferAmount(transaction.getTransfer_amount());
+        transactionsDTO.setDescription(transaction.getDescription());
+
+        if (transaction.getFrom_account() != null) {
+            transactionsDTO.setFromAccountIban(transaction.getFrom_account().getIban());
+        }
+
+        if (transaction.getTo_account() != null) {
+            transactionsDTO.setToAccountIban(transaction.getTo_account().getIban());
+            transactionsDTO.setRecipientName(transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name());
+        }
+
+        if (transaction.getInitiator_user() != null) {
+            transactionsDTO.setInitiatorName(transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name());
+        }
+
         return transactionsDTO;
     }
 
