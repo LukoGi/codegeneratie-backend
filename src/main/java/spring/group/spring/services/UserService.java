@@ -1,5 +1,6 @@
 package spring.group.spring.services;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,18 +18,13 @@ import spring.group.spring.security.JwtProvider;
 import javax.naming.AuthenticationException;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtProvider = jwtProvider;
-    }
 
     public User getUserById(Integer id) {
         return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);

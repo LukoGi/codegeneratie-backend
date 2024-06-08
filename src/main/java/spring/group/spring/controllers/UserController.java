@@ -3,6 +3,7 @@ package spring.group.spring.controllers;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,18 +28,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("users")
 public class UserController {
 
     private final UserService userService;
     private final BankAccountService bankAccountService;
     private final ModelMapper mapper;
-
-    public UserController(UserService userService, BankAccountService bankAccountService) {
-        this.userService = userService;
-        this.bankAccountService = bankAccountService;
-        this.mapper = new ModelMapper();
-    }
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

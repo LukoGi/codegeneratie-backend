@@ -1,6 +1,7 @@
 package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 
 import org.springframework.data.domain.Page;
@@ -20,16 +21,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("accounts")
 public class BankAccountController {
 
     private final BankAccountService bankAccountService;
     private final ModelMapper mapper;
-
-    public BankAccountController(BankAccountService bankAccountService) {
-        this.bankAccountService = bankAccountService;
-        this.mapper = new ModelMapper();
-    }
 
     @GetMapping("/")
     public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
