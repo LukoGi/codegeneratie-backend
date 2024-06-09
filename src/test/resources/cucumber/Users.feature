@@ -1,9 +1,8 @@
 Feature: Users CRUD Operations
 
-  Scenario: Retrieve all users
+  Scenario: Retrieve all users as an Admin
     Given the endpoint for "users/" is available for method "GET"
-    And I am authenticated as an admin
-    When I retrieve all users
+    When I retrieve all users as an Admin
     Then I should receive all users
 
   Scenario: Successfully create a user
@@ -39,3 +38,5 @@ Feature: Users CRUD Operations
     And the user data is invalid
     When I update the user with ID 52390
     Then the update of the user should fail
+
+    # todo setdailylimit

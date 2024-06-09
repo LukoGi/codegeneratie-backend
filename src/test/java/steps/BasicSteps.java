@@ -25,4 +25,5 @@ public class BasicSteps extends BaseSteps {
                 .toList();
         Assertions.assertTrue(options.contains(method.toUpperCase()));
     }
+
 }

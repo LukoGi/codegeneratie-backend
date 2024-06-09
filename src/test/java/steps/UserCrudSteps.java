@@ -16,8 +16,9 @@ public class UserCrudSteps extends BaseSteps {
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");
 
-    @When("I retrieve all users")
+    @When("I retrieve all users as an Admin")
     public void iRetrieveAllUsers() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
                 .exchange("/users/",
                         HttpMethod.GET,
@@ -25,11 +26,6 @@ public class UserCrudSteps extends BaseSteps {
                         String.class);
 
         System.out.println("Response Body: " + response.getBody());
-    }
-
-    @And("I am authenticated as an admin")
-    public void iAmAuthenticatedAsAnAdmin() {
-        httpHeaders.add("Authorization", "Bearer " + adminToken);
     }
 
     @Then("I should receive all users")

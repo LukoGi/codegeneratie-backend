@@ -38,3 +38,5 @@ Feature: Bank Accounts CRUD Operations
     And the bank account data is valid
     When I update the bank account with ID 999
     Then the update of the bank account should fail
+
+    # todo: get/id put/id /user/userid login withdraw deposit setabsolutelimit
