@@ -1,18 +1,18 @@
 Feature: Bank Accounts CRUD Operations
 
   Scenario: Retrieve all bank accounts
-    Given the endpoint for "accounts/all" is available for method "GET"
+    Given the endpoint for "accounts/" is available for method "GET"
     When I retrieve all bank accounts
     Then I should receive all bank accounts
 
   Scenario: Successfully create a bank account
-    Given the endpoint for "accounts/create" is available for method "POST"
+    Given the endpoint for "accounts/" is available for method "POST"
     And the bank account data is valid
     When I create a new bank account
     Then the bank account should be created successfully
 
   Scenario: Fail to create a bank account
-    Given the endpoint for "accounts/create" is available for method "POST"
+    Given the endpoint for "accounts/" is available for method "POST"
     And the bank account data is invalid
     When I create a new bank account with invalid data
     Then the creation of the bank account should fail

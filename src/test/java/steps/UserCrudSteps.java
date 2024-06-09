@@ -13,15 +13,23 @@ import spring.group.spring.models.User;
 
 public class UserCrudSteps extends BaseSteps {
 
+    private final String adminToken = System.getenv("ADMIN_TOKEN");
+    private final String userToken = System.getenv("USER_TOKEN");
+
     @When("I retrieve all users")
     public void iRetrieveAllUsers() {
         response = restTemplate
-                .exchange("/users/all",
+                .exchange("/users/",
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
 
         System.out.println("Response Body: " + response.getBody());
+    }
+
+    @And("I am authenticated as an admin")
+    public void iAmAuthenticatedAsAnAdmin() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
     }
 
     @Then("I should receive all users")
@@ -47,7 +55,7 @@ public class UserCrudSteps extends BaseSteps {
     @When("I create a new user")
     public void iCreateANewUser() {
         response = restTemplate
-                .exchange("/users/createUser",
+                .exchange("/users/",
                         HttpMethod.POST,
                         new HttpEntity<>(requestBody, httpHeaders),
                         String.class);
@@ -73,7 +81,7 @@ public class UserCrudSteps extends BaseSteps {
     @When("I create a new user with invalid data")
     public void iCreateANewUserWithInvalidData() {
         response = restTemplate
-                .exchange("/users/create",
+                .exchange("/users/",
                         HttpMethod.POST,
                         new HttpEntity<>(requestBody, httpHeaders),
                         String.class);
@@ -81,7 +89,7 @@ public class UserCrudSteps extends BaseSteps {
 
     @Then("the creation of the user should fail")
     public void theCreationOfTheUserShouldFail() {
-        Assertions.assertEquals(405, response.getStatusCode().value());
+        Assertions.assertEquals(400, response.getStatusCode().value());
     }
 
 
@@ -111,7 +119,7 @@ public class UserCrudSteps extends BaseSteps {
     @When("I update the user with ID {int}")
     public void iUpdateTheUserWithID(int id) {
         response = restTemplate
-                .exchange("/users/updateUser/{id}",
+                .exchange("/users/{id}",
                         HttpMethod.PUT,
                         new HttpEntity<>(requestBody, httpHeaders),
                         String.class,

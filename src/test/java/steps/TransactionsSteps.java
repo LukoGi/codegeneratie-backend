@@ -5,6 +5,10 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 public class TransactionsSteps extends BaseSteps {
+
+    private final String adminToken = System.getenv("ADMIN_TOKEN");
+    private final String userToken = System.getenv("USER_TOKEN");
+
     @When("I retrieve all transactions")
     public void iRetrieveAllTransactions() {
 

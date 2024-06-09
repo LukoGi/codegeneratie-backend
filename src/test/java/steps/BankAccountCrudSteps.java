@@ -18,13 +18,14 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 public class BankAccountCrudSteps extends BaseSteps {
-    // create a JWT token to use for authentication
 
+    private final String adminToken = System.getenv("ADMIN_TOKEN");
+    private final String userToken = System.getenv("USER_TOKEN");
 
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {
         response = restTemplate
-                .exchange("/accounts/all",
+                .exchange("/accounts/",
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
@@ -57,7 +58,7 @@ public class BankAccountCrudSteps extends BaseSteps {
         System.out.println("Request Body: " + requestBody);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/accounts/create",
+                .exchange("/accounts/",
                         HttpMethod.POST,
                         entity,
                         String.class);
@@ -87,7 +88,7 @@ public class BankAccountCrudSteps extends BaseSteps {
     public void iCreateANewBankAccountWithInvalidData() {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/accounts/create",
+                .exchange("/accounts/",
                         HttpMethod.POST,
                         entity,
                         String.class);
