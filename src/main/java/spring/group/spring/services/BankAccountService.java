@@ -153,13 +153,6 @@ public class BankAccountService {
         return isValidIban(iban) && !getBankAccountByIban(iban);
     }
 
-    public BankAccount closeBankAccount(int accountId) {
-        BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
-        bankAccount.setIs_active(false);
-        return bankAccountRepository.save(bankAccount);
-    }
-
-
     public BankAccount createBankAccountEntity(User user, AccountType accountType, BigDecimal absolute_limit) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setIban("NL" + String.format("%02d", SECURE_RANDOM.nextInt(10)) + "INHO0" + String.format("%09d", SECURE_RANDOM.nextInt(1000000000)));
@@ -172,5 +165,7 @@ public class BankAccountService {
 
         return bankAccount;
     }
+
+
 
 }

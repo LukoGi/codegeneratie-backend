@@ -50,6 +50,7 @@ public class UserController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO createUser(@Valid @RequestBody UserRequest userRequestDTO) {
         User user = mapper.map(userRequestDTO, User.class);
         User newUser = userService.createUser(user);
@@ -57,6 +58,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequestDTO) {
         User user = mapper.map(userRequestDTO, User.class);
         user.setUser_id(id);
@@ -65,7 +67,7 @@ public class UserController {
     }
 
     @PutMapping("/acceptUser/{id}")
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO acceptUser(@PathVariable Integer id, @RequestBody AcceptUserRequestDTO acceptUserRequestDTO) {
         User user = userService.getUserById(id);
 
@@ -94,12 +96,14 @@ public class UserController {
     }
 
     @GetMapping("/getUnapprovedUsers")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDTO> getUnapprovedUsers() {
         List<User> users = userService.getUnapprovedUsers();
         return users.stream().map(user -> mapper.map(user, UserDTO.class)).toList();
     }
 
     @GetMapping("/getUsersWithoutBankAccount")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserDTO> getUsersWithoutBankAccount() {
         List<User> users = userService.getUsersWithoutBankAccount();
         return users.stream().map(user -> mapper.map(user, UserDTO.class)).toList();
@@ -119,6 +123,7 @@ public class UserController {
     }
 
     @GetMapping("/myAccounts")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<BankAccount> getBankAccountsByUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
