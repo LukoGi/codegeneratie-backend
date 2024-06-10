@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.dto.users.UserDTO;
+import spring.group.spring.models.dto.users.UserNameDTO;
 
 import java.math.BigDecimal;
 
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 public class BankAccountResponseDTO {
     private Integer account_id;
 
-    private UserDTO user;
+    private UserNameDTO user;
 
     private String iban;
 

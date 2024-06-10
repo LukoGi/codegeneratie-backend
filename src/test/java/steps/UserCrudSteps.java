@@ -10,14 +10,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import spring.group.spring.models.User;
+import spring.group.spring.models.dto.bankaccounts.SetAbsoluteLimitRequestDTO;
+import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
+
+import java.math.BigDecimal;
 
 public class UserCrudSteps extends BaseSteps {
 
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");
 
-    @When("I retrieve all users")
+    @When("I retrieve all users as an Admin")
     public void iRetrieveAllUsers() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
                 .exchange("/users/",
                         HttpMethod.GET,
@@ -25,11 +30,6 @@ public class UserCrudSteps extends BaseSteps {
                         String.class);
 
         System.out.println("Response Body: " + response.getBody());
-    }
-
-    @And("I am authenticated as an admin")
-    public void iAmAuthenticatedAsAnAdmin() {
-        httpHeaders.add("Authorization", "Bearer " + adminToken);
     }
 
     @Then("I should receive all users")
@@ -139,4 +139,53 @@ public class UserCrudSteps extends BaseSteps {
     }
 
 
+    @And("the setdailylimit data is valid")
+    public void theSetdailylimitDataIsValid() {
+        SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(10));
+        requestBody = requestDTO.getDaily_limit().toString();
+    }
+
+    @And("the setdailylimit data is invalid")
+    public void theSetdailylimitDataIsInvalid() {
+        SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(-10));
+        requestBody = requestDTO.getDaily_limit().toString();
+    }
+
+    @When("I set daily limit to user {string} as admin")
+    public void iSetDailyLimitToUserAsAdmin(String id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/users/" + id + "/setDailyLimit?dailyLimit=" + requestBody,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @When("I set daily limit to user {string} account as John Doe")
+    public void iSetDailyLimitToUserAccountAsJohnDoe(String id) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/users/" + id + "/setDailyLimit?dailyLimit=" + requestBody,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive user success message")
+    public void iShouldReceiveUserSuccessMessage() {
+        System.out.println("Response Body: " + response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Then("I should receive a user error message")
+    public void iShouldReceiveAUserErrorMessage() {
+        Assertions.assertEquals(400, response.getStatusCode().value());
+    }
+
+    @Then("I should receive a user forbidden message")
+    public void iShouldReceiveAUserForbiddenMessage() {
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
 }

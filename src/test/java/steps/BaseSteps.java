@@ -1,8 +1,10 @@
 package steps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.spring.CucumberContextConfiguration;
+import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.BufferingClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.test.context.ActiveProfiles;
 import spring.group.spring.Application;
 
 import java.util.Arrays;
@@ -19,7 +24,7 @@ import java.util.List;
 
 @CucumberContextConfiguration
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
+@ActiveProfiles("test")
 public class BaseSteps {
 
     @Autowired
@@ -27,6 +32,7 @@ public class BaseSteps {
 
     @Autowired
     protected ObjectMapper mapper;
+    @Getter
     protected HttpHeaders httpHeaders;
     protected String requestBody;
     protected ResponseEntity<String> response;
@@ -37,5 +43,6 @@ public class BaseSteps {
         this.modelMapper = new ModelMapper();
         this.httpHeaders.add("Content-Type", "application/json");
     }
+
 
 }

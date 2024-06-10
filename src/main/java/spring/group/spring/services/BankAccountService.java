@@ -46,21 +46,25 @@ public class BankAccountService {
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
-        if (bankAccountRepository.findById(bankAccount.getAccount_id()).isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-        if (isPincodeEncrypted(bankAccount.getPincode())) {
-            String encryptedPincode = passwordEncoder.encode(bankAccount.getPincode());
-            bankAccount.setPincode(encryptedPincode);
+        String pincode = bankAccountRepository.findById(bankAccount.getAccount_id()).orElseThrow(EntityNotFoundException::new).getPincode();
+        if (!passwordEncoder.matches(bankAccount.getPincode(), pincode)) {
+            String newPincode = passwordEncoder.encode(bankAccount.getPincode());
+            bankAccount.setPincode(newPincode);
+        } else {
+            bankAccount.setPincode(pincode);
         }
 
+
+        if (!isValidIban(bankAccount.getIban())){
+            throw new IllegalArgumentException("Invalid IBAN");
+        }
         return bankAccountRepository.save(bankAccount);
     }
 
     public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
         if (bankAccount == null) {
-            throw new EntityNotFoundException();
+            throw new IncorrectIbanException();
         }
 
         String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
@@ -79,6 +83,10 @@ public class BankAccountService {
     }
 
     public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
+
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
@@ -101,6 +109,10 @@ public class BankAccountService {
     }
 
     public WithdrawDepositResponseDTO depositMoney(Integer id, BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
+
         amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         BankAccount bankAccount = bankAccountRepository.findById(id)
@@ -160,11 +172,5 @@ public class BankAccountService {
 
         return bankAccount;
     }
-
-    private boolean isPincodeEncrypted(String pincode) {
-        String encryptedPincode = passwordEncoder.encode(pincode);
-        return !passwordEncoder.matches(pincode, encryptedPincode);
-    }
-
 
 }

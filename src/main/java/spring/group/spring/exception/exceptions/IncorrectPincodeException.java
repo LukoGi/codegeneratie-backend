@@ -2,6 +2,6 @@ package spring.group.spring.exception.exceptions;
 
 public class IncorrectPincodeException extends RuntimeException{
     public IncorrectPincodeException() {
-        super("Incorrect pincode");
+        super("Incorrect credentials");
     }
 }

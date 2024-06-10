@@ -2,21 +2,32 @@ package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.test.annotation.Rollback;
+import spring.group.spring.config.DataSeeder;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
+import spring.group.spring.models.dto.bankaccounts.*;
+
+import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+
+@RequiredArgsConstructor
 public class BankAccountCrudSteps extends BaseSteps {
 
     private final String adminToken = System.getenv("ADMIN_TOKEN");
@@ -36,23 +47,21 @@ public class BankAccountCrudSteps extends BaseSteps {
     @Then("I should receive all bank accounts")
     public void iShouldReceiveAllBankAccounts() {
         Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            List<BankAccountResponseDTO> bankAccounts = Arrays.asList(mapper.readValue(response.getBody(), BankAccountResponseDTO[].class));
+            Assertions.assertFalse(bankAccounts.isEmpty());
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
     }
 
     @And("the bank account data is valid")
     public void theBankAccountDataIsValid() throws JsonProcessingException {
-        User user = new User();
-        user.setUser_id(2);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
-        user.setEmail("john@doe.com");
-        user.setPhone_number("1234567890");
-        user.setBsn_number("123456789");
-        user.setPassword("password");
-
-        BankAccount bankAccount = new BankAccount("DE89370400440532013000", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
+        BankAccountRequestDTO bankAccount = new BankAccountRequestDTO(1, "NL91ABNA0417164305", new BigDecimal(500), AccountType.CHECKINGS, true, new BigDecimal(100), "1111");
             requestBody = mapper.writeValueAsString(bankAccount);
     }
 
+    @Rollback
     @When("I create a new bank account")
     public void iCreateANewBankAccount() {
         System.out.println("Request Body: " + requestBody);
@@ -71,19 +80,11 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @And("the bank account data is invalid")
     public void theBankAccountDataIsInvalid() throws JsonProcessingException {
-        User user = new User();
-        user.setUser_id(33);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
-        user.setEmail("john@doe.com");
-        user.setPhone_number("1234567890");
-        user.setBsn_number("123456789");
-        user.setPassword("password");
-
-        BankAccount bankAccount = new BankAccount("abc", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
+        BankAccountRequestDTO bankAccount = new BankAccountRequestDTO(1,"abc", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234");
         requestBody = mapper.writeValueAsString(bankAccount);
     }
 
+    @Rollback
     @When("I create a new bank account with invalid data")
     public void iCreateANewBankAccountWithInvalidData() {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
@@ -98,8 +99,10 @@ public class BankAccountCrudSteps extends BaseSteps {
     public void theCreationOfTheBankAccountShouldFail() {
         Assertions.assertEquals(400, response.getStatusCode().value());
     }
-    @When("I retrieve the bank account by ID {int}")
-    public void iRetrieveTheBankAccountByID(int id) {
+
+    @When("I retrieve the bank account by ID {int} as user")
+    public void iRetrieveTheBankAccountByIDAsUser(int id) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
         response = restTemplate
                 .exchange("/accounts/{id}",
                         HttpMethod.GET,
@@ -107,33 +110,45 @@ public class BankAccountCrudSteps extends BaseSteps {
                         String.class,
                         id);
     }
+
+    @When("I retrieve the bank account by ID {int} as admin")
+    public void iRetrieveTheBankAccountByIDAsAdmin(int id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        response = restTemplate
+                .exchange("/accounts/{id}",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class,
+                        id);
+    }
+
     @Then("I should receive the bank account details")
     public void iShouldReceiveTheBankAccountDetails() {
         Assertions.assertEquals(200, response.getStatusCode().value());
         Assertions.assertNotNull(response.getBody());
+        try {
+            BankAccountDTO bankAccount = mapper.readValue(response.getBody(), BankAccountDTO.class);
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
     }
-
 
     @Then("I should receive a bank account error message")
     public void iShouldReceiveABankAccountErrorMessage() {
         int statusCode = response.getStatusCode().value();
+        System.out.println(response.getStatusCode());
         Assertions.assertTrue(statusCode == 400 || statusCode == 404);
     }
 
-    @When("I update the bank account with ID {int}")
-    public void iUpdateTheBankAccountWithID(int id) throws JsonProcessingException {
-        User user = new User();
-        user.setUser_id(1);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
-        user.setEmail("john@doe.com");
-        user.setPhone_number("1234567890");
-        user.setBsn_number("123456789");
-        user.setPassword("password");
+    @Then("I should receive a bank account forbidden message")
+    public void iShouldReceiveABankAccountForbiddenMessage() {
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
 
-        BankAccount bankAccount = new BankAccount("DE89370400440532013000", new BigDecimal(100), AccountType.SAVINGS, true, new BigDecimal(1000), "1234", user);
-        String requestBody = mapper.writeValueAsString(bankAccount);
-
+    @Rollback
+    @When("I update the bank account with ID {int} as admin")
+    public void iUpdateTheBankAccountWithIDAsAdmin(int id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
                 .exchange("/accounts/{id}",
@@ -141,17 +156,225 @@ public class BankAccountCrudSteps extends BaseSteps {
                         entity,
                         String.class,
                         id);
-        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Rollback
+    @When("I update the bank account with ID {int} as user")
+    public void iUpdateTheBankAccountWithIDAsUser(int id) throws JsonProcessingException {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/{id}",
+                        HttpMethod.PUT,
+                        entity,
+                        String.class,
+                        id);
     }
 
     @Then("the bank account should be updated successfully")
     public void theBankAccountShouldBeUpdatedSuccessfully() {
-        Assertions.assertEquals(400, response.getStatusCode().value()); // change to 201
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            BankAccountResponseDTO returnedBankAccount = mapper.readValue(response.getBody(), BankAccountResponseDTO.class);
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
     }
 
     @Then("the update of the bank account should fail")
     public void theUpdateOfTheBankAccountShouldFail() {
         int statusCode = response.getStatusCode().value();
+        System.out.println(response.getStatusCode());
         Assertions.assertTrue(statusCode == 400 || statusCode == 404);
+    }
+
+    @When("I retrieve the bank account by user ID {int} as admin")
+    public void iRetrieveTheBankAccountByUserIDAsAdmin(int id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        response = restTemplate
+                .exchange("/accounts/user/{id}",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class,
+                        id);
+    }
+
+    @Then("I should receive a list of bank accounts")
+    public void iShouldReceiveAListOfBankAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            List<BankAccountResponseDTO> bankAccounts = Arrays.asList(mapper.readValue(response.getBody(), BankAccountResponseDTO[].class));
+            Assertions.assertFalse(bankAccounts.isEmpty());
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
+    }
+
+    @And("the atmlogin data is valid")
+    public void theAtmloginDataIsValid() throws JsonProcessingException{
+        BankAccountATMLoginRequest bankAccountATMLoginResponse = new BankAccountATMLoginRequest("John Doe", "NL91ABNA0417164305", 1111);
+        requestBody = mapper.writeValueAsString(bankAccountATMLoginResponse);
+    }
+
+    @When("I login to the bank account")
+    public void iLoginToTheBankAccount() {
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/login",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive a login success message")
+    public void iShouldReceiveALoginSuccessMessage() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            BankAccountATMLoginResponse bankAccountATMLoginResponse = mapper.readValue(response.getBody(), BankAccountATMLoginResponse.class);
+            Assertions.assertNotNull(bankAccountATMLoginResponse);
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
+    }
+
+    @And("the atmlogin data is wrong")
+    public void theAtmloginDataIsWrong() throws JsonProcessingException{
+        BankAccountATMLoginRequest bankAccountATMLoginResponse = new BankAccountATMLoginRequest("John Doe", "NL91ABNA0417164305", 1112);
+        requestBody = mapper.writeValueAsString(bankAccountATMLoginResponse);
+    }
+
+    @Then("I should receive a login error message")
+    public void iShouldReceiveALoginErrorMessage() {
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
+
+    @And("the withdraw data is valid")
+    public void theWithdrawDataIsValid() throws JsonProcessingException {
+        WithdrawDepositRequestDTO requestDTO = new WithdrawDepositRequestDTO(new BigDecimal(100));
+        requestBody = mapper.writeValueAsString(requestDTO);
+    }
+
+    @Then("I should receive a withdraw success message")
+    public void iShouldReceiveAWithdrawSuccessMessage() {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            WithdrawDepositResponseDTO withdrawDepositResponseDTO = mapper.readValue(response.getBody(), WithdrawDepositResponseDTO.class);
+            Assertions.assertNotNull(withdrawDepositResponseDTO);
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
+    }
+
+    @Then("I should receive a withdraw forbidden message")
+    public void iShouldReceiveAWithdrawForbiddenMessage() {
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
+
+    @When("I withdraw money from bank account {string} account as John Doe")
+    public void iWithdrawMoneyFromBankAccountAccountAsJohnDoe(String id) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/withdraw",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
+    }
+
+    @And("the withdraw data is too much")
+    public void theWithdrawDataIsTooMuch() throws JsonProcessingException {
+        WithdrawDepositRequestDTO requestDTO = new WithdrawDepositRequestDTO(new BigDecimal(100000));
+        requestBody = mapper.writeValueAsString(requestDTO);
+    }
+
+    @Then("I should receive a withdraw insufficients funds message")
+    public void iShouldReceiveAWithdrawInsufficientsFundsMessage() {
+        Assertions.assertEquals(400, response.getStatusCode().value());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("Insufficient funds"));
+    }
+
+    @And("the withdraw data is invalid")
+    public void theWithdrawDataIsInvalid() {
+        requestBody = "invalid";
+    }
+
+    @Then("I should receive a withdraw error message")
+    public void iShouldReceiveAWithdrawErrorMessage() {
+        Assertions.assertEquals(400, response.getStatusCode().value());
+    }
+
+    @And("the deposit data is valid")
+    public void theDepositDataIsValid() throws JsonProcessingException{
+        WithdrawDepositRequestDTO requestDTO = new WithdrawDepositRequestDTO(new BigDecimal(100));
+        requestBody = mapper.writeValueAsString(requestDTO);
+    }
+
+    @When("I deposit money to bank account {string} account as John Doe")
+    public void iDepositMoneyToBankAccountAccountAsJohnDoe(String id) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/deposit",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive a deposit success message")
+    public void iShouldReceiveADepositSuccessMessage() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+        try {
+            WithdrawDepositResponseDTO withdrawDepositResponseDTO = mapper.readValue(response.getBody(), WithdrawDepositResponseDTO.class);
+            Assertions.assertNotNull(withdrawDepositResponseDTO);
+        } catch (JsonProcessingException e) {
+            Assertions.fail("The response is not of the expected type");
+        }
+    }
+
+    @And("the deposit data is invalid")
+    public void theDepositDataIsInvalid() throws JsonProcessingException {
+        WithdrawDepositRequestDTO requestDTO = new WithdrawDepositRequestDTO(new BigDecimal(-100));
+        requestBody = mapper.writeValueAsString(requestDTO);
+    }
+
+    @And("the setabsolutelimit data is valid")
+    public void theSetabsolutelimitDataIsValid() throws JsonProcessingException {
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
+        requestBody = requestDTO.getAbsolute_limit().toString();
+    }
+
+    @And("the setabsolutelimit data is invalid")
+    public void theSetabsolutelimitDataIsInvalid() throws JsonProcessingException {
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
+        requestBody = requestDTO.getAbsolute_limit().toString();
+    }
+
+    @When("I set absolute limit to bank account {string} account as admin")
+    public void iSetAbsoluteLimitToBankAccountAccountAsAdmin(String id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/setAbsoluteLimit?absoluteLimit=" + requestBody,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @When("I set absolute limit to bank account {string} account as John Doe")
+    public void iSetAbsoluteLimitToBankAccountAccountAsJohnDoe(String id) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/setAbsoluteLimit?absoluteLimit=" + requestBody,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive bank account success message")
+    public void iShouldReceiveBankAccountSuccessMessage() {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
     }
 }
