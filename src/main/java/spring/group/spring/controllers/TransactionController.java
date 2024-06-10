@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.*;
@@ -64,8 +65,8 @@ public class TransactionController {
         return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
     }
 
-
     @PostMapping("/transfer")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #transferRequestDTO)")
     public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
