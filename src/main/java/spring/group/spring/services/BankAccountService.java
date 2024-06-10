@@ -54,13 +54,16 @@ public class BankAccountService {
             bankAccount.setPincode(encryptedPincode);
         }
 
+        if (!isValidIban(bankAccount.getIban())){
+            throw new IllegalArgumentException("Invalid IBAN");
+        }
         return bankAccountRepository.save(bankAccount);
     }
 
     public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = bankAccountRepository.findByIban(loginRequest.getIban());
         if (bankAccount == null) {
-            throw new EntityNotFoundException();
+            throw new IncorrectIbanException();
         }
 
         String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();

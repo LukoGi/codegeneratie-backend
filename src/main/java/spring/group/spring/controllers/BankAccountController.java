@@ -37,7 +37,7 @@ public class BankAccountController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("(hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)) or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);

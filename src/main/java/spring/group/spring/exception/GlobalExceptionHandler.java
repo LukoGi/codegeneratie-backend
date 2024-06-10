@@ -64,7 +64,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {IncorrectFullnameOnCardException.class})
     public ResponseEntity<Object> handleIncorrectFullnameOnCardException(IncorrectFullnameOnCardException e){
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {IncorrectIbanException.class})
+    public ResponseEntity<Object> handleIncorrectIbanException(IncorrectIbanException e){
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
