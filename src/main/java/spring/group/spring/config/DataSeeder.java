@@ -56,7 +56,7 @@ public class DataSeeder implements ApplicationRunner {
                 new BigDecimal("500.00"),
                 AccountType.CHECKINGS,
                 true,
-                new BigDecimal("100.00"),
+                new BigDecimal("-100.00"),
                 passwordEncoder.encode("1111"),
                 user
         );
@@ -69,7 +69,7 @@ public class DataSeeder implements ApplicationRunner {
                 new BigDecimal("1800.00"),
                 AccountType.CHECKINGS,
                 true,
-                new BigDecimal("200.00"),
+                new BigDecimal("-200.00"),
                 passwordEncoder.encode("2222"),
                 user
         );

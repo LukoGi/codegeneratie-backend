@@ -1,7 +1,6 @@
 package spring.group.spring.services;
 
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -155,10 +154,11 @@ public class TransactionService {
 
     private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
-        BigDecimal newBalance = fromAccount.getBalance().subtract(transferAmount);
+        BigDecimal currentBalance = fromAccount.getBalance();
+        BigDecimal newBalance = currentBalance.subtract(transferAmount);
 
         if (newBalance.compareTo(absoluteLimit) < 0){
-            throw new AbsoluteTransferLimitHitException();
+            throw new AbsoluteLimitHitException();
         }
     }
 

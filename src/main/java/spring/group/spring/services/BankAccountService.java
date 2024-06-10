@@ -47,7 +47,7 @@ public class BankAccountService {
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
         String pincode = bankAccountRepository.findById(bankAccount.getAccount_id()).orElseThrow(EntityNotFoundException::new).getPincode();
-        if (!passwordEncoder.matches(bankAccount.getPincode(), pincode)) {
+        if ((!passwordEncoder.matches(bankAccount.getPincode(), pincode)) && !bankAccount.getPincode().equals(pincode)) {
             String newPincode = passwordEncoder.encode(bankAccount.getPincode());
             bankAccount.setPincode(newPincode);
         } else {
@@ -92,17 +92,12 @@ public class BankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
 
-        if (bankAccount.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException();
-        }
-
-        bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
-
-        WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
-        withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
-
         TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
+
+        bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
+        WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
+        withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
         bankAccountRepository.save(bankAccount);
 
         return withdrawDepositResponseDTO;
