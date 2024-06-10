@@ -78,4 +78,63 @@ Feature: Bank Accounts CRUD Operations
     When I login to the bank account
     Then I should receive a login error message
 
-    # todo:  withdraw deposit setabsolutelimit
+  Scenario: Successfully withdraw money from a bank account
+    Given the endpoint for "accounts/1/withdraw" is available for method "POST"
+    And the withdraw data is valid
+    When I withdraw money from bank account "1" account as John Doe
+    Then I should receive a withdraw success message
+
+  Scenario: Fail to withdraw money from a bank account as not owner of the account
+    Given the endpoint for "accounts/2/withdraw" is available for method "POST"
+    And the withdraw data is valid
+    When I withdraw money from bank account "2" account as John Doe
+    Then I should receive a bank account forbidden message
+
+  Scenario: Fail to withdraw money from the bank account bc of insufficient funds
+    Given the endpoint for "accounts/1/withdraw" is available for method "POST"
+    And the withdraw data is too much
+    When I withdraw money from bank account "1" account as John Doe
+    Then I should receive a withdraw insufficients funds message
+
+  Scenario: Fail to withdraw money from the bank account bc of invalid data
+    Given the endpoint for "accounts/1/withdraw" is available for method "POST"
+    And the withdraw data is invalid
+    When I withdraw money from bank account "1" account as John Doe
+    Then I should receive a bank account error message
+
+  Scenario: Successfully deposit money to a bank account
+    Given the endpoint for "accounts/1/deposit" is available for method "POST"
+    And the deposit data is valid
+    When I deposit money to bank account "1" account as John Doe
+    Then I should receive a deposit success message
+
+  Scenario: Fail to deposit money to a bank account as not owner of the account
+    Given the endpoint for "accounts/2/deposit" is available for method "POST"
+    And the deposit data is valid
+    When I deposit money to bank account "2" account as John Doe
+    Then I should receive a bank account forbidden message
+
+  Scenario: Fail to deposit money to the bank account bc of invalid data
+    Given the endpoint for "accounts/1/deposit" is available for method "POST"
+    And the deposit data is invalid
+    When I deposit money to bank account "1" account as John Doe
+    Then I should receive a bank account error message
+
+  Scenario: Successfully set absolute limit to a bank account
+    Given the endpoint for "accounts/1/setAbsoluteLimit" is available for method "PUT"
+    And the setabsolutelimit data is valid
+    When I set absolute limit to bank account "1" account as admin
+    Then I should receive bank account success message
+
+  Scenario: Fail to set absolute limit to a bank account as not admin
+    Given the endpoint for "accounts/1/setAbsoluteLimit" is available for method "PUT"
+    And the setabsolutelimit data is valid
+    When I set absolute limit to bank account "1" account as John Doe
+    Then I should receive a bank account forbidden message
+
+  Scenario: Fail to set absolute limit to the bank account bc of invalid data
+    Given the endpoint for "accounts/1/setAbsoluteLimit" is available for method "PUT"
+    And the setabsolutelimit data is invalid
+    When I set absolute limit to bank account "1" account as admin
+    Then I should receive a bank account error message
+

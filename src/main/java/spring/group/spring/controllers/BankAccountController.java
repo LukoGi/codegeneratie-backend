@@ -95,6 +95,9 @@ public class BankAccountController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
+        if (absoluteLimit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Absolute limit must be greater than or equal to 0");
+        }
         bankAccount.setAbsolute_limit(absoluteLimit);
         bankAccountService.updateBankAccount(bankAccount);
         return ResponseEntity.ok().build();

@@ -1,8 +1,10 @@
 package steps;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.spring.CucumberContextConfiguration;
+import lombok.Getter;
 import org.junit.jupiter.api.Assertions;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class BaseSteps {
 
     @Autowired
     protected ObjectMapper mapper;
+    @Getter
     protected HttpHeaders httpHeaders;
     protected String requestBody;
     protected ResponseEntity<String> response;
@@ -40,5 +43,6 @@ public class BaseSteps {
         this.modelMapper = new ModelMapper();
         this.httpHeaders.add("Content-Type", "application/json");
     }
+
 
 }

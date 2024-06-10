@@ -39,4 +39,21 @@ Feature: Users CRUD Operations
     When I update the user with ID 52390
     Then the update of the user should fail
 
-    # todo setdailylimit
+
+  Scenario: Successfully set daily limit to a user
+    Given the endpoint for "users/1/setDailyLimit" is available for method "PUT"
+    And the setdailylimit data is valid
+    When I set daily limit to user "1" as admin
+    Then I should receive user success message
+
+  Scenario: Fail to set daily limit to a user as not admin
+    Given the endpoint for "users/1/setDailyLimit" is available for method "PUT"
+    And the setdailylimit data is valid
+    When I set daily limit to user "1" account as John Doe
+    Then I should receive a user forbidden message
+
+  Scenario: Fail to set daily limit to users bc of invalid data
+    Given the endpoint for "users/1/setDailyLimit" is available for method "PUT"
+    And the setdailylimit data is invalid
+    When I set daily limit to user "1" as admin
+    Then I should receive a user error message

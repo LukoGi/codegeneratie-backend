@@ -1,5 +1,6 @@
 package steps;
 
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
@@ -25,5 +26,4 @@ public class BasicSteps extends BaseSteps {
                 .toList();
         Assertions.assertTrue(options.contains(method.toUpperCase()));
     }
-
 }

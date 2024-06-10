@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {IncorrectPincodeException.class})
     public ResponseEntity<Object> handleIncorrectPincodeException(IncorrectPincodeException e){
-        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
@@ -64,13 +64,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {IncorrectFullnameOnCardException.class})
     public ResponseEntity<Object> handleIncorrectFullnameOnCardException(IncorrectFullnameOnCardException e){
-        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
     @ExceptionHandler(value = {IncorrectIbanException.class})
     public ResponseEntity<Object> handleIncorrectIbanException(IncorrectIbanException e){
-        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
-        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED, e.getMessage());
+        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError.getMessage(), apiError.getStatus());
     }
 
