@@ -38,9 +38,10 @@ public class BankAccountController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
+    public BankAccount getBankAccountById(@PathVariable Integer id) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        return mapper.map(bankAccount, BankAccountDTO.class);
+        return bankAccount;
+//        return mapper.map(bankAccount, BankAccountDTO.class);
     }
 
     @PostMapping("/")
@@ -95,8 +96,8 @@ public class BankAccountController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        if (absoluteLimit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Absolute limit must be greater than or equal to 0");
+        if (absoluteLimit.compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalArgumentException("Absolute limit must be lesser than or equal to 0");
         }
         bankAccount.setAbsolute_limit(absoluteLimit);
         bankAccountService.updateBankAccount(bankAccount);

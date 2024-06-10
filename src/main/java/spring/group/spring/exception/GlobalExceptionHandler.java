@@ -93,8 +93,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(value = {AbsoluteTransferLimitHitException.class})
-    public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteTransferLimitHitException e){
+    @ExceptionHandler(value = {AbsoluteLimitHitException.class})
+    public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteLimitHitException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
