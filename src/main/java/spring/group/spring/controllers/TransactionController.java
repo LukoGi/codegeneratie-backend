@@ -2,6 +2,7 @@ package spring.group.spring.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +20,11 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final ModelMapper modelMapper;
 
     @GetMapping("/")
     //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Page<TransactionOverviewDTO> getAllTransactions(
+    public Page<TransactionOverviewResponseDTO> getAllTransactions(
             @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
@@ -41,18 +43,18 @@ public class TransactionController {
     }
 
     @PostMapping("/")
-    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionRequestDTO) {
-        return transactionService.createTransaction(transactionRequestDTO);
+    public TransactionRequestDTO createTransaction(@Valid @RequestBody TransactionResponseDTO transactionResponseDTO) {
+        return transactionService.createTransaction(transactionResponseDTO);
     }
 
     @PostMapping("/createWithIban")
-    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+    public TransactionRequestDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public List<TransactionOverviewDTO> getTransactionsByCustomerId(
-            @PathVariable Integer customerId,
+    @GetMapping("/account/{accountId}")
+    public List<TransactionHistoryDTO> getTransactionsByAccountId(
+            @PathVariable Integer accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam(required = false) BigDecimal minAmount,
@@ -60,18 +62,36 @@ public class TransactionController {
             @RequestParam(required = false) String iban,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer limit) {
-        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(customerId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
-        return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
+        Page<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
+        return transactions.getContent().stream()
+                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .toList();
+    }
+
+    @GetMapping("/users/{userId}")
+    public List<TransactionHistoryDTO> getTransactionsByUserId(
+            @PathVariable Integer userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(required = false) BigDecimal minAmount,
+            @RequestParam(required = false) BigDecimal maxAmount,
+            @RequestParam(required = false) String iban,
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(userId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
+        return transactions.getContent().stream()
+                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .toList();
     }
 
 
     @PostMapping("/transfer")
-    public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
+    public TransactionRequestDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
 
     @PostMapping("/employeeTransfer")
-    public TransactionResponseDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    public TransactionRequestDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         return transactionService.employeeTransferFunds(employeeTransferRequestDTO);
     }
 }

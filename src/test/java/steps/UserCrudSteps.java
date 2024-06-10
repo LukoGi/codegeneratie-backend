@@ -142,13 +142,13 @@ public class UserCrudSteps extends BaseSteps {
     @And("the setdailylimit data is valid")
     public void theSetdailylimitDataIsValid() {
         SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(10));
-        requestBody = requestDTO.getDaily_limit().toString();
+        requestBody = requestDTO.getDailyLimit().toString();
     }
 
     @And("the setdailylimit data is invalid")
     public void theSetdailylimitDataIsInvalid() {
         SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(-10));
-        requestBody = requestDTO.getDaily_limit().toString();
+        requestBody = requestDTO.getDailyLimit().toString();
     }
 
     @When("I set daily limit to user {string} as admin")

@@ -1,7 +1,6 @@
 package spring.group.spring.services;
 
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,7 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public TransactionResponseDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+    public TransactionRequestDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         try {
             User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
             BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
@@ -52,7 +51,7 @@ public class TransactionService {
 
             Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
 
-            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+            TransactionRequestDTO responseDTO = new TransactionRequestDTO();
             responseDTO.setTransaction_id(transaction.getTransaction_id());
 
             return responseDTO;
@@ -105,7 +104,7 @@ public class TransactionService {
     }
 
     // TODO: maybe make this method smaller / split it into multiple methods for better readability ;(
-    public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
+    public TransactionRequestDTO createTransaction(TransactionResponseDTO transactionRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
         User initiatorUser = null;
@@ -142,7 +141,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
@@ -180,8 +179,8 @@ public class TransactionService {
         return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 
-    public TransactionOverviewDTO convertToDTO(Transaction transaction) {
-        TransactionOverviewDTO transactionsDTO = new TransactionOverviewDTO();
+    public TransactionOverviewResponseDTO convertToDTO(Transaction transaction) {
+        TransactionOverviewResponseDTO transactionsDTO = new TransactionOverviewResponseDTO();
 
         transactionsDTO.setDate(transaction.getDate());
         transactionsDTO.setTransferAmount(transaction.getTransfer_amount());
@@ -203,7 +202,7 @@ public class TransactionService {
         return transactionsDTO;
     }
 
-    public TransactionResponseDTO transferFunds(TransferRequestDTO transferRequestDTO) {
+    public TransactionRequestDTO transferFunds(TransferRequestDTO transferRequestDTO) {
         User user = userRepository.findById(transferRequestDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -233,14 +232,14 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
     }
 
-    public TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
-        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
+    public TransactionResponseDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
+        TransactionResponseDTO transactionRequestDTO = new TransactionResponseDTO();
         transactionRequestDTO.setTo_account_id(toAccountId);
         transactionRequestDTO.setFrom_account_id(fromAccountId);
         transactionRequestDTO.setInitiator_user_id(initiatorUserId);
@@ -250,7 +249,7 @@ public class TransactionService {
         return transactionRequestDTO;
     }
 
-    public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    public TransactionRequestDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         try{
             BankAccount fromAccount = retrieveAndValidateAccounts(employeeTransferRequestDTO);
 
@@ -297,7 +296,7 @@ public class TransactionService {
         bankAccountRepository.save(toAccount);
     }
 
-    private TransactionResponseDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    private TransactionRequestDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId())
                 .orElseThrow(EntityNotFoundException::new);
         BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
@@ -312,8 +311,13 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
         return responseDTO;
+    }
+
+    public Page<Transaction> getTransactionsByAccountId(Integer accountId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllTransactionsWithAccountIdAndFilters(accountId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 }

@@ -65,6 +65,7 @@ public class UserService {
             response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
             response.setUser_id(user.getUser_id());
             response.setRoles(user.getRoles());
+            response.setUsername(user.getUsername());
             return response;
         } else {
             throw new AuthenticationException("Invalid Credentials");

@@ -6,11 +6,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.transactions.TransactionRequestDTO;
+import spring.group.spring.models.dto.transactions.TransactionResponseDTO;
 import spring.group.spring.models.dto.bankaccounts.*;
 import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;
@@ -101,7 +102,7 @@ public class BankAccountService {
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
+        TransactionResponseDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
         bankAccountRepository.save(bankAccount);
 
@@ -123,7 +124,7 @@ public class BankAccountService {
         WithdrawDepositResponseDTO withdrawDepositResponseDTO = new WithdrawDepositResponseDTO();
         withdrawDepositResponseDTO.setBalance(bankAccount.getBalance());
 
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
+        TransactionResponseDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
         transactionService.createTransaction(transactionRequestDTO);
         bankAccountRepository.save(bankAccount);
 
@@ -173,4 +174,15 @@ public class BankAccountService {
         return bankAccount;
     }
 
+    public List<BankAccount> getIbanByUsername(String username)  {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(user);
+        if (bankAccounts.isEmpty()) {
+            throw new ResourceNotFoundException();
+        }
+        return bankAccounts;
+    }
 }

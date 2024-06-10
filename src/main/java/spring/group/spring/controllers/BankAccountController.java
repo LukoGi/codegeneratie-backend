@@ -43,6 +43,15 @@ public class BankAccountController {
         return mapper.map(bankAccount, BankAccountDTO.class);
     }
 
+@GetMapping("/username/{username}")
+    public List<BankAccountResponseDTO> getIbanByUsername(@PathVariable String username) {
+        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
+        return bankAccounts.stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .toList();
+    }
+
+
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public BankAccountResponseDTO createBankAccount(@Valid @RequestBody BankAccount bankAccount) {
