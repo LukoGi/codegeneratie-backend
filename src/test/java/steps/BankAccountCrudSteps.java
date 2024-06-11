@@ -289,6 +289,12 @@ public class BankAccountCrudSteps extends BaseSteps {
         requestBody = mapper.writeValueAsString(requestDTO);
     }
 
+    @Then("I should receive a withdraw insufficients funds message")
+    public void iShouldReceiveAWithdrawInsufficientsFundsMessage() {
+        Assertions.assertEquals(400, response.getStatusCode().value());
+        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("Insufficient funds"));
+    }
+
     @And("the withdraw data is invalid")
     public void theWithdrawDataIsInvalid() {
         requestBody = "invalid";
@@ -335,13 +341,13 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @And("the setabsolutelimit data is valid")
     public void theSetabsolutelimitDataIsValid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
     @And("the setabsolutelimit data is invalid")
     public void theSetabsolutelimitDataIsInvalid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
@@ -402,4 +408,17 @@ public class BankAccountCrudSteps extends BaseSteps {
     }
 
 
+
+    @When("I retrieve the bank account by username {string} as user")
+    public void iRetrieveTheBankAccountByUsernameAsUser(String username) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        response = restTemplate
+                .exchange("/accounts/username/{username}",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class,
+                        username);
+        System.out.println("Response Body: " + response.getBody());
+    }
+    // JJ
 }

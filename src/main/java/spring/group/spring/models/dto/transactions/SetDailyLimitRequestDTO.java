@@ -10,5 +10,5 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SetDailyLimitRequestDTO {
-    private BigDecimal daily_limit;
+    private BigDecimal dailyLimit;
 }

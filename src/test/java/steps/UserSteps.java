@@ -7,17 +7,15 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.bankaccounts.SetAbsoluteLimitRequestDTO;
 import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
 import spring.group.spring.models.dto.users.AcceptUserRequestDTO;
 import spring.group.spring.models.dto.users.LoginRequestDTO;
 
 import java.math.BigDecimal;
 
-public class UserCrudSteps extends BaseSteps {
+public class UserSteps extends BaseSteps {
 
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");
@@ -144,13 +142,13 @@ public class UserCrudSteps extends BaseSteps {
     @And("the setdailylimit data is valid")
     public void theSetdailylimitDataIsValid() {
         SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(10));
-        requestBody = requestDTO.getDaily_limit().toString();
+        requestBody = requestDTO.getDailyLimit().toString();
     }
 
     @And("the setdailylimit data is invalid")
     public void theSetdailylimitDataIsInvalid() {
         SetDailyLimitRequestDTO requestDTO = new SetDailyLimitRequestDTO(new BigDecimal(-10));
-        requestBody = requestDTO.getDaily_limit().toString();
+        requestBody = requestDTO.getDailyLimit().toString();
     }
 
     @When("I set daily limit to user {string} as admin")

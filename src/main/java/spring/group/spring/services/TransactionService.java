@@ -148,34 +148,6 @@ public class TransactionService {
         return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
     }
 
-    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
-        return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
-    }
-
-    public TransactionOverviewDTO convertToDTO(Transaction transaction) {
-        TransactionOverviewDTO transactionsDTO = new TransactionOverviewDTO();
-
-        transactionsDTO.setDate(transaction.getDate());
-        transactionsDTO.setTransferAmount(transaction.getTransfer_amount());
-        transactionsDTO.setDescription(transaction.getDescription());
-
-        if (transaction.getFrom_account() != null) {
-            transactionsDTO.setFromAccountIban(transaction.getFrom_account().getIban());
-        }
-
-        if (transaction.getTo_account() != null) {
-            transactionsDTO.setToAccountIban(transaction.getTo_account().getIban());
-            transactionsDTO.setRecipientName(transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name());
-        }
-
-        if (transaction.getInitiator_user() != null) {
-            transactionsDTO.setInitiatorName(transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name());
-        }
-
-        return transactionsDTO;
-    }
-
     public TransactionResponseDTO transferFunds(TransferRequestDTO transferRequestDTO) {
         User user = userRepository.findById(transferRequestDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -329,7 +301,7 @@ public class TransactionService {
 
 
     // K - checkIfAbsoluteLimitIsHit
-    private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
         BigDecimal currentBalance = fromAccount.getBalance();
         BigDecimal newBalance = currentBalance.subtract(transferAmount);
@@ -340,7 +312,7 @@ public class TransactionService {
     }
 
     // K - checkIfDailyLimitIsHit
-    private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
         if (sumOfTodaysTransactions == null){
@@ -351,5 +323,14 @@ public class TransactionService {
         if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
             throw new DailyTransferLimitHitException();
         }
+    }
+    public Page<Transaction> getTransactionsByUserId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
+    }
+
+    public Page<Transaction> getTransactionsByAccountId(Integer accountId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllTransactionsWithAccountIdAndFilters(accountId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 }

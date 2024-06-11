@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
@@ -120,6 +121,17 @@ public class BankAccountService {
         return bankAccount;
     }
 
+    public List<BankAccount> getIbanByUsername(String username)  {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(user);
+        if (bankAccounts.isEmpty()) {
+            throw new ResourceNotFoundException();
+        }
+        return bankAccounts;
+    }
     private void validateAndEncodePincode(BankAccount bankAccount) {
         String pincode = bankAccountRepository.findById(bankAccount.getAccount_id())
                 .orElseThrow(EntityNotFoundException::new)
