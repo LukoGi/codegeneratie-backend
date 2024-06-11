@@ -56,6 +56,8 @@ public class TransactionService {
 
             return responseDTO;
         } catch (Exception e) {
+            e.printStackTrace();
+            // NOTE : Daily transfer limit hit exception sometimes even though it should not be hit
             throw new RuntimeException("An error occurred while creating the transaction", e);
         }
     }
@@ -103,7 +105,6 @@ public class TransactionService {
         return transactionRepository.save(transaction);
     }
 
-    // TODO: maybe make this method smaller / split it into multiple methods for better readability ;(
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
@@ -117,13 +118,7 @@ public class TransactionService {
         if (transactionRequestDTO.getFrom_account_id() != null) {
             fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFrom_account_id())
                     .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFrom_account_id() + " not found"));
-
-            checkIfAbsoluteLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
-            if (transactionRequestDTO.getTo_account_id() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
-                checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
-            } else if (transactionRequestDTO.getTo_account_id() == null) {
-                checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
-            }
+            validateAndApplyTransferLimits(fromAccount, toAccount, transactionRequestDTO);
         }
 
         if (transactionRequestDTO.getInitiator_user_id() != null) {
@@ -131,15 +126,7 @@ public class TransactionService {
                     .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionRequestDTO.getInitiator_user_id() + " not found"));
         }
 
-        Transaction transaction = new Transaction();
-        transaction.setTo_account(toAccount);
-        transaction.setFrom_account(fromAccount);
-        transaction.setInitiator_user(initiatorUser);
-        transaction.setTransfer_amount(transactionRequestDTO.getTransfer_amount());
-        transaction.setDate(transactionRequestDTO.getDate());
-        transaction.setDescription(transactionRequestDTO.getDescription());
-
-        transactionRepository.save(transaction);
+        Transaction transaction = createAndSaveTransaction(toAccount, fromAccount, initiatorUser, transactionRequestDTO);
 
         TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
@@ -152,33 +139,6 @@ public class TransactionService {
         return transactionRepository.findAllTransactionsWithFilters(date, minAmount, maxAmount, iban, pageable);
     }
 
-    private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
-        BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
-        BigDecimal newBalance = fromAccount.getBalance().subtract(transferAmount);
-
-        if (newBalance.compareTo(absoluteLimit) < 0){
-            throw new AbsoluteTransferLimitHitException();
-        }
-    }
-
-    private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
-        BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
-        BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
-        if (sumOfTodaysTransactions == null){
-            sumOfTodaysTransactions = new BigDecimal(0);
-        }
-        BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
-
-        if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
-            throw new DailyTransferLimitHitException();
-        }
-    }
-
-    public Page<Transaction> getTransactionsByUserId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
-        Pageable pageable = PageRequest.of(offset, limit);
-        return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
-    }
-
     public TransactionResponseDTO transferFunds(TransferRequestDTO transferRequestDTO) {
         User user = userRepository.findById(transferRequestDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -189,8 +149,8 @@ public class TransactionService {
         BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(transferRequestDTO.getToAccountType().toUpperCase()))
                 .orElseThrow(() -> new IllegalArgumentException("To account not found"));
 
-        if (fromAccount.getBalance().compareTo(transferRequestDTO.getTransferAmount()) < 0) {
-            throw new InsufficientFundsException();
+        if (fromAccount.getAbsolute_limit().compareTo(transferRequestDTO.getTransferAmount()) < 0) {
+            throw new AbsoluteLimitHitException();
         }
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(transferRequestDTO.getTransferAmount()));
@@ -236,6 +196,7 @@ public class TransactionService {
 
             return recordTransaction(fromAccount, employeeTransferRequestDTO);
         }catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("An error occurred while creating the transaction", e);
         }
     }
@@ -273,6 +234,15 @@ public class TransactionService {
         bankAccountRepository.save(toAccount);
     }
 
+    private void validateAndApplyTransferLimits(BankAccount fromAccount, BankAccount toAccount, TransactionRequestDTO transactionRequestDTO) {
+        checkIfAbsoluteLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+        if (transactionRequestDTO.getTo_account_id() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
+            checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+        } else if (transactionRequestDTO.getTo_account_id() == null) {
+            checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+        }
+    }
+
     private TransactionResponseDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId())
                 .orElseThrow(EntityNotFoundException::new);
@@ -291,6 +261,49 @@ public class TransactionService {
         TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
         return responseDTO;
+    }
+
+    private Transaction createAndSaveTransaction(BankAccount toAccount, BankAccount fromAccount, User initiatorUser, TransactionRequestDTO transactionRequestDTO) {
+        Transaction transaction = new Transaction();
+        transaction.setTo_account(toAccount);
+        transaction.setFrom_account(fromAccount);
+        transaction.setInitiator_user(initiatorUser);
+        transaction.setTransfer_amount(transactionRequestDTO.getTransfer_amount());
+        transaction.setDate(transactionRequestDTO.getDate());
+        transaction.setDescription(transactionRequestDTO.getDescription());
+
+        return transactionRepository.save(transaction);
+    }
+
+
+
+    // K - checkIfAbsoluteLimitIsHit
+    private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+        BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
+        BigDecimal currentBalance = fromAccount.getBalance();
+        BigDecimal newBalance = currentBalance.subtract(transferAmount);
+
+        if (newBalance.compareTo(absoluteLimit) < 0){
+            throw new AbsoluteLimitHitException();
+        }
+    }
+
+    // K - checkIfDailyLimitIsHit
+    private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+        BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
+        BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
+        if (sumOfTodaysTransactions == null){
+            sumOfTodaysTransactions = new BigDecimal(0);
+        }
+        BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
+
+        if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
+            throw new DailyTransferLimitHitException();
+        }
+    }
+    public Page<Transaction> getTransactionsByUserId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+        Pageable pageable = PageRequest.of(offset, limit);
+        return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 
     public Page<Transaction> getTransactionsByAccountId(Integer accountId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {

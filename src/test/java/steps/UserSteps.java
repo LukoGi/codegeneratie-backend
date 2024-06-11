@@ -1,6 +1,7 @@
 package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import spring.group.spring.models.User;
 import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
+import spring.group.spring.models.dto.users.AcceptUserRequestDTO;
+import spring.group.spring.models.dto.users.LoginRequestDTO;
 
 import java.math.BigDecimal;
 
@@ -17,7 +20,7 @@ public class UserSteps extends BaseSteps {
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");
 
-    @When("I retrieve all users as an Admin")
+    @When("I retrieve all users")
     public void iRetrieveAllUsers() {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
@@ -185,4 +188,143 @@ public class UserSteps extends BaseSteps {
     public void iShouldReceiveAUserForbiddenMessage() {
         Assertions.assertEquals(403, response.getStatusCode().value());
     }
+
+    @When("I try to login with valid credentials")
+    public void iTryToLoginWithValidCredentials() throws JsonProcessingException{
+        LoginRequestDTO requestDTO = new LoginRequestDTO();
+        requestDTO.setUsername("JohnDoe");
+        requestDTO.setPassword("test");
+
+        requestBody = mapper.writeValueAsString(requestDTO);
+
+
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/users/login",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
+    }
+    @Then("I successfully login")
+    public void iSuccessfullyLogin() {
+        System.out.println("Response Body: " + response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @And("I retrieve my user info")
+    public void iRetrieveMyUserInfo() {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        response = restTemplate
+                .exchange("/users/userinfo",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @When("I try to login with invalid credentials")
+    public void iTryToLoginWithInvalidCredentials() throws JsonProcessingException {
+        LoginRequestDTO requestDTO = new LoginRequestDTO();
+        requestDTO.setUsername("JohnDoe");
+        requestDTO.setPassword("test123");
+
+        requestBody = mapper.writeValueAsString(requestDTO);
+
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/users/login",
+                        HttpMethod.POST,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive an error message for login")
+    public void iFailToLogin() {
+        System.out.println("Response Body: " + response.getBody());
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
+
+    @When("I retrieve all unapproved users")
+    public void iRetrieveAllUnapprovedUsers() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        response = restTemplate
+                .exchange("/users/getUnapprovedUsers",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Then("I should receive all unapproved users")
+    public void iShouldReceiveAllUnapprovedUsers() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @When("I approve a user with ID {string} And set the limits")
+    public void iAcceptUserAsAdmin(String id) throws JsonProcessingException{
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+
+        AcceptUserRequestDTO requestDTO = new AcceptUserRequestDTO();
+        requestDTO.setDaily_transfer_limit(new BigDecimal(1000));
+        requestDTO.setAbsolute_transfer_limit(new BigDecimal(1000));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String requestBody = mapper.writeValueAsString(requestDTO);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange("/users/acceptUser/" + id,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("I should receive user accepted message")
+    public void iShouldReceiveUserAcceptedMessage() {
+        System.out.println("Response Body: " + response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @When("I retrieve all users without bank accounts")
+    public void iRetrieveAllUsersWithoutBankAccounts() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        response = restTemplate
+                .exchange("/users/getUsersWithoutBankAccount",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Then("I should retrieve a succes message for retrieving all accounts")
+    public void iShouldRetrieveASuccesMessageForRetrievingAllAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @When("I retrieve the bank accounts of a user")
+    public void iRetrieveTheBankAccountsOfUser() {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        response = restTemplate
+                .exchange("/users/myAccounts",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Then("I get a success message for retrieving the bank accounts")
+    public void iGetASuccessMessageForRetrievingTheBankAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+
+
+
+
 }

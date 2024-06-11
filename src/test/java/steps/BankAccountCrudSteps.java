@@ -1,6 +1,7 @@
 package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.After;
 import io.cucumber.java.en.And;
@@ -377,6 +378,36 @@ public class BankAccountCrudSteps extends BaseSteps {
         System.out.println(response.getBody());
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
+
+    @Then("I should receive a absolute limit error message")
+    public void iShouldReceiveAAbsoluteLimitErrorMessage() throws JsonProcessingException {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(400, response.getStatusCode().value());
+
+        JsonNode jsonNode = mapper.readTree(response.getBody());
+        String message = jsonNode.get("message").asText();
+        Assertions.assertEquals("Absolute limit hit", message);
+    }
+
+    @When("I change the is_active status of bank account {string} as admin to false")
+    public void iChangeTheIsActiveStatusOfBankAccountAccountAsAdminToFalse(String id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/closeAccount",
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("Account is succfully deactivated")
+    public void accountIsSuccfullyDeactivated() {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+
 
     @When("I retrieve the bank account by username {string} as user")
     public void iRetrieveTheBankAccountByUsernameAsUser(String username) {

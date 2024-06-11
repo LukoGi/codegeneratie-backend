@@ -28,6 +28,7 @@ public class BankAccountController {
     private final BankAccountService bankAccountService;
     private final ModelMapper mapper;
 
+    // K - added Pageable
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
@@ -88,7 +89,7 @@ public class BankAccountController {
                 .collect(Collectors.toList());
     }
 
-    // Kian Note: Onderbouw waarom ik dit heb gedaan
+    // K - Note: CustomPermissionEvaluator usage
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest) {
@@ -101,15 +102,23 @@ public class BankAccountController {
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
-    // TODO: integrate this into the update endpoint
     @PutMapping("/{id}/setAbsoluteLimit")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
+    public void setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        if (absoluteLimit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Absolute limit must be greater than or equal to 0");
+        if (absoluteLimit.compareTo(BigDecimal.ZERO) > 0) {
+            throw new IllegalArgumentException("Absolute limit must be lesser than or equal to 0");
         }
         bankAccount.setAbsolute_limit(absoluteLimit);
+        bankAccountService.updateBankAccount(bankAccount);
+    }
+
+    @PutMapping("/{id}/closeAccount")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> closeAccount(@PathVariable Integer id) {
+        BankAccount bankAccount = bankAccountService.getBankAccountById(id);
+        bankAccount.setIs_active(false);
         bankAccountService.updateBankAccount(bankAccount);
         return ResponseEntity.ok().build();
     }
