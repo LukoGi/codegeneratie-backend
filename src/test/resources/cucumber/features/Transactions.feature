@@ -39,6 +39,8 @@ Feature: Transactions CRUD Operations
     When I update the transaction with ID 999
     Then the update of the transaction should fail
 
+    # Fix these scenarios
+
   Scenario: Get all transactions as an admin successfully
     Given I am an admin
     When I request to get all transactions

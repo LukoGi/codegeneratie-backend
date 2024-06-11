@@ -138,6 +138,7 @@ Feature: Bank Accounts CRUD Operations
     When I set absolute limit to bank account "1" account as admin
     Then I should receive a bank account error message
 
+    # Fix these scenarios
   Scenario: Successfully Get Ibans with a username
     Given the endpoint for "accounts/username/JohnDoe" is available for method "GET"
     When I retrieve the bank account by username "JohnDoe" as user

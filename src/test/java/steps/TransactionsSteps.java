@@ -92,6 +92,22 @@ public class TransactionsSteps extends BaseSteps {
     public void iShouldReceiveAListOfTransactionHistoryDTOObjects() {
     }
 
+    @Given("I am a user with account ID {int}")
+    public void iAmAUserWithAccountID(int arg0) {
+    }
+
+    @When("I request to get transactions by my account ID")
+    public void iRequestToGetTransactionsByMyAccountID() {
+    }
+
+    @And("there is a user with ID {int}")
+    public void thereIsAUserWithID(int arg0) {
+    }
+
+    @When("I request to get transactions by the user ID {int}")
+    public void iRequestToGetTransactionsByTheUserID(int arg0) {
+    }
+
     // new stuff
 
 }
