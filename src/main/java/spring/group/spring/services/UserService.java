@@ -34,11 +34,6 @@ public class UserService {
         return userRepository.findUnapprovedUsers();
     }
 
-    public User archiveUser(Integer id) {
-        User user = userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        user.setIs_archived(true);
-        return userRepository.save(user);
-    }
 
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
