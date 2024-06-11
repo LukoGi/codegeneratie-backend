@@ -30,6 +30,7 @@ public class BankAccountController {
 
     // K - added Pageable
     @GetMapping("/")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
         Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts(pageable);
         return bankAccounts.getContent().stream()
@@ -43,6 +44,16 @@ public class BankAccountController {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         return mapper.map(bankAccount, BankAccountDTO.class);
     }
+
+@GetMapping("/username/{username}")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public List<BankAccountResponseDTO> getIbanByUsername(@PathVariable String username) {
+        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
+        return bankAccounts.stream()
+                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
+                .toList();
+    }
+
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)

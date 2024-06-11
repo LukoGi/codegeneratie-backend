@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionOverviewDTO {
+public class TransactionOverviewResponseDTO {
     private LocalDateTime date;
     private BigDecimal transferAmount;
     private String description;

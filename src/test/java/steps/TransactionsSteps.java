@@ -1,8 +1,12 @@
 package steps;
 
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
 public class TransactionsSteps extends BaseSteps {
 
@@ -63,7 +67,7 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @When("I update the transaction with ID {int}")
-    public void iUpdateTheTransactionWithID(int arg0) {
+    public void iUpdateTheTransactionWithID(int transactionId) {
     }
 
     @Then("the transaction should be updated successfully")
@@ -73,4 +77,37 @@ public class TransactionsSteps extends BaseSteps {
     @Then("the update of the transaction should fail")
     public void theUpdateOfTheTransactionShouldFail() {
     }
+
+    @Given("I am an admin")
+    public void iAmAnAdmin() {
+        
+    }
+
+    @When("I request to get all transactions")
+    public void iRequestToGetAllTransactions() {
+        
+    }
+
+    @Then("I should receive a list of TransactionHistoryDTO objects")
+    public void iShouldReceiveAListOfTransactionHistoryDTOObjects() {
+    }
+
+    @Given("I am a user with account ID {int}")
+    public void iAmAUserWithAccountID(int arg0) {
+    }
+
+    @When("I request to get transactions by my account ID")
+    public void iRequestToGetTransactionsByMyAccountID() {
+    }
+
+    @And("there is a user with ID {int}")
+    public void thereIsAUserWithID(int arg0) {
+    }
+
+    @When("I request to get transactions by the user ID {int}")
+    public void iRequestToGetTransactionsByTheUserID(int arg0) {
+    }
+
+    // new stuff
+
 }
