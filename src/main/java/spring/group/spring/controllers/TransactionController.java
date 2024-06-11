@@ -47,12 +47,12 @@ public class TransactionController {
 
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public TransactionRequestDTO createTransaction(@Valid @RequestBody TransactionResponseDTO transactionResponseDTO) {
+    public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionResponseDTO) {
         return transactionService.createTransaction(transactionResponseDTO);
     }
 
     @PostMapping("/createWithIban")
-    public TransactionRequestDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
 
@@ -90,11 +90,11 @@ public class TransactionController {
                 .toList();
     }
     @PostMapping("/transfer")
-    public TransactionRequestDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
+    public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
     @PostMapping("/employeeTransfer")
-    public TransactionRequestDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    public TransactionResponseDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         return transactionService.employeeTransferFunds(employeeTransferRequestDTO);
     }
 }

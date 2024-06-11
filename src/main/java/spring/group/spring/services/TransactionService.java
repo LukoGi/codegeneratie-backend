@@ -30,7 +30,7 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     }
 
-    public TransactionRequestDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
+    public TransactionResponseDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         try {
             User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
             BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
@@ -51,7 +51,7 @@ public class TransactionService {
 
             Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
 
-            TransactionRequestDTO responseDTO = new TransactionRequestDTO();
+            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
             responseDTO.setTransaction_id(transaction.getTransaction_id());
 
             return responseDTO;
@@ -104,7 +104,7 @@ public class TransactionService {
     }
 
     // TODO: maybe make this method smaller / split it into multiple methods for better readability ;(
-    public TransactionRequestDTO createTransaction(TransactionResponseDTO transactionRequestDTO) {
+    public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
         BankAccount toAccount = null;
         BankAccount fromAccount = null;
         User initiatorUser = null;
@@ -141,7 +141,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
@@ -179,7 +179,7 @@ public class TransactionService {
         return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
     }
 
-    public TransactionRequestDTO transferFunds(TransferRequestDTO transferRequestDTO) {
+    public TransactionResponseDTO transferFunds(TransferRequestDTO transferRequestDTO) {
         User user = userRepository.findById(transferRequestDTO.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -209,14 +209,14 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
 
         return responseDTO;
     }
 
-    public TransactionResponseDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
-        TransactionResponseDTO transactionRequestDTO = new TransactionResponseDTO();
+    public TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
+        TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
         transactionRequestDTO.setTo_account_id(toAccountId);
         transactionRequestDTO.setFrom_account_id(fromAccountId);
         transactionRequestDTO.setInitiator_user_id(initiatorUserId);
@@ -226,7 +226,7 @@ public class TransactionService {
         return transactionRequestDTO;
     }
 
-    public TransactionRequestDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         try{
             BankAccount fromAccount = retrieveAndValidateAccounts(employeeTransferRequestDTO);
 
@@ -273,7 +273,7 @@ public class TransactionService {
         bankAccountRepository.save(toAccount);
     }
 
-    private TransactionRequestDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
+    private TransactionResponseDTO recordTransaction(BankAccount fromAccount, EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         User employee = userRepository.findById(employeeTransferRequestDTO.getEmployeeId())
                 .orElseThrow(EntityNotFoundException::new);
         BankAccount toAccount = bankAccountRepository.findByIban(employeeTransferRequestDTO.getToAccountIban());
@@ -288,7 +288,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionRequestDTO responseDTO = new TransactionRequestDTO();
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
         responseDTO.setTransaction_id(transaction.getTransaction_id());
         return responseDTO;
     }
