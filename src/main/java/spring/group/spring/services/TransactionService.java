@@ -177,9 +177,7 @@ public class TransactionService {
         BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(transferRequestDTO.getToAccountType().toUpperCase()))
                 .orElseThrow(() -> new IllegalArgumentException("To account not found"));
 
-        if (fromAccount.getAbsolute_limit().compareTo(transferRequestDTO.getTransferAmount()) < 0) {
-            throw new AbsoluteLimitHitException();
-        }
+        checkIfAbsoluteLimitIsHit(fromAccount, transferRequestDTO.getTransferAmount());
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(transferRequestDTO.getTransferAmount()));
         toAccount.setBalance(toAccount.getBalance().add(transferRequestDTO.getTransferAmount()));
