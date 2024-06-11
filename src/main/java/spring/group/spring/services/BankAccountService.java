@@ -113,7 +113,7 @@ public class BankAccountService {
         bankAccount.setUser(user);
         bankAccount.setIs_active(true);
         bankAccount.setBalance(BigDecimal.ZERO);
-        bankAccount.setPincode(String.format("%04d", SECURE_RANDOM.nextInt(10000)));
+        bankAccount.setPincode("1111");
         bankAccount.setAccount_type(accountType);
         bankAccount.setAbsolute_limit(absolute_limit);
 
