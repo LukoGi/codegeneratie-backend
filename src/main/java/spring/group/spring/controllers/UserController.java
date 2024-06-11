@@ -50,7 +50,7 @@ public class UserController {
 
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO createUser(@Valid @RequestBody UserRequest userRequestDTO) {
         User user = mapper.map(userRequestDTO, User.class);
         User newUser = userService.createUser(user);
