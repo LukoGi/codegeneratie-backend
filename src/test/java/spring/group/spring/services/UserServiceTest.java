@@ -142,8 +142,70 @@ public class UserServiceTest {
         verify(jwtProvider).createToken(user.getUsername(), user.getRoles());
     }
 
+    @Test
+    public void testUpdateUser() {
+        User user = new User();
+        user.setUser_id(1);
+        user.setFirst_name("Jan");
+        user.setLast_name("Pan");
+        user.setUsername("JanPan");
+        user.setEmail("Jan@gmail.com");
+        user.setPassword("test");
+        user.setBsn_number("123456789");
+        user.setPhone_number("0612345678");
+        user.setRoles(List.of(Role.ROLE_USER));
+        user.setIs_approved(false);
+        user.setIs_archived(false);
+        user.setDaily_transfer_limit(new BigDecimal("1000.00"));
 
+        User updatedUser = new User();
+        updatedUser.setUser_id(1);
+        updatedUser.setFirst_name("JanUpdated");
+        updatedUser.setLast_name("PanUpdated");
+        updatedUser.setUsername("JanPanUpdated");
+        updatedUser.setEmail("JanUpdated@gmail.com");
+        updatedUser.setPassword("testUpdated");
+        updatedUser.setBsn_number("987654321");
+        updatedUser.setPhone_number("876543210");
+        updatedUser.setRoles(List.of(Role.ROLE_USER));
+        updatedUser.setIs_approved(true);
+        updatedUser.setIs_archived(false);
+        updatedUser.setDaily_transfer_limit(new BigDecimal("2000.00"));
 
+        when(userRepository.findById(user.getUser_id())).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
+        User result = userService.updateUser(updatedUser);
 
+        assertEquals(updatedUser, result);
+        verify(userRepository).findById(updatedUser.getUser_id());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    public void testGetUserByUsername() {
+        User user = new User();
+        user.setUser_id(1);
+        user.setUsername("JanPan");
+
+        when(userRepository.findUserByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        User result = userService.getUserByUsername(user.getUsername());
+
+        assertEquals(user, result);
+        verify(userRepository).findUserByUsername(user.getUsername());
+    }
+
+    @Test
+    public void testGetUsersWithoutBankAccount() {
+        List<User> users = Arrays.asList(new User(), new User());
+
+        when(userRepository.findByAccountsIsEmpty(Role.ROLE_USER)).thenReturn(users);
+
+        List<User> result = userService.getUsersWithoutBankAccount();
+
+        assertEquals(users, result);
+        verify(userRepository, times(2)).findByAccountsIsEmpty(Role.ROLE_USER);
+    }
+    
 }

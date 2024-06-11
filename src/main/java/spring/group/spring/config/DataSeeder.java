@@ -37,6 +37,7 @@ public class DataSeeder implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         User user = seedUser();
+        User user1 = seedSecondUser();
         User user2 = seedAnotherUser();
 
         // we now have 1 admin :)
@@ -44,6 +45,7 @@ public class DataSeeder implements ApplicationRunner {
 
 
         BankAccount bankAccount1 = seedBankAccount(user);
+        BankAccount bankAccount3 = seedThirdBankAccount(user);
         BankAccount bankAccount2 = seedAnotherBankAccount(user2);
         BankAccount bankAccount = seedSavingsAccount(user2);
 
@@ -76,6 +78,19 @@ public class DataSeeder implements ApplicationRunner {
         return bankAccountRepository.save(bankAccount2);
     }
 
+    private BankAccount seedThirdBankAccount(User user) {
+        BankAccount bankAccount3 = new BankAccount(
+                "NL91ABNA0417164307",
+                new BigDecimal("1800.00"),
+                AccountType.SAVINGS,
+                true,
+                new BigDecimal("-200.00"),
+                passwordEncoder.encode("3333"),
+                user
+        );
+        return bankAccountRepository.save(bankAccount3);
+    }
+
 
     private User seedUser() {
         User user1 = new User();
@@ -87,11 +102,29 @@ public class DataSeeder implements ApplicationRunner {
         user1.setBsn_number("123456789");
         user1.setPhone_number("0612345678");
         user1.setRoles(List.of(Role.ROLE_USER));
-        user1.setIs_approved(false);
+        user1.setIs_approved(true);
         user1.setIs_archived(false);
         user1.setDaily_transfer_limit(new BigDecimal("1000.00"));
         userService.createUser(user1);
         return user1;
+    }
+
+    private User seedSecondUser() {
+        User user = new User();
+        user.setFirst_name("Hans");
+        user.setLast_name("Pan");
+        user.setUsername("HansPan");
+        user.setEmail("Hans@gmail.com");
+        user.setPassword("test");
+        user.setBsn_number("123456787");
+        user.setPhone_number("0612345678");
+        user.setRoles(List.of(Role.ROLE_USER));
+        user.setIs_approved(false);
+        user.setIs_archived(false);
+        user.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        userService.createUser(user);
+        return user;
+
     }
 
     private User seedAnotherUser() {
