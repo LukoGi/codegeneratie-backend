@@ -62,8 +62,17 @@ Scenario: Get transactions by account ID successfully
         When I request to get transactions by my account ID
         Then I should receive an error message
 
-      Scenario: Fail to get transactions by non-existing user ID as an admin
-        Given I am an admin
-        And there is a user with ID 9999
-        When I request to get transactions by the user ID 9999
-        Then I should receive an error message
+      Scenario: Get all transactions as an admin successfully
+        Given the endpoint for "transactions/" is available for method "GET"
+        When I request to get transactions by the user admin
+        Then I should receive transactions
+
+  Scenario: Get transactions as an user successfully
+    Given the endpoint for "transactions/account/1" is available for method "GET"
+    When I request to get transactions by the user
+    Then I should receive my transactions
+
+  Scenario: Get transactions as an user by id successfully
+    Given the endpoint for "transactions/1" is available for method "GET"
+    When I request to get transactions as admin of a user
+    Then I should receive my transactions by id
