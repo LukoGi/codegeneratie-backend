@@ -142,8 +142,7 @@ public class UserServiceTest {
         verify(jwtProvider).createToken(user.getUsername(), user.getRoles());
     }
 
-    @Test
-    public void testUpdateUser() {
+    private User createUser() {
         User user = new User();
         user.setUser_id(1);
         user.setFirst_name("Jan");
@@ -157,7 +156,10 @@ public class UserServiceTest {
         user.setIs_approved(false);
         user.setIs_archived(false);
         user.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        return user;
+    }
 
+    private User createUpdatedUser() {
         User updatedUser = new User();
         updatedUser.setUser_id(1);
         updatedUser.setFirst_name("JanUpdated");
@@ -171,6 +173,13 @@ public class UserServiceTest {
         updatedUser.setIs_approved(true);
         updatedUser.setIs_archived(false);
         updatedUser.setDaily_transfer_limit(new BigDecimal("2000.00"));
+        return updatedUser;
+    }
+
+    @Test
+    public void testUpdateUser() {
+        User user = createUser();
+        User updatedUser = createUpdatedUser();
 
         when(userRepository.findById(user.getUser_id())).thenReturn(Optional.of(user));
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
