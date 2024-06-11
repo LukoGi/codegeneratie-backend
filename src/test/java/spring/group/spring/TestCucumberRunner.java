@@ -10,5 +10,5 @@ import org.junit.runner.RunWith;
         plugin = {"pretty"},
         glue = {"spring.group.spring.steps"}
 )
-public class CucumberTestRunner {
+public class TestCucumberRunner {
 }
