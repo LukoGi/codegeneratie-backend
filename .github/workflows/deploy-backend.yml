@@ -26,7 +26,7 @@ jobs:
       - name: Build and Test with Maven
         run: mvn -B clean package
       - name: Run Cucumber Tests
-        run: mvn test -Dcucumber.options="src/test/resources/cucumber"
+        run: mvn test -Dcucumber.options="src/test/resources/cucumber/features"
 
   deploy-backend:
     needs: build-and-test
