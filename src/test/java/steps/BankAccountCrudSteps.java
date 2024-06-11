@@ -377,4 +377,22 @@ public class BankAccountCrudSteps extends BaseSteps {
         System.out.println(response.getBody());
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
+    @When("I change the is_active status of bank account {string} as admin to false")
+    public void iChangeTheIsActiveStatusOfBankAccountAccountAsAdminToFalse(String id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/closeAccount",
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("Account is succfully deactivated")
+    public void accountIsSuccfullyDeactivated() {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
 }
