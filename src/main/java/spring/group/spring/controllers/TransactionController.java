@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.*;
@@ -46,6 +47,7 @@ public class TransactionController {
     }
 
     @PostMapping("/createWithIban")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #transactionCreateFromIbanRequestDTO.initiator_user_id)")
     public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
         return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
     }
@@ -64,13 +66,14 @@ public class TransactionController {
         return transactions.getContent().stream().map(transactionService::convertToDTO).toList();
     }
 
-
     @PostMapping("/transfer")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #transferRequestDTO.userId)")
     public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
 
     @PostMapping("/employeeTransfer")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public TransactionResponseDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         return transactionService.employeeTransferFunds(employeeTransferRequestDTO);
     }
