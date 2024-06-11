@@ -37,8 +37,8 @@ public class DataSeeder implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         User user = seedUser();
-        User user1 = seedSecondUser();
         User user2 = seedAnotherUser();
+        User user3 = seedSecondUser();
 
         // we now have 1 admin :)
         seedAdminUser();
