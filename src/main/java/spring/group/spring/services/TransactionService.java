@@ -329,7 +329,7 @@ public class TransactionService {
 
 
     // K - checkIfAbsoluteLimitIsHit
-    private void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
         BigDecimal currentBalance = fromAccount.getBalance();
         BigDecimal newBalance = currentBalance.subtract(transferAmount);
@@ -340,7 +340,7 @@ public class TransactionService {
     }
 
     // K - checkIfDailyLimitIsHit
-    private void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
         if (sumOfTodaysTransactions == null){
