@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<cucumber.version>7.11.2</cucumber.version>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>
