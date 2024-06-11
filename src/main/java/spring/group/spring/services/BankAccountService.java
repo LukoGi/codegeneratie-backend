@@ -51,11 +51,13 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
+    // K - atmLogin
     public BankAccountATMLoginResponse atmLogin(BankAccountATMLoginRequest loginRequest) {
         BankAccount bankAccount = validateLoginRequest(loginRequest);
         return createLoginResponse(bankAccount);
     }
 
+    // K - withdrawMoney
     public WithdrawDepositResponseDTO withdrawMoney(Integer id, BigDecimal amount) {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)
@@ -66,6 +68,7 @@ public class BankAccountService {
         return createWithdrawDepositResponseDTO(bankAccount);
     }
 
+    // K - depositMoney
     public WithdrawDepositResponseDTO depositMoney(Integer id, BigDecimal amount) {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)

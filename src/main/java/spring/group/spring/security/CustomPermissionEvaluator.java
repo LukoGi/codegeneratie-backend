@@ -6,6 +6,7 @@ import spring.group.spring.services.BankAccountService;
 
 import java.io.Serializable;
 
+// K - Custom Permission Evaluator
 @Component("customPermissionEvaluator")
 public class CustomPermissionEvaluator {
     private final BankAccountService bankAccountService;
