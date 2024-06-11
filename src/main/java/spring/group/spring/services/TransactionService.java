@@ -51,15 +51,24 @@ public class TransactionService {
 
             Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
 
-            TransactionResponseDTO responseDTO = new TransactionResponseDTO();
-            responseDTO.setTransaction_id(transaction.getTransaction_id());
-
-            return responseDTO;
+            return createTransactionResponseDTO(transaction);
         } catch (Exception e) {
             e.printStackTrace();
             // NOTE : Daily transfer limit hit exception sometimes even though it should not be hit
             throw new RuntimeException("An error occurred while creating the transaction", e);
         }
+    }
+
+    private TransactionResponseDTO createTransactionResponseDTO(Transaction transaction) {
+        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
+        responseDTO.setTransaction_id(transaction.getTransaction_id());
+        responseDTO.setTo_account(transaction.getTo_account());
+        responseDTO.setFrom_account(transaction.getFrom_account());
+        responseDTO.setInitiator_user(transaction.getInitiator_user());
+        responseDTO.setTransfer_amount(transaction.getTransfer_amount());
+        responseDTO.setDate(transaction.getDate());
+        responseDTO.setDescription(transaction.getDescription());
+        return responseDTO;
     }
 
     private User getInitiatorUser(Integer userId) {
@@ -177,9 +186,7 @@ public class TransactionService {
         BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(transferRequestDTO.getToAccountType().toUpperCase()))
                 .orElseThrow(() -> new IllegalArgumentException("To account not found"));
 
-        if (fromAccount.getAbsolute_limit().compareTo(transferRequestDTO.getTransferAmount()) < 0) {
-            throw new AbsoluteLimitHitException();
-        }
+        checkIfAbsoluteLimitIsHit(fromAccount, transferRequestDTO.getTransferAmount());
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(transferRequestDTO.getTransferAmount()));
         toAccount.setBalance(toAccount.getBalance().add(transferRequestDTO.getTransferAmount()));
@@ -197,10 +204,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        TransactionResponseDTO responseDTO = new TransactionResponseDTO();
-        responseDTO.setTransaction_id(transaction.getTransaction_id());
-
-        return responseDTO;
+        return createTransactionResponseDTO(transaction);
     }
 
     public TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
