@@ -103,4 +103,13 @@ public class BankAccountController {
         bankAccountService.updateBankAccount(bankAccount);
     }
 
+    @PutMapping("/{id}/closeAccount")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> closeAccount(@PathVariable Integer id) {
+        BankAccount bankAccount = bankAccountService.getBankAccountById(id);
+        bankAccount.setIs_active(false);
+        bankAccountService.updateBankAccount(bankAccount);
+        return ResponseEntity.ok().build();
+    }
+
 }

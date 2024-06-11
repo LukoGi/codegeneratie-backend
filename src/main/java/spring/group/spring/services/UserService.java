@@ -93,4 +93,8 @@ public class UserService {
         }
         return userRepository.findByAccountsIsEmpty(Role.ROLE_USER);
     }
+
+    public User findByUsername(String username) {
+        return userRepository.findUserByUsername(username).orElse(null);
+    }
 }

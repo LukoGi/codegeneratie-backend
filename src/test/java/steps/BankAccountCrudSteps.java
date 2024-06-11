@@ -373,6 +373,7 @@ public class BankAccountCrudSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
+
     @Then("I should receive a absolute limit error message")
     public void iShouldReceiveAAbsoluteLimitErrorMessage() throws JsonProcessingException {
         System.out.println(response.getBody());
@@ -382,4 +383,23 @@ public class BankAccountCrudSteps extends BaseSteps {
         String message = jsonNode.get("message").asText();
         Assertions.assertEquals("Absolute limit hit", message);
     }
+
+    @When("I change the is_active status of bank account {string} as admin to false")
+    public void iChangeTheIsActiveStatusOfBankAccountAccountAsAdminToFalse(String id) {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        HttpEntity<String> entity = new HttpEntity<>(null, httpHeaders);
+        this.response = restTemplate
+                .exchange("/accounts/" + id + "/closeAccount",
+                        HttpMethod.PUT,
+                        entity,
+                        String.class);
+    }
+
+    @Then("Account is succfully deactivated")
+    public void accountIsSuccfullyDeactivated() {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+
 }

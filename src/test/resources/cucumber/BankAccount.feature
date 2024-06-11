@@ -138,3 +138,8 @@ Feature: Bank Accounts CRUD Operations
     When I set absolute limit to bank account "1" account as admin
     Then I should receive a bank account error message
 
+  Scenario: Deactivate a bank account
+    Given the endpoint for "accounts/1/closeAccount" is available for method "PUT"
+    When I change the is_active status of bank account "1" as admin to false
+    Then I should receive bank account success message
+
