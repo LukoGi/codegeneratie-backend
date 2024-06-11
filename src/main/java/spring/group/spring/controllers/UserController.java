@@ -107,15 +107,15 @@ public class UserController {
 
     // TODO: integrate this into the user update endpoint
     @PutMapping("{id}/setDailyLimit")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
+    public void setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
         User user = userService.getUserById(id);
         user.setDaily_transfer_limit(dailyLimit);
         if (dailyLimit.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Absolute limit must be greater than or equal to 0");
         }
         userService.updateUser(user);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/myAccounts")

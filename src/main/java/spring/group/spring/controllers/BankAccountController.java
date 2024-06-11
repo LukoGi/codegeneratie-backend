@@ -93,15 +93,15 @@ public class BankAccountController {
 
     // TODO: integrate this into the update endpoint
     @PutMapping("/{id}/setAbsoluteLimit")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
+    public void setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         if (absoluteLimit.compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalArgumentException("Absolute limit must be lesser than or equal to 0");
         }
         bankAccount.setAbsolute_limit(absoluteLimit);
         bankAccountService.updateBankAccount(bankAccount);
-        return ResponseEntity.ok().build();
     }
 
 }
