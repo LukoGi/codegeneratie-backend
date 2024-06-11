@@ -14,11 +14,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findUserByUsername(String username);
 
-
     @Query("SELECT u FROM User u WHERE u.is_approved = false")
     List<User> findUnapprovedUsers();
-
-    //List<User>findByAccountsIsEmpty();
 
     @Query("SELECT u FROM User u WHERE u.accounts IS EMPTY AND :role MEMBER OF u.roles")
     List<User> findByAccountsIsEmpty(@Param("role") Role role);
