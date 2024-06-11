@@ -78,9 +78,6 @@ Feature: Bank Accounts CRUD Operations
     When I login to the bank account
     Then I should receive a login error message
 
-    Feature: Bank Account Transactions
-
-
   Scenario: Successfully withdraw money from a bank account
     Given the endpoint for "accounts/1/withdraw" is available for method "POST"
     And the withdraw data is valid
@@ -141,17 +138,14 @@ Feature: Bank Accounts CRUD Operations
     When I set absolute limit to bank account "1" account as admin
     Then I should receive a bank account error message
 
+  Scenario: Successfully Get Ibans with a username
+    Given the endpoint for "accounts/username/JohnDoe" is available for method "GET"
+    When I retrieve the bank account by username "JohnDoe" as user
+    Then I should receive a list of bank accounts
 
-  # Happy Flow Scenarios
-  Scenario: Get IBAN by username successfully
-    Given I search a user with username "JohnDoe"
-    When I request to get IBAN by my username
-    Then I should receive a list of BankAccountResponseDTO objects
-
-  # Not Happy Flow Scenarios
-  Scenario: Fail to get IBAN by non-existing username
-    Given I search a user with username "NoNameExist"
-    When I request to get IBAN by my username
+  Scenario: Fail Get Ibans with a username
+    Given the endpoint for "accounts/username/dsa" is available for method "GET"
+    When I retrieve the bank account by username "dsa" as user
     Then I should receive an error message
 
 

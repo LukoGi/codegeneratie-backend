@@ -378,20 +378,16 @@ public class BankAccountCrudSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
-
-
+    @When("I retrieve the bank account by username {string} as user")
+    public void iRetrieveTheBankAccountByUsernameAsUser(String username) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        response = restTemplate
+                .exchange("/accounts/username/{username}",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class,
+                        username);
+        System.out.println("Response Body: " + response.getBody());
+    }
     // JJ
-    @Given("I search a user with username {string}")
-    public void iSearchAUserWithUsername(String username) {
-    }
-
-    @When("I request to get IBAN by my username")
-    public void iRequestToGetIBANByMyUsername() {
-    }
-
-    @Then("I should receive a list of BankAccountResponseDTO objects")
-    public void iShouldReceiveAListOfBankAccountResponseDTOObjects() {
-    }
-
-
 }
