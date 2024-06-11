@@ -28,6 +28,7 @@ public class BankAccountController {
     private final BankAccountService bankAccountService;
     private final ModelMapper mapper;
 
+    // K - added Pageable
     @GetMapping("/")
     public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
         Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts(pageable);
@@ -38,10 +39,9 @@ public class BankAccountController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public BankAccount getBankAccountById(@PathVariable Integer id) {
+    public BankAccountDTO getBankAccountById(@PathVariable Integer id) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
-        return bankAccount;
-//        return mapper.map(bankAccount, BankAccountDTO.class);
+        return mapper.map(bankAccount, BankAccountDTO.class);
     }
 
     @PostMapping("/")
@@ -78,7 +78,7 @@ public class BankAccountController {
                 .collect(Collectors.toList());
     }
 
-    // Kian Note: Onderbouw waarom ik dit heb gedaan
+    // K - Note: CustomPermissionEvaluator usage
     @PostMapping("/{id}/withdraw")
     @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public WithdrawDepositResponseDTO withdrawMoney(@PathVariable Integer id, @Valid @RequestBody WithdrawDepositRequestDTO withdrawRequest) {
@@ -91,17 +91,16 @@ public class BankAccountController {
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
-    // TODO: integrate this into the update endpoint
     @PutMapping("/{id}/setAbsoluteLimit")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
+    public void setAbsoluteLimit(@PathVariable Integer id, @RequestParam BigDecimal absoluteLimit) {
         BankAccount bankAccount = bankAccountService.getBankAccountById(id);
         if (absoluteLimit.compareTo(BigDecimal.ZERO) > 0) {
             throw new IllegalArgumentException("Absolute limit must be lesser than or equal to 0");
         }
         bankAccount.setAbsolute_limit(absoluteLimit);
         bankAccountService.updateBankAccount(bankAccount);
-        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/closeAccount")

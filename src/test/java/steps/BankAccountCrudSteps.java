@@ -1,6 +1,7 @@
 package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.After;
 import io.cucumber.java.en.And;
@@ -288,12 +289,6 @@ public class BankAccountCrudSteps extends BaseSteps {
         requestBody = mapper.writeValueAsString(requestDTO);
     }
 
-    @Then("I should receive a withdraw insufficients funds message")
-    public void iShouldReceiveAWithdrawInsufficientsFundsMessage() {
-        Assertions.assertEquals(400, response.getStatusCode().value());
-        Assertions.assertTrue(Objects.requireNonNull(response.getBody()).contains("Insufficient funds"));
-    }
-
     @And("the withdraw data is invalid")
     public void theWithdrawDataIsInvalid() {
         requestBody = "invalid";
@@ -340,13 +335,13 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @And("the setabsolutelimit data is valid")
     public void theSetabsolutelimitDataIsValid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
     @And("the setabsolutelimit data is invalid")
     public void theSetabsolutelimitDataIsInvalid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
@@ -378,6 +373,17 @@ public class BankAccountCrudSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
+
+    @Then("I should receive a absolute limit error message")
+    public void iShouldReceiveAAbsoluteLimitErrorMessage() throws JsonProcessingException {
+        System.out.println(response.getBody());
+        Assertions.assertEquals(400, response.getStatusCode().value());
+
+        JsonNode jsonNode = mapper.readTree(response.getBody());
+        String message = jsonNode.get("message").asText();
+        Assertions.assertEquals("Absolute limit hit", message);
+    }
+
     @When("I change the is_active status of bank account {string} as admin to false")
     public void iChangeTheIsActiveStatusOfBankAccountAccountAsAdminToFalse(String id) {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
@@ -394,5 +400,6 @@ public class BankAccountCrudSteps extends BaseSteps {
         System.out.println(response.getBody());
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
 
 }

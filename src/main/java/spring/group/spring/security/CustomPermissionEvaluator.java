@@ -10,6 +10,7 @@ import spring.group.spring.services.UserService;
 
 import java.io.Serializable;
 
+// K - Custom Permission Evaluator
 @Component("customPermissionEvaluator")
 public class CustomPermissionEvaluator {
     private final BankAccountService bankAccountService;

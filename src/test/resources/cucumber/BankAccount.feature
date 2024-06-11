@@ -90,11 +90,11 @@ Feature: Bank Accounts CRUD Operations
     When I withdraw money from bank account "2" account as John Doe
     Then I should receive a bank account forbidden message
 
-  Scenario: Fail to withdraw money from the bank account bc of insufficient funds
+  Scenario: Fail to withdraw money from the bank account bc of absolute limit
     Given the endpoint for "accounts/1/withdraw" is available for method "POST"
     And the withdraw data is too much
     When I withdraw money from bank account "1" account as John Doe
-    Then I should receive a withdraw insufficients funds message
+    Then I should receive a absolute limit error message
 
   Scenario: Fail to withdraw money from the bank account bc of invalid data
     Given the endpoint for "accounts/1/withdraw" is available for method "POST"
