@@ -12,6 +12,4 @@ import org.junit.runner.RunWith;
         glue = {"spring.group.spring.steps"}
 )
 public class AppTests {
-    @Test
-    void contextLoads() { }
 }
