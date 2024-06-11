@@ -78,6 +78,20 @@ public class TransactionsSteps extends BaseSteps {
     public void theUpdateOfTheTransactionShouldFail() {
     }
 
+    @Given("I am an admin")
+    public void iAmAnAdmin() {
+        
+    }
+
+    @When("I request to get all transactions")
+    public void iRequestToGetAllTransactions() {
+        
+    }
+
+    @Then("I should receive a list of TransactionHistoryDTO objects")
+    public void iShouldReceiveAListOfTransactionHistoryDTOObjects() {
+    }
+
     // new stuff
 
 }
