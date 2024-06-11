@@ -38,43 +38,6 @@ public class TransactionServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    private User createMockUser(String firstName, String lastName, String username, String email, String password, String bsnNumber, String phoneNumber, List<Role> roles, boolean isApproved, boolean isArchived, BigDecimal dailyTransferLimit) {
-        User mockUser = new User();
-        mockUser.setFirst_name(firstName);
-        mockUser.setLast_name(lastName);
-        mockUser.setUsername(username);
-        mockUser.setEmail(email);
-        mockUser.setPassword(password);
-        mockUser.setBsn_number(bsnNumber);
-        mockUser.setPhone_number(phoneNumber);
-        mockUser.setRoles(roles);
-        mockUser.setIs_approved(isApproved);
-        mockUser.setIs_archived(isArchived);
-        mockUser.setDaily_transfer_limit(dailyTransferLimit);
-        return mockUser;
-    }
-
-    private BankAccount createMockBankAccount(String iban, BigDecimal balance, AccountType accountType, boolean isActive, BigDecimal absoluteLimit, User user) {
-        BankAccount mockBankAccount = new BankAccount();
-        mockBankAccount.setIban(iban);
-        mockBankAccount.setBalance(balance);
-        mockBankAccount.setAccount_type(accountType);
-        mockBankAccount.setIs_active(isActive);
-        mockBankAccount.setAbsolute_limit(absoluteLimit);
-        mockBankAccount.setUser(user);
-        return mockBankAccount;
-    }
-
-    private Transaction createExpectedTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser, BigDecimal transferAmount, String description) {
-        Transaction expectedTransaction = new Transaction();
-        expectedTransaction.setFrom_account(fromAccount);
-        expectedTransaction.setTo_account(toAccount);
-        expectedTransaction.setInitiator_user(initiatorUser);
-        expectedTransaction.setTransfer_amount(transferAmount);
-        expectedTransaction.setDescription(description);
-        return expectedTransaction;
-    }
-
     @Test
     public void testCreateTransactionFromIban() {
         // Arrange
@@ -187,5 +150,65 @@ public class TransactionServiceTest {
         assertEquals(expectedTransaction.getInitiator_user(), response.getInitiator_user());
         assertEquals(expectedTransaction.getTransfer_amount(), response.getTransfer_amount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
+    }
+
+    @Test
+    public void testCheckIfAbsoluteLimitIsHit() {
+        // Arrange
+        BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), null);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> transactionService.checkIfAbsoluteLimitIsHit(mockFromBankAccount, new BigDecimal("200")));
+        assertThrows(AbsoluteLimitHitException.class, () -> transactionService.checkIfAbsoluteLimitIsHit(mockFromBankAccount, new BigDecimal("201")));
+    }
+
+    @Test
+    public void testCheckIfDailyLimitIsHit() {
+        // daily limit is 1000
+        // Arrange
+        User mockUser = createMockUser("John", "Doe", "JohnDoe", "test@test.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), true, false, new BigDecimal("1000.00"));
+        BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockUser);
+        when(transactionRepository.getSumOfTodaysTransaction(any(BankAccount.class), any(LocalDateTime.class))).thenReturn(new BigDecimal("100.00"));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> transactionService.checkIfDailyLimitIsHit(mockFromBankAccount, new BigDecimal("900")));
+        assertThrows(DailyTransferLimitHitException.class, () -> transactionService.checkIfDailyLimitIsHit(mockFromBankAccount, new BigDecimal("901")));
+    }
+
+    private User createMockUser(String firstName, String lastName, String username, String email, String password, String bsnNumber, String phoneNumber, List<Role> roles, boolean isApproved, boolean isArchived, BigDecimal dailyTransferLimit) {
+        User mockUser = new User();
+        mockUser.setFirst_name(firstName);
+        mockUser.setLast_name(lastName);
+        mockUser.setUsername(username);
+        mockUser.setEmail(email);
+        mockUser.setPassword(password);
+        mockUser.setBsn_number(bsnNumber);
+        mockUser.setPhone_number(phoneNumber);
+        mockUser.setRoles(roles);
+        mockUser.setIs_approved(isApproved);
+        mockUser.setIs_archived(isArchived);
+        mockUser.setDaily_transfer_limit(dailyTransferLimit);
+        return mockUser;
+    }
+
+    private BankAccount createMockBankAccount(String iban, BigDecimal balance, AccountType accountType, boolean isActive, BigDecimal absoluteLimit, User user) {
+        BankAccount mockBankAccount = new BankAccount();
+        mockBankAccount.setIban(iban);
+        mockBankAccount.setBalance(balance);
+        mockBankAccount.setAccount_type(accountType);
+        mockBankAccount.setIs_active(isActive);
+        mockBankAccount.setAbsolute_limit(absoluteLimit);
+        mockBankAccount.setUser(user);
+        return mockBankAccount;
+    }
+
+    private Transaction createExpectedTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser, BigDecimal transferAmount, String description) {
+        Transaction expectedTransaction = new Transaction();
+        expectedTransaction.setFrom_account(fromAccount);
+        expectedTransaction.setTo_account(toAccount);
+        expectedTransaction.setInitiator_user(initiatorUser);
+        expectedTransaction.setTransfer_amount(transferAmount);
+        expectedTransaction.setDescription(description);
+        return expectedTransaction;
     }
 }
