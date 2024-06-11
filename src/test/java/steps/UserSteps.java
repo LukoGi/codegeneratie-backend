@@ -1,21 +1,18 @@
 package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.bankaccounts.SetAbsoluteLimitRequestDTO;
 import spring.group.spring.models.dto.transactions.SetDailyLimitRequestDTO;
 
 import java.math.BigDecimal;
 
-public class UserCrudSteps extends BaseSteps {
+public class UserSteps extends BaseSteps {
 
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");

@@ -377,4 +377,21 @@ public class BankAccountCrudSteps extends BaseSteps {
         System.out.println(response.getBody());
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
+
+
+
+    // JJ
+    @Given("I search a user with username {string}")
+    public void iSearchAUserWithUsername(String username) {
+    }
+
+    @When("I request to get IBAN by my username")
+    public void iRequestToGetIBANByMyUsername() {
+    }
+
+    @Then("I should receive a list of BankAccountResponseDTO objects")
+    public void iShouldReceiveAListOfBankAccountResponseDTOObjects() {
+    }
+
+
 }

@@ -46,6 +46,7 @@ public class TransactionController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public TransactionRequestDTO createTransaction(@Valid @RequestBody TransactionResponseDTO transactionResponseDTO) {
         return transactionService.createTransaction(transactionResponseDTO);
     }
@@ -56,6 +57,7 @@ public class TransactionController {
     }
 
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<TransactionHistoryDTO> getTransactionsByAccountId(
             @PathVariable Integer accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -72,6 +74,7 @@ public class TransactionController {
     }
 
     @GetMapping("/users/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<TransactionHistoryDTO> getTransactionsByUserId(
             @PathVariable Integer userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -81,18 +84,15 @@ public class TransactionController {
             @RequestParam(required = false) String iban,
             @RequestParam(defaultValue = "0") Integer offset,
             @RequestParam(defaultValue = "10") Integer limit) {
-        Page<Transaction> transactions = transactionService.getTransactionsByCustomerId(userId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
+        Page<Transaction> transactions = transactionService.getTransactionsByUserId(userId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
         return transactions.getContent().stream()
                 .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
                 .toList();
     }
-
-
     @PostMapping("/transfer")
     public TransactionRequestDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
         return transactionService.transferFunds(transferRequestDTO);
     }
-
     @PostMapping("/employeeTransfer")
     public TransactionRequestDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         return transactionService.employeeTransferFunds(employeeTransferRequestDTO);

@@ -45,7 +45,7 @@ public class BankAccountController {
     }
 
 @GetMapping("/username/{username}")
-@PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<BankAccountResponseDTO> getIbanByUsername(@PathVariable String username) {
         List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
         return bankAccounts.stream()

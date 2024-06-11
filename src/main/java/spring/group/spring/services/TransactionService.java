@@ -174,32 +174,9 @@ public class TransactionService {
         }
     }
 
-    public Page<Transaction> getTransactionsByCustomerId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
+    public Page<Transaction> getTransactionsByUserId(Integer customerId, LocalDateTime startDate, LocalDateTime endDate, BigDecimal minAmount, BigDecimal maxAmount, String iban, Integer offset, Integer limit) {
         Pageable pageable = PageRequest.of(offset, limit);
         return transactionRepository.findAllByInitiatorUserIdWithFilters(customerId, startDate, endDate, minAmount, maxAmount, iban, pageable);
-    }
-
-    public TransactionOverviewResponseDTO convertToDTO(Transaction transaction) {
-        TransactionOverviewResponseDTO transactionsDTO = new TransactionOverviewResponseDTO();
-
-        transactionsDTO.setDate(transaction.getDate());
-        transactionsDTO.setTransferAmount(transaction.getTransfer_amount());
-        transactionsDTO.setDescription(transaction.getDescription());
-
-        if (transaction.getFrom_account() != null) {
-            transactionsDTO.setFromAccountIban(transaction.getFrom_account().getIban());
-        }
-
-        if (transaction.getTo_account() != null) {
-            transactionsDTO.setToAccountIban(transaction.getTo_account().getIban());
-            transactionsDTO.setRecipientName(transaction.getTo_account().getUser().getFirst_name() + " " + transaction.getTo_account().getUser().getLast_name());
-        }
-
-        if (transaction.getInitiator_user() != null) {
-            transactionsDTO.setInitiatorName(transaction.getInitiator_user().getFirst_name() + " " + transaction.getInitiator_user().getLast_name());
-        }
-
-        return transactionsDTO;
     }
 
     public TransactionRequestDTO transferFunds(TransferRequestDTO transferRequestDTO) {

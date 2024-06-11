@@ -44,13 +44,11 @@ public class JwtFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Invalid JWT token");
             response.getWriter().flush();
-            return;
         } catch (Exception e) {
             // Writing the exception message is probably a bad idea. We should log it instead.
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write(e.getMessage());
             response.getWriter().flush();
-            return;
         }
 
 
