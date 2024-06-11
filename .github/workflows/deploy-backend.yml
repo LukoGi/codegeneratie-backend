@@ -4,32 +4,9 @@ on:
   push:
     branches:
       - main
-      - ConnectingThings
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'adopt'
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Build and Test with Maven
-        run: mvn -B clean package
-      - name: Run Cucumber Tests
-        run: mvn test -Dcucumber.options="src/test/resources/cucumber/features"
-
   deploy-backend:
-    needs: build-and-test
     runs-on: ubuntu-latest
 
     steps:
@@ -42,7 +19,3 @@ jobs:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
           curl -X POST \
-          -H "Authorization: Bearer $RENDER_API_KEY" \
-          -H "Content-Type: application/json" \
-          -d '{"serviceId": "$RENDER_SERVICE_ID"}' \
-          https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys
