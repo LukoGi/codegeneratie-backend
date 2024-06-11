@@ -2,6 +2,7 @@ package spring.group.spring;
 
 import io.cucumber.junit.Cucumber;
 import io.cucumber.junit.CucumberOptions;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
@@ -11,4 +12,6 @@ import org.junit.runner.RunWith;
         glue = {"spring.group.spring.steps"}
 )
 public class AppTests {
+    @Test
+    void contextLoads() { }
 }
