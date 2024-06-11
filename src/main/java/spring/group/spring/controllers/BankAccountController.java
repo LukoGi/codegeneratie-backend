@@ -29,6 +29,7 @@ public class BankAccountController {
     private final ModelMapper mapper;
 
     @GetMapping("/")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<BankAccountResponseDTO> getAllBankAccounts(Pageable pageable) {
         Page<BankAccount> bankAccounts = bankAccountService.getAllBankAccounts(pageable);
         return bankAccounts.getContent().stream()
@@ -44,6 +45,7 @@ public class BankAccountController {
     }
 
 @GetMapping("/username/{username}")
+@PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isUserAccountOwner(authentication, #id)")
     public List<BankAccountResponseDTO> getIbanByUsername(@PathVariable String username) {
         List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
         return bankAccounts.stream()

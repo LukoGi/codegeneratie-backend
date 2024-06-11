@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import spring.group.spring.models.Transaction;
 import spring.group.spring.models.dto.transactions.*;
@@ -23,8 +24,8 @@ public class TransactionController {
     private final ModelMapper modelMapper;
 
     @GetMapping("/")
-    //@PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Page<TransactionOverviewResponseDTO> getAllTransactions(
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public List<TransactionHistoryDTO> getAllTransactions(
             @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
@@ -34,7 +35,9 @@ public class TransactionController {
         LocalDateTime dateTime = (date != null) ? LocalDateTime.parse(date) : null;
 
         Page<Transaction> transactions = transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban, offset, limit);
-        return transactions.map(transactionService::convertToDTO);
+        return transactions.getContent().stream()
+                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .toList();
     }
 
     @GetMapping("/{id}")
