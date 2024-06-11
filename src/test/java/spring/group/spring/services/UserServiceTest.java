@@ -207,5 +207,5 @@ public class UserServiceTest {
         assertEquals(users, result);
         verify(userRepository, times(2)).findByAccountsIsEmpty(Role.ROLE_USER);
     }
-    
+
 }
