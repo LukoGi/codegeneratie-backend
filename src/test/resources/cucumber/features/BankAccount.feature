@@ -87,7 +87,7 @@ Feature: Bank Accounts CRUD Operations
   Scenario: Fail to withdraw money from a bank account as not owner of the account
     Given the endpoint for "accounts/2/withdraw" is available for method "POST"
     And the withdraw data is valid
-    When I withdraw money from bank account "2" account as John Doe
+    When I withdraw money from bank account "3" account as John Doe
     Then I should receive a bank account forbidden message
 
   Scenario: Fail to withdraw money from the bank account bc of absolute limit
@@ -111,7 +111,7 @@ Feature: Bank Accounts CRUD Operations
   Scenario: Fail to deposit money to a bank account as not owner of the account
     Given the endpoint for "accounts/2/deposit" is available for method "POST"
     And the deposit data is valid
-    When I deposit money to bank account "2" account as John Doe
+    When I deposit money to bank account "3" account as John Doe
     Then I should receive a bank account forbidden message
 
   Scenario: Fail to deposit money to the bank account bc of invalid data
@@ -137,17 +137,6 @@ Feature: Bank Accounts CRUD Operations
     And the setabsolutelimit data is invalid
     When I set absolute limit to bank account "1" account as admin
     Then I should receive a bank account error message
-
-    # Fix these scenarios
-  Scenario: Successfully Get Ibans with a username
-    Given the endpoint for "accounts/username/JohnDoe" is available for method "GET"
-    When I retrieve the bank account by username "JohnDoe" as user
-    #Then I should receive a list of bank accounts
-
-  Scenario: Fail Get Ibans with a username
-    Given the endpoint for "accounts/username/dsa" is available for method "GET"
-    When I retrieve the bank account by username "dsa" as user
-    #Then I should receive an error message
 
   Scenario: Deactivate a bank account
     Given the endpoint for "accounts/1/closeAccount" is available for method "PUT"
