@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = "src/test/resources/cucumber",
-        plugin = {"pretty", "html:target/cucumber-reports"},
+        plugin = {"pretty"},
         glue = {"spring.group.spring.steps"}
 )
 public class CucumberTestRunner {

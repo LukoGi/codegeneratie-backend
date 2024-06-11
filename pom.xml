@@ -158,7 +158,7 @@
 				<version>2.22.2</version>
 				<configuration>
 					<includes>
-						<include>**/CucumberTestRunner.java</include>
+						<include>**/*Runner.java</include>
 					</includes>
 				</configuration>
 			</plugin>
