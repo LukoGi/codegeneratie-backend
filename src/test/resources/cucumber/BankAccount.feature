@@ -87,7 +87,7 @@ Feature: Bank Accounts CRUD Operations
   Scenario: Fail to withdraw money from a bank account as not owner of the account
     Given the endpoint for "accounts/2/withdraw" is available for method "POST"
     And the withdraw data is valid
-    When I withdraw money from bank account "2" account as John Doe
+    When I withdraw money from bank account "3" account as John Doe
     Then I should receive a bank account forbidden message
 
   Scenario: Fail to withdraw money from the bank account bc of absolute limit
@@ -111,7 +111,7 @@ Feature: Bank Accounts CRUD Operations
   Scenario: Fail to deposit money to a bank account as not owner of the account
     Given the endpoint for "accounts/2/deposit" is available for method "POST"
     And the deposit data is valid
-    When I deposit money to bank account "2" account as John Doe
+    When I deposit money to bank account "3" account as John Doe
     Then I should receive a bank account forbidden message
 
   Scenario: Fail to deposit money to the bank account bc of invalid data
