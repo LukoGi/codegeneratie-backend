@@ -91,7 +91,6 @@ public class BankAccountController {
         return bankAccountService.depositMoney(id, depositRequest.getAmount());
     }
 
-    // TODO: integrate this into the update endpoint
     @PutMapping("/{id}/setAbsoluteLimit")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")

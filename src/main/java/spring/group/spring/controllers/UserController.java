@@ -105,7 +105,6 @@ public class UserController {
         return users.stream().map(user -> mapper.map(user, UserDTO.class)).toList();
     }
 
-    // TODO: integrate this into the user update endpoint
     @PutMapping("{id}/setDailyLimit")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasRole('ROLE_ADMIN')")
