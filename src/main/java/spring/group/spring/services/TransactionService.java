@@ -57,6 +57,8 @@ public class TransactionService {
 
             return responseDTO;
         } catch (Exception e) {
+            e.printStackTrace();
+            // NOTE : Daily transfer limit hit exception sometimes even though it should not be hit
             throw new RuntimeException("An error occurred while creating the transaction", e);
         }
     }
@@ -260,6 +262,7 @@ public class TransactionService {
 
             return recordTransaction(fromAccount, employeeTransferRequestDTO);
         }catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("An error occurred while creating the transaction", e);
         }
     }

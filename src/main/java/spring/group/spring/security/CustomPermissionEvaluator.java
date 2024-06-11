@@ -29,14 +29,14 @@ public class CustomPermissionEvaluator {
         return bankAccountService.isUserAccountOwner(username, accountId);
     }
 
-    public boolean isRequestValid(Authentication authentication, TransferRequestDTO transferRequestDTO) {
-        if (authentication == null || transferRequestDTO == null) {
+    public boolean isRequestValid(Authentication authentication, Integer userId) {
+        if (authentication == null || userId == null) {
             return false;
         }
 
         String username = authentication.getName();
         User user = userService.findByUsername(username);
 
-        return user != null && user.getUser_id().equals(transferRequestDTO.getUserId());
+        return user != null && user.getUser_id().equals(userId);
     }
 }
