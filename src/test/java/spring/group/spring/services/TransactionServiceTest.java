@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import spring.group.spring.exception.exceptions.*;
 import spring.group.spring.models.*;
 import spring.group.spring.models.dto.transactions.*;
@@ -210,5 +212,37 @@ public class TransactionServiceTest {
         expectedTransaction.setTransfer_amount(transferAmount);
         expectedTransaction.setDescription(description);
         return expectedTransaction;
+    }
+
+    @Test
+    void getAllTransactions() {
+        // Assign
+        LocalDateTime date=LocalDateTime.now();
+        when(transactionRepository.findAllTransactionsWithFilters(eq(date), eq(BigDecimal.ZERO), eq(BigDecimal.ONE), eq("iban"), any(Pageable.class))).thenReturn(Page.empty());
+        // Act & Assert
+        Page<Transaction>  result =   transactionService.getAllTransactions(date,BigDecimal.ZERO, BigDecimal.ONE,"iban",1,10);
+        // Assert
+        assertEquals(0, result.getTotalElements());
+    }
+
+
+    @Test
+    void getTransactionsByUserId() {
+        LocalDateTime date=LocalDateTime.now();
+        when(transactionRepository.findAllByInitiatorUserIdWithFilters(eq(1),eq(date),eq(date), eq(BigDecimal.ONE), eq(BigDecimal.ONE), eq("iban"), any(Pageable.class))).thenReturn(Page.empty());
+        // Act & Assert
+        Page<Transaction>  result =   transactionService.getTransactionsByUserId(1,date,date,BigDecimal.ONE,BigDecimal.ONE,"iban",0,1);
+        // Assert
+        assertEquals(0, result.getTotalElements());
+    }
+
+    @Test
+    void getTransactionsByAccountId() {
+        LocalDateTime date=LocalDateTime.now();
+        when(transactionRepository.findAllTransactionsWithAccountIdAndFilters(eq(1),eq(date),eq(date), eq(BigDecimal.ONE), eq(BigDecimal.ONE), eq("iban"), any(Pageable.class))).thenReturn(Page.empty());
+        // Act & Assert
+        Page<Transaction>  result =   transactionService.getTransactionsByAccountId(1,date,date,BigDecimal.ONE,BigDecimal.ONE,"iban",0,1);
+        // Assert
+        assertEquals(0, result.getTotalElements());
     }
 }
