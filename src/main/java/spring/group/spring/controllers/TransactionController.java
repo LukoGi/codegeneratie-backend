@@ -58,7 +58,6 @@ public class TransactionController {
     }
 
     @GetMapping("/account/{accountId}")
-    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #accountId)")
     public List<TransactionHistoryDTO> getTransactionsByAccountId(
             @PathVariable Integer accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
