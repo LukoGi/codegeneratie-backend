@@ -31,32 +31,26 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO createTransactionFromIban(TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
-        try {
-            User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
-            BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
-            BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
+        User initiatorUser = getInitiatorUser(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
+        BankAccount toAccount = getToAccount(transactionCreateFromIbanRequestDTO.getTo_account_iban());
+        BankAccount fromAccount = getFromAccount(transactionCreateFromIbanRequestDTO.getInitiator_user_id());
 
-            if (toAccount.getAccount_type() == AccountType.SAVINGS) {
-                throw new TransactionWithSavingsAccountException();
-            }
-
-            checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
-
-            if (!toAccount.getUser().equals(fromAccount.getUser())) {
-                checkIfDailyLimitIsHit(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
-            }
-            checkIfAbsoluteLimitIsHit(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
-
-            updateAccountBalances(fromAccount, toAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
-
-            Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
-
-            return createTransactionResponseDTO(transaction);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // NOTE : Daily transfer limit hit exception sometimes even though it should not be hit
-            throw new RuntimeException("An error occurred while creating the transaction", e);
+        if (toAccount.getAccount_type() == AccountType.SAVINGS) {
+            throw new TransactionWithSavingsAccountException();
         }
+
+        checkAccountBalance(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+        if (!toAccount.getUser().equals(fromAccount.getUser())) {
+            checkIfDailyLimitIsHit(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+        }
+        checkIfAbsoluteLimitIsHit(fromAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+        updateAccountBalances(fromAccount, toAccount, transactionCreateFromIbanRequestDTO.getTransfer_amount());
+
+        Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, transactionCreateFromIbanRequestDTO);
+
+        return createTransactionResponseDTO(transaction);
     }
 
     private TransactionResponseDTO createTransactionResponseDTO(Transaction transaction) {
@@ -191,18 +185,13 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
-        try {
-            BankAccount fromAccount = validateAndGetFromAccount(employeeTransferRequestDTO.getFromAccountIban());
-            BankAccount toAccount = validateAndGetToAccount(employeeTransferRequestDTO.getToAccountIban());
-            validateTransferDetails(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
+        BankAccount fromAccount = validateAndGetFromAccount(employeeTransferRequestDTO.getFromAccountIban());
+        BankAccount toAccount = validateAndGetToAccount(employeeTransferRequestDTO.getToAccountIban());
+        validateTransferDetails(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
 
-            performTransfer(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
+        performTransfer(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
 
-            return createAndSaveEmployeeTransaction(fromAccount, toAccount, employeeTransferRequestDTO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("An error occurred while creating the transaction", e);
-        }
+        return createAndSaveEmployeeTransaction(fromAccount, toAccount, employeeTransferRequestDTO);
     }
 
     private BankAccount validateAndGetFromAccount(String iban) {
