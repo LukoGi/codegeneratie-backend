@@ -186,32 +186,24 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
-        BankAccount fromAccount = validateAndGetFromAccount(employeeTransferRequestDTO.getFromAccountIban());
-        BankAccount toAccount = validateAndGetToAccount(employeeTransferRequestDTO.getToAccountIban());
-        validateTransferDetails(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
+        BankAccount fromAccount = validateAndGetAccount(employeeTransferRequestDTO.getFromAccountIban());
+        BankAccount toAccount = validateAndGetAccount(employeeTransferRequestDTO.getToAccountIban());
+        validateTransferDetails(fromAccount, employeeTransferRequestDTO.getTransferAmount());
 
         performTransfer(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
 
         return createAndSaveEmployeeTransaction(fromAccount, toAccount, employeeTransferRequestDTO);
     }
 
-    private BankAccount validateAndGetFromAccount(String iban) {
-        BankAccount fromAccount = bankAccountRepository.findByIban(iban);
-        if (fromAccount == null || fromAccount.getAccount_type() != AccountType.CHECKINGS) {
+    private BankAccount validateAndGetAccount(String iban) {
+        BankAccount account = bankAccountRepository.findByIban(iban);
+        if (account == null || account.getAccount_type() != AccountType.CHECKINGS) {
             throw new EntityNotFoundException();
         }
-        return fromAccount;
+        return account;
     }
 
-    private BankAccount validateAndGetToAccount(String iban) {
-        BankAccount toAccount = bankAccountRepository.findByIban(iban);
-        if (toAccount == null || toAccount.getAccount_type() != AccountType.CHECKINGS) {
-            throw new EntityNotFoundException();
-        }
-        return toAccount;
-    }
-
-    private void validateTransferDetails(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
+    private void validateTransferDetails(BankAccount fromAccount, BigDecimal transferAmount) {
         if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
             throw new InsufficientFundsException();
         }
