@@ -36,6 +36,7 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
                 .exchange("/accounts/",
                         HttpMethod.GET,
@@ -341,13 +342,13 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @And("the setabsolutelimit data is valid")
     public void theSetabsolutelimitDataIsValid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
     @And("the setabsolutelimit data is invalid")
     public void theSetabsolutelimitDataIsInvalid() throws JsonProcessingException {
-        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
+        SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
         requestBody = requestDTO.getAbsolute_limit().toString();
     }
 
