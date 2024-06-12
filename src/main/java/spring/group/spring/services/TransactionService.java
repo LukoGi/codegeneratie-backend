@@ -188,7 +188,7 @@ public class TransactionService {
     public TransactionResponseDTO employeeTransferFunds(EmployeeTransferRequestDTO employeeTransferRequestDTO) {
         BankAccount fromAccount = validateAndGetAccount(employeeTransferRequestDTO.getFromAccountIban());
         BankAccount toAccount = validateAndGetAccount(employeeTransferRequestDTO.getToAccountIban());
-        validateTransferDetails(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
+        validateTransferDetails(fromAccount, employeeTransferRequestDTO.getTransferAmount());
 
         performTransfer(fromAccount, toAccount, employeeTransferRequestDTO.getTransferAmount());
 
@@ -203,7 +203,7 @@ public class TransactionService {
         return account;
     }
 
-    private void validateTransferDetails(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
+    private void validateTransferDetails(BankAccount fromAccount, BigDecimal transferAmount) {
         if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
             throw new InsufficientFundsException();
         }
