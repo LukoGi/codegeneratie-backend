@@ -38,6 +38,7 @@ public class BankAccountService {
         return bankAccountRepository.save(bankAccount);
     }
 
+    // Julian
     public Page<BankAccount> getAllBankAccounts(Pageable pageable){
         return bankAccountRepository.findAll(pageable);
     }
@@ -89,6 +90,8 @@ public class BankAccountService {
         return iban != null && iban.matches("^[A-Z]{2}\\d{2}[A-Z\\d]{4}\\d{7}[A-Z\\d]{0,16}$");
     }
 
+    // Julian
+
     public boolean getBankAccountByIban(String iban) {
         return bankAccountRepository.findByIban(iban) != null;
     }
@@ -120,6 +123,8 @@ public class BankAccountService {
 
         return bankAccount;
     }
+
+    // Julian
 
     public List<BankAccount> getIbanByUsername(String username)  {
         User user = userService.getUserByUsername(username);

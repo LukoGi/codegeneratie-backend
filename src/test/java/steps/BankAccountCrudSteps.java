@@ -31,8 +31,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class BankAccountCrudSteps extends BaseSteps {
 
-    private final String adminToken = System.getenv("ADMIN_TOKEN");
-    private final String userToken = System.getenv("USER_TOKEN");
+    private final String adminToken ="eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBZG1pbiIsImF1dGgiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3MTc5MzExMTksImV4cCI6MTc0OTQ2NzExOX0.PE_4iw1798iiNdHta6v3FwT4ZBQ1ZDXQ0eH_yuTlDFlW8hGNwjg7MLNQ2Imj83iAANPJvv3vy0ItIZ6yHUhyxoQSAueqSI4KXk1EJoSb1Tecwf2CAJu3Z_Gj2QAKNB1h8WI0_Ly5MjOnRO9wIFWphYYI-iXT-NTD_9HCU-NQ_LqBzLv4uPQZKRbDYmNkEiqPjkCV6I0b8bdvGvKHiZDJe7OF9R4z2UYzSftfJxR6WXKFXfDHI28dlTBcl6-edi1_j1-V-LAoJBO4jRxycHMo1OFkaao4mp5euvriamii1GcKoufxkQeoFykDvgRTTn5D9zUltSJ7bpHwdWorHKkCzg";
+    private final String userToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKb2huRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE3OTMxMTgwLCJleHAiOjE3NDk0NjcxODB9.cyZzlQLnoiSee7TznaKa4nHHVcome7o2ZkI5_afzRjFH8bCL5SkIGv5rm5An7rI9XjtmX4TL6JfWkdw9fmq-VP3HEsm9yeAVS1toxXLS7n8kniDuunNzCgb12U8FDYu33fAt6TLL-GqmEog-88_ZTBZVtKl2NqmKUgcoCZRvkZAr4ZV_hZJudDRowPlSaCpj9Mu1ECdJx95cPK7aN4C6k8BjBXPw-NtcNNolqbSR4PYx8M_DCjCs0bmVmmsJX5BZ_dqGQ2JPoBr2xcuw5Sf-PsQnilA8oPmmbuX5r8HVd7pdfiZdWcpwaJCPbtpikKyAqcX3hrzWL8nO5XToH8HkxQ";
 
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {
@@ -410,16 +410,39 @@ public class BankAccountCrudSteps extends BaseSteps {
 
 
 
-    @When("I retrieve the bank account by username {string} as user")
+    @When("I retrieve the iban by user name {string} as user")
     public void iRetrieveTheBankAccountByUsernameAsUser(String username) {
+        // httpHeaders.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKb2huRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE4MTQxNjY2LCJleHAiOjE3MTgxNDUyNjZ9.EEA2ZvMSJ0A0ydzmcV0YHXcdKt6oxnqkLBm0OZEO655ayCpjvbP9Ig7Iek3lUO_Uco9CGmjGs_Vo2RUGoAiTc3zkVxrnVUSHKOaQcipn9aZ_XUcronZwyvfvyDvD_jLXhFL7HSD-lbFIqcZq0_bdj2SGkYbplkZbcnAtfF2BmAdhjAYvwADt0p11CwLf6a2PZpYRdtL1xzhaX_w2Yo2ac_5qirkhxZNslWsbvCPNyg_g1dOtXGgahXaSb-G7vptu0RzXWQXCFJNGAPHIk8WFj9kLqOA8bQsv3H3W54MVYQCswIW2GV7ZaLdj5PwL6miVyM1xdgZGskGncQ_CnV3q_Q");
         httpHeaders.add("Authorization", "Bearer " + userToken);
         response = restTemplate
-                .exchange("/accounts/username/{username}",
+                .exchange("/accounts/username/JohnDoe",
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class,
                         username);
         System.out.println("Response Body: " + response.getBody());
     }
+
+    @Then("I should receive the iban")
+    public void iShouldReceiveTheIban() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
+    @When("I retrieve bank account by admin as user")
+    public void iRetrieveBankAccountByAdminAsUser() {
+        httpHeaders.add("Authorization", "Bearer " + adminToken);
+        response = restTemplate
+                .exchange("/accounts/",
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Then("I should receive the bank accounts")
+    public void iShouldReceiveTheBankAccounts() {
+        Assertions.assertEquals(200, response.getStatusCode().value());
+    }
+
     // JJ
 }

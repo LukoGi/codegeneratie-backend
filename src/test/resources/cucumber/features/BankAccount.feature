@@ -143,5 +143,15 @@ Feature: Bank Accounts CRUD Operations
     When I change the is_active status of bank account "1" as admin to false
     Then I should receive bank account success message
 
+  Scenario: Get Iban by user name
+    Given the endpoint for "accounts/username/JohnDoe" is available for method "GET"
+    When I retrieve the iban by user name "JohnDoe" as user
+    Then I should receive the iban
+
+  Scenario: Get all bank accounts
+    Given the endpoint for "accounts/" is available for method "GET"
+    When I retrieve bank account by admin as user
+    Then I should receive the bank accounts
+
     #hi
 

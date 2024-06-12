@@ -6,6 +6,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import spring.group.spring.exception.exceptions.ResourceNotFoundException;
+import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
 import spring.group.spring.models.User;
@@ -16,6 +18,7 @@ import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -216,4 +219,44 @@ class BankAccountServiceTest {
         return bankAccount;
     }
 
+    @Test
+    void getIbanByUsername() {
+        // Arrange
+        String username = "JohnDoe";
+
+        BankAccount bankAccount = new BankAccount();
+        List<BankAccount> account= List.of(bankAccount);
+        User user = new User();
+        user.setUsername(username);
+        bankAccount.setUser(user);
+
+        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(bankAccountRepository.findByUser(user)).thenReturn(account);
+        // Act
+        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
+
+        // Assert
+        assertEquals(bankAccounts.size(),1);
+    }
+    @Test
+    void Throw_when_user_is_unknown() {
+        // Arrange
+        String username = "JohnDoe";
+        when(userService.getUserByUsername(username)).thenReturn(null);
+        // Act Assert
+        assertThrows(UserNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+    }
+    @Test
+    void Throw_when_user_has_no_bank_account() {
+        // Arrange
+        String username = "JohnDoe";
+        User user = new User();
+        user.setUsername(username);
+        List<BankAccount> account= List.of();
+        when(userService.getUserByUsername(username)).thenReturn(user);
+        when(bankAccountRepository.findByUser(user)).thenReturn(account );
+        // Act Assert
+
+        assertThrows(ResourceNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+    }
 }
