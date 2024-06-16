@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class TransferRequestDTO {
+public class InternalTransactionRequestDTO {
     private Integer userId;
     private String fromAccountType;
     private String toAccountType;

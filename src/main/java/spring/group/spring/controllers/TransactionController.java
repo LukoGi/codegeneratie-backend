@@ -51,12 +51,6 @@ public class TransactionController {
         return transactionService.createTransaction(transactionResponseDTO);
     }
 
-    @PostMapping("/createWithIban")
-    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #transactionCreateFromIbanRequestDTO.initiator_user_id)")
-    public TransactionResponseDTO createTransactionFromIban(@RequestBody TransactionCreateFromIbanRequestDTO transactionCreateFromIbanRequestDTO) {
-        return transactionService.createTransactionFromIban(transactionCreateFromIbanRequestDTO);
-    }
-
     @GetMapping("/account/{accountId}")
     public List<TransactionHistoryDTO> getTransactionsByAccountId(
             @PathVariable Integer accountId,
@@ -89,15 +83,26 @@ public class TransactionController {
                 .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
                 .toList();
     }
-    @PostMapping("/transfer")
-    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #transferRequestDTO.userId)")
-    public TransactionResponseDTO transferFunds(@RequestBody TransferRequestDTO transferRequestDTO) {
-        return transactionService.transferFunds(transferRequestDTO);
+
+    // Luko - Begin
+
+    @PostMapping("/customer")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #customerTransactionRequestDTO.initiatorUserId)")
+    public TransactionResponseDTO customerCreateTransaction(@RequestBody CustomerTransactionRequestDTO customerTransactionRequestDTO) {
+        return transactionService.customerCreateTransaction(customerTransactionRequestDTO);
     }
 
-    @PostMapping("/employeeTransfer")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public TransactionResponseDTO employeeTransferFunds(@RequestBody EmployeeTransferRequestDTO employeeTransferRequestDTO) {
-        return transactionService.employeeTransferFunds(employeeTransferRequestDTO);
+    @PostMapping("/customer/internal")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #internalTransactionRequestDTO.userId)")
+    public TransactionResponseDTO customerCreateInternalTransaction(@RequestBody InternalTransactionRequestDTO internalTransactionRequestDTO) {
+        return transactionService.customerCreateInternalTransaction(internalTransactionRequestDTO);
     }
+
+    @PostMapping("/employee")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public TransactionResponseDTO employeeCreateTransaction(@RequestBody EmployeeTransactionRequestDTO employeeTransactionRequestDTO) {
+        return transactionService.employeeCreateTransaction(employeeTransactionRequestDTO);
+    }
+
+    // Luko - Einde
 }
