@@ -1,10 +1,8 @@
 package spring.group.spring.security;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import spring.group.spring.models.User;
-import spring.group.spring.models.dto.transactions.TransferRequestDTO;
 import spring.group.spring.services.BankAccountService;
 import spring.group.spring.services.UserService;
 

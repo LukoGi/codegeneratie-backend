@@ -41,20 +41,20 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void testCreateTransactionFromIban() {
+    public void testCustomerCreateTransaction() {
         // Arrange
         User mockFromUser = createMockUser("John", "Doe", "JohnDoe", "John@gmail.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), false, false, new BigDecimal("1000.00"));
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("500.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockFromUser);
         User mockToUser = createMockUser("Jane", "Doe", "JaneDoe", "Jane@gmail.com", "test", "987654321", "0687654321", List.of(Role.ROLE_USER), true, false, new BigDecimal("200.00"));
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164306", new BigDecimal("1800.00"), AccountType.CHECKINGS, true, new BigDecimal("-200.00"), mockToUser);
 
-        TransactionCreateFromIbanRequestDTO request = new TransactionCreateFromIbanRequestDTO();
-        request.setTo_account_iban("NL91ABNA0417164306");
-        request.setInitiator_user_id(1);
-        request.setTransfer_amount(new BigDecimal(1));
+        CustomerTransactionRequestDTO request = new CustomerTransactionRequestDTO();
+        request.setToAccountIban("NL91ABNA0417164306");
+        request.setInitiatorUserId(1);
+        request.setTransferAmount(new BigDecimal(1));
         request.setDescription("test");
 
-        Transaction expectedTransaction = createExpectedTransaction(mockFromBankAccount, mockToBankAccount, mockFromUser, request.getTransfer_amount(), request.getDescription());
+        Transaction expectedTransaction = createExpectedTransaction(mockFromBankAccount, mockToBankAccount, mockFromUser, request.getTransferAmount(), request.getDescription());
 
         when(userRepository.findById(any(Integer.class))).thenReturn(Optional.of(mockFromUser));
         when(bankAccountRepository.findByIban(any(String.class))).thenReturn(mockToBankAccount);
@@ -63,25 +63,25 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
         // Act
-        TransactionResponseDTO response = transactionService.createTransactionFromIban(request);
+        TransactionResponseDTO response = transactionService.customerCreateTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransaction_id());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFrom_account());
-        assertEquals(expectedTransaction.getTo_account(), response.getTo_account());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiator_user());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransfer_amount());
+        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
+        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
     @Test
-    public void testTransferFunds() {
+    public void testCustomerCreateInternalTransaction() {
         // Arrange
         User mockUser = createMockUser("Jane", "Doe", "JaneDoe", "Jane@gmail.com", "test", "987654321", "0687654321", List.of(Role.ROLE_USER), true, false, new BigDecimal("200.00"));
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164306", new BigDecimal("1800.00"), AccountType.CHECKINGS, true, new BigDecimal("-200.00"), mockUser);
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164308", new BigDecimal("1800.00"), AccountType.SAVINGS, true, new BigDecimal("200.00"), mockUser);
 
-        TransferRequestDTO request = new TransferRequestDTO();
+        InternalTransactionRequestDTO request = new InternalTransactionRequestDTO();
         request.setUserId(2);
         request.setFromAccountType("CHECKINGS");
         request.setToAccountType("SAVINGS");
@@ -103,19 +103,19 @@ public class TransactionServiceTest {
         when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
         // Act
-        TransactionResponseDTO response = transactionService.transferFunds(request);
+        TransactionResponseDTO response = transactionService.customerCreateInternalTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransaction_id());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFrom_account());
-        assertEquals(expectedTransaction.getTo_account(), response.getTo_account());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiator_user());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransfer_amount());
+        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
+        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
     @Test
-    public void testEmployeeTransferFunds() {
+    public void testEmployeeCreateTransaction() {
         // Arrange
         User mockEmployee = createMockUser("Admin", "Admin", "Admin", null, "admin", null, null, List.of(Role.ROLE_ADMIN), true, false, null);
         User mockFromUser = createMockUser("John", "Doe", "JohnDoe", "John@gmail.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), false, false, new BigDecimal("1000.00"));
@@ -124,7 +124,7 @@ public class TransactionServiceTest {
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("500.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockFromUser);
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164306", new BigDecimal("1800.00"), AccountType.CHECKINGS, true, new BigDecimal("-200.00"), mockToUser);
 
-        EmployeeTransferRequestDTO request = new EmployeeTransferRequestDTO();
+        EmployeeTransactionRequestDTO request = new EmployeeTransactionRequestDTO();
         request.setEmployeeId(3);
         request.setFromAccountIban("NL91ABNA0417164305");
         request.setToAccountIban("NL91ABNA0417164306");
@@ -143,14 +143,14 @@ public class TransactionServiceTest {
         });
 
         // Act
-        TransactionResponseDTO response = transactionService.employeeTransferFunds(request);
+        TransactionResponseDTO response = transactionService.employeeCreateTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransaction_id());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFrom_account());
-        assertEquals(expectedTransaction.getTo_account(), response.getTo_account());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiator_user());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransfer_amount());
+        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
+        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
