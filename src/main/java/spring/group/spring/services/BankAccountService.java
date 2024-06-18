@@ -17,7 +17,6 @@ import spring.group.spring.repositories.BankAccountRepository;
 import spring.group.spring.security.JwtProvider;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.List;
 
@@ -107,19 +106,19 @@ public class BankAccountService {
 
     public BankAccount closeBankAccount(int accountId) {
         BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(EntityNotFoundException::new);
-        bankAccount.setIs_active(false);
+        bankAccount.setIsActive(false);
         return bankAccountRepository.save(bankAccount);
     }
 
-    public BankAccount createBankAccountEntity(User user, AccountType accountType, BigDecimal absolute_limit) {
+    public BankAccount createBankAccountEntity(User user, AccountType accountType, BigDecimal absoluteLimit) {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setIban("NL" + String.format("%02d", SECURE_RANDOM.nextInt(10)) + "INHO0" + String.format("%09d", SECURE_RANDOM.nextInt(1000000000)));
         bankAccount.setUser(user);
-        bankAccount.setIs_active(true);
+        bankAccount.setIsActive(true);
         bankAccount.setBalance(BigDecimal.ZERO);
         bankAccount.setPincode("1111");
-        bankAccount.setAccount_type(accountType);
-        bankAccount.setAbsolute_limit(absolute_limit);
+        bankAccount.setAccountType(accountType);
+        bankAccount.setAbsoluteLimit(absoluteLimit);
 
         return bankAccount;
     }
@@ -138,7 +137,7 @@ public class BankAccountService {
         return bankAccounts;
     }
     private void validateAndEncodePincode(BankAccount bankAccount) {
-        String pincode = bankAccountRepository.findById(bankAccount.getAccount_id())
+        String pincode = bankAccountRepository.findById(bankAccount.getAccountId())
                 .orElseThrow(EntityNotFoundException::new)
                 .getPincode();
 

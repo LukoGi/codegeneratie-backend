@@ -269,8 +269,8 @@ public class UserSteps extends BaseSteps {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
 
         AcceptUserRequestDTO requestDTO = new AcceptUserRequestDTO();
-        requestDTO.setDaily_transfer_limit(new BigDecimal(1000));
-        requestDTO.setAbsolute_transfer_limit(new BigDecimal(1000));
+        requestDTO.setDailyTransferLimit(new BigDecimal(1000));
+        requestDTO.setAbsoluteLimit(new BigDecimal(1000));
 
         ObjectMapper mapper = new ObjectMapper();
         String requestBody = mapper.writeValueAsString(requestDTO);

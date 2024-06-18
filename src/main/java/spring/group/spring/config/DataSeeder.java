@@ -104,7 +104,7 @@ public class DataSeeder implements ApplicationRunner {
         user1.setRoles(List.of(Role.ROLE_USER));
         user1.setIs_approved(true);
         user1.setIs_archived(false);
-        user1.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        user1.setDailyTransferLimit(new BigDecimal("1000.00"));
         userService.createUser(user1);
         return user1;
     }
@@ -121,7 +121,7 @@ public class DataSeeder implements ApplicationRunner {
         user.setRoles(List.of(Role.ROLE_USER));
         user.setIs_approved(false);
         user.setIs_archived(false);
-        user.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        user.setDailyTransferLimit(new BigDecimal("1000.00"));
         userService.createUser(user);
         return user;
 
@@ -139,7 +139,7 @@ public class DataSeeder implements ApplicationRunner {
         user2.setRoles(List.of(Role.ROLE_USER));
         user2.setIs_approved(true);
         user2.setIs_archived(false);
-        user2.setDaily_transfer_limit(new BigDecimal("200.00"));
+        user2.setDailyTransferLimit(new BigDecimal("200.00"));
         userService.createUser(user2);
         return user2;
     }
@@ -157,7 +157,7 @@ public class DataSeeder implements ApplicationRunner {
         user3.setRoles(List.of(Role.ROLE_ADMIN));
         user3.setIs_approved(true);
         user3.setIs_archived(false);
-        user3.setDaily_transfer_limit(null);
+        user3.setDailyTransferLimit(null);
         userService.createUser(user3);
         return user3;
     }

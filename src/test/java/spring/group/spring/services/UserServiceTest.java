@@ -103,7 +103,7 @@ public class UserServiceTest {
         user.setRoles(List.of(Role.ROLE_USER));
         user.setIs_approved(false);
         user.setIs_archived(false);
-        user.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        user.setDailyTransferLimit(new BigDecimal("1000.00"));
 
         when(userRepository.findUserByUsername(user.getUsername())).thenReturn(Optional.empty());
         when(passwordEncoder.encode("test")).thenReturn("encodedPassword"); // changed this line
@@ -155,7 +155,7 @@ public class UserServiceTest {
         user.setRoles(List.of(Role.ROLE_USER));
         user.setIs_approved(false);
         user.setIs_archived(false);
-        user.setDaily_transfer_limit(new BigDecimal("1000.00"));
+        user.setDailyTransferLimit(new BigDecimal("1000.00"));
         return user;
     }
 
@@ -172,7 +172,7 @@ public class UserServiceTest {
         updatedUser.setRoles(List.of(Role.ROLE_USER));
         updatedUser.setIs_approved(true);
         updatedUser.setIs_archived(false);
-        updatedUser.setDaily_transfer_limit(new BigDecimal("2000.00"));
+        updatedUser.setDailyTransferLimit(new BigDecimal("2000.00"));
         return updatedUser;
     }
 

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BankAccountATMLoginResponse {
-    private Integer account_id;
+    private Integer accountId;
 
     private UserNameDTO user;
 

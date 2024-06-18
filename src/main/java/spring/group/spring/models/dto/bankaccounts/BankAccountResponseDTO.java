@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import spring.group.spring.models.AccountType;
-import spring.group.spring.models.dto.users.UserDTO;
 import spring.group.spring.models.dto.users.UserNameDTO;
 
 import java.math.BigDecimal;
@@ -13,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Data
 public class BankAccountResponseDTO {
-    private Integer account_id;
+    private Integer accountId;
 
     private UserNameDTO user;
 
@@ -21,9 +20,9 @@ public class BankAccountResponseDTO {
 
     private BigDecimal balance;
 
-    private AccountType account_type;
+    private AccountType accountType;
 
-    private Boolean is_active;
+    private Boolean isActive;
 
-    private BigDecimal absolute_limit;
+    private BigDecimal absoluteLimit;
 }
