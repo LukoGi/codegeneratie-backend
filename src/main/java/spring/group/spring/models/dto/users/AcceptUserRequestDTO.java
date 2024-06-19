@@ -10,6 +10,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AcceptUserRequestDTO {
-    private BigDecimal daily_transfer_limit;
-    private BigDecimal absolute_transfer_limit;
+    private BigDecimal dailyTransferLimit;
+    private BigDecimal absoluteLimit;
 }

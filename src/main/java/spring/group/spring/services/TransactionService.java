@@ -123,7 +123,7 @@ public class TransactionService {
 
     // K - checkIfAbsoluteLimitIsHit
     public void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
-        BigDecimal absoluteLimit = fromAccount.getAbsolute_limit();
+        BigDecimal absoluteLimit = fromAccount.getAbsoluteLimit();
         BigDecimal currentBalance = fromAccount.getBalance();
         BigDecimal newBalance = currentBalance.subtract(transferAmount);
 
@@ -134,7 +134,7 @@ public class TransactionService {
 
     // K - checkIfDailyLimitIsHit
     public void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
-        BigDecimal dailyLimit = fromAccount.getUser().getDaily_transfer_limit();
+        BigDecimal dailyLimit = fromAccount.getUser().getDailyTransferLimit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
         if (sumOfTodaysTransactions == null){
             sumOfTodaysTransactions = new BigDecimal(0);
@@ -165,7 +165,7 @@ public class TransactionService {
         BankAccount toAccount = getToAccount(customerTransactionRequestDTO.getToAccountIban());
         BankAccount fromAccount = getFromAccount(customerTransactionRequestDTO.getInitiatorUserId());
 
-        if (toAccount.getAccount_type() == AccountType.SAVINGS) {
+        if (toAccount.getAccountType() == AccountType.SAVINGS) {
             throw new TransactionWithSavingsAccountException();
         }
 
@@ -257,7 +257,7 @@ public class TransactionService {
 
     private BankAccount validateAndGetAccount(String iban) {
         BankAccount account = bankAccountRepository.findByIban(iban);
-        if (account == null || account.getAccount_type() != AccountType.CHECKINGS) {
+        if (account == null || account.getAccountType() != AccountType.CHECKINGS) {
             throw new EntityNotFoundException();
         }
         return account;

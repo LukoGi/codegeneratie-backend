@@ -2,27 +2,17 @@ package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.cucumber.java.After;
 import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.annotation.Rollback;
-import spring.group.spring.config.DataSeeder;
 import spring.group.spring.models.AccountType;
-import spring.group.spring.models.BankAccount;
-import spring.group.spring.models.User;
 import spring.group.spring.models.dto.bankaccounts.*;
 
-import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -343,13 +333,13 @@ public class BankAccountCrudSteps extends BaseSteps {
     @And("the setabsolutelimit data is valid")
     public void theSetabsolutelimitDataIsValid() throws JsonProcessingException {
         SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(-10));
-        requestBody = requestDTO.getAbsolute_limit().toString();
+        requestBody = requestDTO.getAbsoluteLimit().toString();
     }
 
     @And("the setabsolutelimit data is invalid")
     public void theSetabsolutelimitDataIsInvalid() throws JsonProcessingException {
         SetAbsoluteLimitRequestDTO requestDTO = new SetAbsoluteLimitRequestDTO(new BigDecimal(10));
-        requestBody = requestDTO.getAbsolute_limit().toString();
+        requestBody = requestDTO.getAbsoluteLimit().toString();
     }
 
     @When("I set absolute limit to bank account {string} account as admin")

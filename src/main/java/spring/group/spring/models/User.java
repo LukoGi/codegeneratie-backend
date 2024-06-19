@@ -1,7 +1,6 @@
 package spring.group.spring.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Null;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -48,7 +47,7 @@ public class User {
     @NonNull
     private Boolean is_archived;
 
-    private BigDecimal daily_transfer_limit;
+    private BigDecimal dailyTransferLimit;
 
 
 

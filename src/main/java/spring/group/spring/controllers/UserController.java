@@ -1,14 +1,12 @@
 package spring.group.spring.controllers;
 
 
-import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -71,13 +69,13 @@ public class UserController {
     public UserDTO acceptUser(@PathVariable Integer id, @RequestBody AcceptUserRequestDTO acceptUserRequestDTO) {
         User user = userService.getUserById(id);
 
-        BankAccount checkingAccount = bankAccountService.createBankAccountEntity(user, AccountType.CHECKINGS, acceptUserRequestDTO.getAbsolute_transfer_limit());
+        BankAccount checkingAccount = bankAccountService.createBankAccountEntity(user, AccountType.CHECKINGS, acceptUserRequestDTO.getAbsoluteLimit());
         bankAccountService.createBankAccount(checkingAccount);
-        BankAccount savingsAccount = bankAccountService.createBankAccountEntity(user, AccountType.SAVINGS, acceptUserRequestDTO.getAbsolute_transfer_limit());
+        BankAccount savingsAccount = bankAccountService.createBankAccountEntity(user, AccountType.SAVINGS, acceptUserRequestDTO.getAbsoluteLimit());
         bankAccountService.createBankAccount(savingsAccount);
 
         user.setIs_approved(true);
-        user.setDaily_transfer_limit(acceptUserRequestDTO.getDaily_transfer_limit());
+        user.setDailyTransferLimit(acceptUserRequestDTO.getDailyTransferLimit());
         User updatedUser = userService.updateUser(user);
 
         return mapper.map(updatedUser, UserDTO.class);
@@ -114,7 +112,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void setDailyLimit(@PathVariable Integer id, @RequestParam BigDecimal dailyLimit) {
         User user = userService.getUserById(id);
-        user.setDaily_transfer_limit(dailyLimit);
+        user.setDailyTransferLimit(dailyLimit);
         if (dailyLimit.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Absolute limit must be greater than or equal to 0");
         }

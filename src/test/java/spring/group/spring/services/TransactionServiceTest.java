@@ -189,7 +189,7 @@ public class TransactionServiceTest {
         mockUser.setRoles(roles);
         mockUser.setIs_approved(isApproved);
         mockUser.setIs_archived(isArchived);
-        mockUser.setDaily_transfer_limit(dailyTransferLimit);
+        mockUser.setDailyTransferLimit(dailyTransferLimit);
         return mockUser;
     }
 
@@ -197,9 +197,9 @@ public class TransactionServiceTest {
         BankAccount mockBankAccount = new BankAccount();
         mockBankAccount.setIban(iban);
         mockBankAccount.setBalance(balance);
-        mockBankAccount.setAccount_type(accountType);
-        mockBankAccount.setIs_active(isActive);
-        mockBankAccount.setAbsolute_limit(absoluteLimit);
+        mockBankAccount.setAccountType(accountType);
+        mockBankAccount.setIsActive(isActive);
+        mockBankAccount.setAbsoluteLimit(absoluteLimit);
         mockBankAccount.setUser(user);
         return mockBankAccount;
     }

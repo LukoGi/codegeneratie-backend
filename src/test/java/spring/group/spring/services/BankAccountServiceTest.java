@@ -56,7 +56,7 @@ class BankAccountServiceTest {
     void getBankAccountById() {
         // Arrange
         BankAccount expectedBankAccount = new BankAccount();
-        expectedBankAccount.setAccount_id(1);
+        expectedBankAccount.setAccountId(1);
         when(bankAccountRepository.findById(1)).thenReturn(Optional.of(expectedBankAccount));
 
         // Act
@@ -78,7 +78,7 @@ class BankAccountServiceTest {
         BankAccount resultBankAccount = bankAccountService.updateBankAccount(updatedBankAccount);
 
         // Assert
-        assertEquals(updatedBankAccount.getAccount_id(), resultBankAccount.getAccount_id());
+        assertEquals(updatedBankAccount.getAccountId(), resultBankAccount.getAccountId());
         assertEquals(updatedBankAccount.getIban(), resultBankAccount.getIban());
         assertEquals(updatedBankAccount.getPincode(), resultBankAccount.getPincode());
     }
@@ -166,12 +166,12 @@ class BankAccountServiceTest {
 
     private BankAccount arrangeExistingBankAccount(){
         BankAccount existingBankAccount = new BankAccount();
-        existingBankAccount.setAccount_id(1);
+        existingBankAccount.setAccountId(1);
         existingBankAccount.setIban("NL91ABNA0417164305");
         existingBankAccount.setBalance(BigDecimal.valueOf(500.00));
-        existingBankAccount.setAccount_type(AccountType.CHECKINGS);
-        existingBankAccount.setIs_active(true);
-        existingBankAccount.setAbsolute_limit(BigDecimal.valueOf(-150.00));
+        existingBankAccount.setAccountType(AccountType.CHECKINGS);
+        existingBankAccount.setIsActive(true);
+        existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
         existingBankAccount.setPincode("1111");
 
         User user = new User();
@@ -182,12 +182,12 @@ class BankAccountServiceTest {
 
     private BankAccount arrangeUpdatedBankAccount() {
         BankAccount existingBankAccount = new BankAccount();
-        existingBankAccount.setAccount_id(1);
+        existingBankAccount.setAccountId(1);
         existingBankAccount.setIban("NL91ABNA0417164305");
         existingBankAccount.setBalance(BigDecimal.valueOf(500.00));
-        existingBankAccount.setAccount_type(AccountType.CHECKINGS);
-        existingBankAccount.setIs_active(true);
-        existingBankAccount.setAbsolute_limit(BigDecimal.valueOf(-150.00));
+        existingBankAccount.setAccountType(AccountType.CHECKINGS);
+        existingBankAccount.setIsActive(true);
+        existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
         existingBankAccount.setPincode("1111");
 
         User user = new User();
@@ -206,7 +206,7 @@ class BankAccountServiceTest {
 
     private BankAccount arrangeExistingBankAccountWithUser() {
         BankAccount bankAccount = new BankAccount();
-        bankAccount.setAccount_id(1);
+        bankAccount.setAccountId(1);
         bankAccount.setIban("NL91ABNA0417164305");
         String pincode = passwordEncoder.encode("1111");
         bankAccount.setPincode(pincode);

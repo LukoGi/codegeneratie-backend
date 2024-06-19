@@ -12,5 +12,5 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class SetAbsoluteLimitRequestDTO {
     @NotNull
-    private BigDecimal absolute_limit;
+    private BigDecimal absoluteLimit;
 }

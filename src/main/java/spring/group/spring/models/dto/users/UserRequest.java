@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import spring.group.spring.models.Role;
 
 import java.math.BigDecimal;
@@ -49,5 +48,6 @@ public class UserRequest {
     @NotNull
     private Boolean is_archived;
 
-    private BigDecimal daily_transfer_limit;
+    private BigDecimal dailyTransferLimit;
 }
+

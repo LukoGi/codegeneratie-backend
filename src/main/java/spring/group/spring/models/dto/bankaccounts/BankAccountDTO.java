@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Data
 public class BankAccountDTO {
 
-    private Integer account_id;
+    private Integer accountId;
 
     private UserNameDTO user;
 
@@ -21,10 +21,10 @@ public class BankAccountDTO {
 
     private BigDecimal balance;
 
-    private AccountType account_type;
+    private AccountType accountType;
 
-    private Boolean is_active;
+    private Boolean isActive;
 
-    private BigDecimal absolute_limit;
+    private BigDecimal absoluteLimit;
 
 }

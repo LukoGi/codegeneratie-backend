@@ -20,7 +20,7 @@ public class BankAccount {
     @Id
     @GeneratedValue
     @NotNull
-    private Integer account_id;
+    private Integer accountId;
 
     @NonNull
     @Column(nullable = false, unique = true)
@@ -35,17 +35,17 @@ public class BankAccount {
     @NonNull
     @Column(nullable = false)
     @NotNull
-    private AccountType account_type;
+    private AccountType accountType;
 
     @NonNull
     @Column(nullable = false)
     @NotNull
-    private Boolean is_active;
+    private Boolean isActive;
 
     @NonNull
     @Column(nullable = false)
     @NotNull
-    private BigDecimal absolute_limit;
+    private BigDecimal absoluteLimit;
 
     @NonNull
     @Column(nullable = false)
@@ -56,12 +56,12 @@ public class BankAccount {
     @NotNull
     private User user;
 
-    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull AccountType account_type, @NonNull Boolean is_active, BigDecimal absolute_limit, @NonNull String pincode, User user) {
+    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull AccountType accountType, @NonNull Boolean isActive, BigDecimal absoluteLimit, @NonNull String pincode, User user) {
         this.iban = iban;
         this.balance = balance;
-        this.account_type = account_type;
-        this.is_active = is_active;
-        this.absolute_limit = absolute_limit;
+        this.accountType = accountType;
+        this.isActive = isActive;
+        this.absoluteLimit = absoluteLimit;
         this.pincode = pincode;
         this.user = user;
     }

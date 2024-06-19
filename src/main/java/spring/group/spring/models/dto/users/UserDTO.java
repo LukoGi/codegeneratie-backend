@@ -5,7 +5,6 @@ import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import spring.group.spring.models.Role;
 
 import java.math.BigDecimal;
@@ -39,7 +38,7 @@ public class UserDTO {
 
     private Boolean is_archived;
 
-    private BigDecimal daily_transfer_limit;
+    private BigDecimal dailyTransferLimit;
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
