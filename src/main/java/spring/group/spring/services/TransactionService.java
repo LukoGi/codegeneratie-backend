@@ -101,11 +101,11 @@ public class TransactionService {
     }
 
     private void validateAndApplyTransferLimits(BankAccount fromAccount, BankAccount toAccount, TransactionRequestDTO transactionRequestDTO) {
-        checkIfAbsoluteLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+        checkIfAbsoluteLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
         if (transactionRequestDTO.getTo_account_id() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
-            checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
         } else if (transactionRequestDTO.getTo_account_id() == null) {
-            checkIfDailyLimitIsHit(fromAccount, transactionRequestDTO.getTransfer_amount());
+            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
         }
     }
 
@@ -122,18 +122,18 @@ public class TransactionService {
     }
 
     // K - checkIfAbsoluteLimitIsHit
-    public void checkIfAbsoluteLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfAbsoluteLimitIsExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal absoluteLimit = fromAccount.getAbsoluteLimit();
         BigDecimal currentBalance = fromAccount.getBalance();
         BigDecimal newBalance = currentBalance.subtract(transferAmount);
 
         if (newBalance.compareTo(absoluteLimit) < 0){
-            throw new AbsoluteLimitHitException();
+            throw new AbsoluteLimitExceededException();
         }
     }
 
     // K - checkIfDailyLimitIsHit
-    public void checkIfDailyLimitIsHit(BankAccount fromAccount, BigDecimal transferAmount) {
+    public void checkIfDailyLimitIsExceeded(BankAccount fromAccount, BigDecimal transferAmount) {
         BigDecimal dailyLimit = fromAccount.getUser().getDailyTransferLimit();
         BigDecimal sumOfTodaysTransactions = transactionRepository.getSumOfTodaysTransaction(fromAccount, LocalDateTime.now());
         if (sumOfTodaysTransactions == null){
@@ -142,7 +142,7 @@ public class TransactionService {
         BigDecimal sumOfTodaysTransactionsWithNewTransaction = sumOfTodaysTransactions.add(transferAmount);
 
         if (sumOfTodaysTransactionsWithNewTransaction.compareTo(dailyLimit) > 0){
-            throw new DailyTransferLimitHitException();
+            throw new DailyTransferLimitExceededException();
         }
     }
 // Julian
@@ -172,9 +172,9 @@ public class TransactionService {
         checkAccountBalance(fromAccount, customerTransactionRequestDTO.getTransferAmount());
 
         if (!toAccount.getUser().equals(fromAccount.getUser())) {
-            checkIfDailyLimitIsHit(fromAccount, customerTransactionRequestDTO.getTransferAmount());
+            checkIfDailyLimitIsExceeded(fromAccount, customerTransactionRequestDTO.getTransferAmount());
         }
-        checkIfAbsoluteLimitIsHit(fromAccount, customerTransactionRequestDTO.getTransferAmount());
+        checkIfAbsoluteLimitIsExceeded(fromAccount, customerTransactionRequestDTO.getTransferAmount());
 
         updateAccountBalances(fromAccount, toAccount, customerTransactionRequestDTO.getTransferAmount());
 
@@ -193,7 +193,7 @@ public class TransactionService {
         BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(internalTransactionRequestDTO.getToAccountType().toUpperCase()))
                 .orElseThrow(() -> new IllegalArgumentException("To account not found"));
 
-        checkIfAbsoluteLimitIsHit(fromAccount, internalTransactionRequestDTO.getTransferAmount());
+        checkIfAbsoluteLimitIsExceeded(fromAccount, internalTransactionRequestDTO.getTransferAmount());
 
         fromAccount.setBalance(fromAccount.getBalance().subtract(internalTransactionRequestDTO.getTransferAmount()));
         toAccount.setBalance(toAccount.getBalance().add(internalTransactionRequestDTO.getTransferAmount()));
@@ -271,8 +271,8 @@ public class TransactionService {
     }
 
     private void checkTransferLimits(BankAccount fromAccount, BigDecimal transferAmount) {
-        checkIfDailyLimitIsHit(fromAccount, transferAmount);
-        checkIfAbsoluteLimitIsHit(fromAccount, transferAmount);
+        checkIfDailyLimitIsExceeded(fromAccount, transferAmount);
+        checkIfAbsoluteLimitIsExceeded(fromAccount, transferAmount);
     }
 
     private void performTransfer(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {

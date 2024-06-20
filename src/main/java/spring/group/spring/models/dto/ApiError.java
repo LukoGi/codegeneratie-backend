@@ -1,4 +1,4 @@
-package spring.group.spring.exception;
+package spring.group.spring.models.dto;
 
 import lombok.Data;
 import org.springframework.http.HttpStatus;
@@ -13,5 +13,7 @@ public class ApiError {
         this.status = status;
         this.message = message;
     }
+
+
 
 }
