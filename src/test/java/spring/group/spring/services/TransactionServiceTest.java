@@ -155,26 +155,43 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void testCheckIfAbsoluteLimitIsHit() {
+    public void testCheckIfAbsoluteLimitIsNotExceeded() {
         // Arrange
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), null);
 
         // Act & Assert
-        assertDoesNotThrow(() -> transactionService.checkIfAbsoluteLimitIsHit(mockFromBankAccount, new BigDecimal("200")));
-        assertThrows(AbsoluteLimitHitException.class, () -> transactionService.checkIfAbsoluteLimitIsHit(mockFromBankAccount, new BigDecimal("201")));
+        assertDoesNotThrow(() -> transactionService.checkIfAbsoluteLimitIsExceeded(mockFromBankAccount, new BigDecimal("200")));
     }
 
     @Test
-    public void testCheckIfDailyLimitIsHit() {
-        // daily limit is 1000
+    public void testCheckIfAbsoluteLimitIsExceeded() {
+        // Arrange
+        BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), null);
+
+        // Act & Assert
+        assertThrows(AbsoluteLimitExceededException.class, () -> transactionService.checkIfAbsoluteLimitIsExceeded(mockFromBankAccount, new BigDecimal("201")));
+    }
+
+    @Test
+    public void testCheckIfDailyLimitIsNotExceeded() {
         // Arrange
         User mockUser = createMockUser("John", "Doe", "JohnDoe", "test@test.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), true, false, new BigDecimal("1000.00"));
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockUser);
         when(transactionRepository.getSumOfTodaysTransaction(any(BankAccount.class), any(LocalDateTime.class))).thenReturn(new BigDecimal("100.00"));
 
         // Act & Assert
-        assertDoesNotThrow(() -> transactionService.checkIfDailyLimitIsHit(mockFromBankAccount, new BigDecimal("900")));
-        assertThrows(DailyTransferLimitHitException.class, () -> transactionService.checkIfDailyLimitIsHit(mockFromBankAccount, new BigDecimal("901")));
+        assertDoesNotThrow(() -> transactionService.checkIfDailyLimitIsExceeded(mockFromBankAccount, new BigDecimal("900")));
+    }
+
+    @Test
+    public void testCheckIfDailyLimitIsExceeded() {
+        // Arrange
+        User mockUser = createMockUser("John", "Doe", "JohnDoe", "test@test.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), true, false, new BigDecimal("1000.00"));
+        BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("100.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockUser);
+        when(transactionRepository.getSumOfTodaysTransaction(any(BankAccount.class), any(LocalDateTime.class))).thenReturn(new BigDecimal("100.00"));
+
+        // Act & Assert
+        assertThrows(DailyTransferLimitExceededException.class, () -> transactionService.checkIfDailyLimitIsExceeded(mockFromBankAccount, new BigDecimal("901")));
     }
 
     private User createMockUser(String firstName, String lastName, String username, String email, String password, String bsnNumber, String phoneNumber, List<Role> roles, boolean isApproved, boolean isArchived, BigDecimal dailyTransferLimit) {

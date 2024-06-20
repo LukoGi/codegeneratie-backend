@@ -31,8 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {InsufficientFundsException.class})
     public ResponseEntity<Object> handleInsufficientFundsException(InsufficientFundsException e){
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = {IllegalArgumentException.class})
@@ -43,18 +42,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = {HttpMessageNotReadableException.class})
     public ResponseEntity<Object> handleMethodNotSupportedException(HttpMessageNotReadableException e){
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = {AbsoluteLimitExceededException.class})
+    public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteLimitExceededException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(value = {AbsoluteLimitHitException.class})
-    public ResponseEntity<Object> handleAbsoluteTransferLimitHitException(AbsoluteLimitHitException e){
-        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
-        return new ResponseEntity<>(apiError, apiError.getStatus());
-    }
-
-    @ExceptionHandler(value = {DailyTransferLimitHitException.class})
-    public ResponseEntity<Object> handleDailyTransferLimitHitException(DailyTransferLimitHitException e){
+    @ExceptionHandler(value = {DailyTransferLimitExceededException.class})
+    public ResponseEntity<Object> handleDailyTransferLimitHitException(DailyTransferLimitExceededException e){
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
@@ -85,8 +83,7 @@ public class GlobalExceptionHandler {
     // Start all Method Not Allowed Error handling here
     @ExceptionHandler(value = {HttpRequestMethodNotSupportedException.class})
     public ResponseEntity<Object> handleMethodNotSupportedException(HttpRequestMethodNotSupportedException e){
-        ApiError apiError = new ApiError(HttpStatus.METHOD_NOT_ALLOWED, e.getMessage());
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+        return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     // Start all Not Found Error handling here
@@ -109,30 +106,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(value = {AccessDeniedException.class})
-    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e){
-        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
-        return new ResponseEntity<>(apiError, apiError.getStatus());
-    }
-
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
-        ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
-        return new ResponseEntity<>(apiError.getMessage(), apiError.getStatus());
-    }
-
     @ExceptionHandler(value = {IncorrectPincodeException.class})
     public ResponseEntity<Object> handleIncorrectPincodeException(IncorrectPincodeException e){
         ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
+    @ExceptionHandler(value = {AccessDeniedException.class})
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException e){
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+    }
+
     // Start all Internal Server Error handling here
 
     // Last resort exception handler
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<Object> handleException(Exception e){
-        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        return new ResponseEntity<>(apiError, apiError.getStatus());
+    public ResponseEntity<Object> handleException(){
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
