@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import spring.group.spring.exception.exceptions.*;
+import spring.group.spring.models.dto.ApiError;
 
 import javax.naming.AuthenticationException;
 import java.util.HashMap;
