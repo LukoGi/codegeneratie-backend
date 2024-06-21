@@ -71,7 +71,7 @@ public class UserController {
 
         BankAccount checkingAccount = bankAccountService.createBankAccountEntity(user, AccountType.CHECKINGS, acceptUserRequestDTO.getAbsoluteLimit());
         bankAccountService.createBankAccount(checkingAccount);
-        BankAccount savingsAccount = bankAccountService.createBankAccountEntity(user, AccountType.SAVINGS, acceptUserRequestDTO.getAbsoluteLimit());
+        BankAccount savingsAccount = bankAccountService.createBankAccountEntity(user, AccountType.SAVINGS, BigDecimal.ZERO);
         bankAccountService.createBankAccount(savingsAccount);
 
         user.setIs_approved(true);

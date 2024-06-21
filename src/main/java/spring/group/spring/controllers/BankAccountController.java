@@ -58,10 +58,6 @@ public class BankAccountController {
     @PostMapping("/")
     @ResponseStatus(HttpStatus.CREATED)
     public BankAccountResponseDTO createBankAccount(@Valid @RequestBody BankAccount bankAccount) {
-        if (!bankAccountService.checkIban(bankAccount.getIban())) {
-            throw new IllegalArgumentException("Invalid IBAN");
-        }
-
         BankAccount bankAccountResult = bankAccountService.createBankAccount(bankAccount);
         return mapper.map(bankAccountResult, BankAccountResponseDTO.class);
     }

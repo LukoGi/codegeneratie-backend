@@ -34,6 +34,7 @@ public class BankAccountService {
     public BankAccount createBankAccount(BankAccount bankAccount) {
         String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
         bankAccount.setPincode(encryptedPassword);
+        validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -48,7 +49,7 @@ public class BankAccountService {
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
         validateAndEncodePincode(bankAccount);
-        validateIban(bankAccount.getIban());
+        validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
 
@@ -149,9 +150,12 @@ public class BankAccountService {
         }
     }
 
-    private void validateIban(String iban) {
-        if (!isValidIban(iban)) {
+    private void validateData(BankAccount bankAccount) {
+        if (!isValidIban(bankAccount.getIban())) {
             throw new IllegalArgumentException("Invalid IBAN");
+        }
+        if (bankAccount.getAccountType() == AccountType.SAVINGS && !bankAccount.getAbsoluteLimit().equals(BigDecimal.ZERO)) {
+            throw new IllegalArgumentException("Absolute limit must be 0 for savings account");
         }
     }
 
