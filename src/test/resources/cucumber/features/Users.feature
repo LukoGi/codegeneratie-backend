@@ -2,29 +2,29 @@ Feature: Users CRUD Operations
 
   Scenario: Retrieve all users
     Given the endpoint for "users/" is available for method "GET"
-    When I retrieve all users
+    When I send a GET request to "/users/"
     Then I should receive all users
 
   Scenario: Successfully create a user
     Given the endpoint for "users/" is available for method "POST"
+    When I send a POST request to "/users/"
     And the user data is valid
-    When I create a new user
     Then the user should be created successfully
 
   Scenario: Fail to create a user
     Given the endpoint for "users/" is available for method "POST"
+    When I send a POST request to "/users/"
     And the user data is invalid
-    When I create a new user with invalid data
     Then the creation of the user should fail
 
   Scenario: Successfully Retrieve a user by ID
     Given the endpoint for "users/1" is available for method "GET"
-    When I retrieve the user by ID 1
-    Then I should receive the user details
+    When I send a GET request to "/users/1" with ID 1
+    Then I should receive the user details of that user
 
   Scenario: Fail to retrieve a user by ID
     Given the endpoint for "users/52390" is available for method "GET"
-    When I retrieve the user by ID 52390
+    When I send a GET request to "/users/6655" with ID 6655
     Then I should receive an error message
 
   Scenario: Successfully update a user
@@ -60,31 +60,41 @@ Feature: Users CRUD Operations
 
   Scenario: Successfully login
     Given the endpoint for "users/login" is available for method "POST"
-    And I retrieve my user info
-    When I try to login with valid credentials
+    When I send a POST request to "/users/login" with valid credentials
     Then I successfully login
+    And I retrieve my user info
 
   Scenario: Try to login with invalid credentials
     Given the endpoint for "users/login" is available for method "POST"
-    When I try to login with invalid credentials
+    When I send a POST request to "/users/login" with invalid credentials
     Then I should receive an error message for login
 
-  Scenario: Retrieve all unapproved users
-    Given the endpoint for "users/getUnapprovedUsers" is available for method "GET"
-    When I retrieve all unapproved users
+  Scenario: Retrieve all unapproved users as admin
+    Given the endpoint for "users/unapprovedUsers" is available for method "GET"
+    When I send a GET request to "/users/unapprovedUsers" to retrieve all unapproved users
     Then I should receive all unapproved users
 
-  Scenario: Approve a user
-    Given the endpoint for "users/acceptUser/1" is available for method "PUT"
-    When I approve a user with ID "1" And set the limits
-    Then I should receive user accepted message
+  Scenario: Retrieve all approved users without being admin
+    Given the endpoint for "users/approvedUsers" is available for method "GET"
+    When send a GET request to "/users/unapprovedUsers" to retrieve unapproved users without being a admin
+    Then I should receive a user forbidden message
 
-  Scenario: Retrieve users without bank account
-    Given the endpoint for "users/getUsersWithoutBankAccount" is available for method "GET"
-    When I retrieve all users without bank accounts
-    Then I should retrieve a succes message for retrieving all accounts
+  Scenario: Successfully Approve a user
+    Given the endpoint for "users/approve/2" is available for method "PUT"
+    When I Send a PUT request to "/users/approve/2" to approve user with ID 2
+    Then User should be approved
+
+  Scenario: Try to approve a user without being admin
+    Given the endpoint for "users/approve/2" is available for method "PUT"
+    When I send a PUT request to "/users/approve/2" to approve user with ID 2 without being an admin
+    Then I should receive a user forbidden message
 
   Scenario: Retrieve the bank accounts of a user
     Given the endpoint for "users/myAccounts" is available for method "GET"
-    When I retrieve the bank accounts of a user
+    When I send a GET request to "/users/myAccounts" to retrieve the bank accounts of user
     Then I get a success message for retrieving the bank accounts
+
+  Scenario: Try to retrieve the bank accounts of a user without being logged in
+    Given the endpoint for "users/myAccounts" is available for method "GET"
+    When I send a GET request to "/users/myAccounts" to retrieve the bank accounts of user without being logged in
+    Then I should receive a user forbidden message

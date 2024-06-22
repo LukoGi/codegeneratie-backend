@@ -1,6 +1,7 @@
 package steps;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -17,14 +18,14 @@ import java.math.BigDecimal;
 
 public class UserSteps extends BaseSteps {
 
-    private final String adminToken = System.getenv("ADMIN_TOKEN");
-    private final String userToken = System.getenv("USER_TOKEN");
+    private final String adminToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBZG1pbiIsImF1dGgiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3MTc5MzExMTksImV4cCI6MTc0OTQ2NzExOX0.PE_4iw1798iiNdHta6v3FwT4ZBQ1ZDXQ0eH_yuTlDFlW8hGNwjg7MLNQ2Imj83iAANPJvv3vy0ItIZ6yHUhyxoQSAueqSI4KXk1EJoSb1Tecwf2CAJu3Z_Gj2QAKNB1h8WI0_Ly5MjOnRO9wIFWphYYI-iXT-NTD_9HCU-NQ_LqBzLv4uPQZKRbDYmNkEiqPjkCV6I0b8bdvGvKHiZDJe7OF9R4z2UYzSftfJxR6WXKFXfDHI28dlTBcl6-edi1_j1-V-LAoJBO4jRxycHMo1OFkaao4mp5euvriamii1GcKoufxkQeoFykDvgRTTn5D9zUltSJ7bpHwdWorHKkCzg";
+    private final String userToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKYW5lRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE4MTMwNDI1LCJleHAiOjE3NDk2NjY0MjV9.VGWYzuwuD1xXQHcy2gezmU-0parNPH2433odW1baycx_TV3qM1YY8Ri1S1SNM4qEp-0r7uky7c1Rfvvmd_z-Te9iyFy2rCvGimkcPAJqKeG1wXjzUEbU3DpYzvFP1w1KCj_nkts5PRivnj_DBJ-W7Z5C5gLoXBbXftnKL8IHGcoYx8nSiMVDkkX1tplh8rhJq_0MqhmA_jZ4Zoabn9gKwKbuIyJE6716cEAxS-0qAVA47K85bXcZ41fr4w77F9etfVwQfo0eZpRBHH-MzcIzb3eTZasa8y_RBqGk0BWDPB6Qz_VESp3Fs0T76GdoVvmFZt5rY_trnrPHskVmVrnOBQ";
 
-    @When("I retrieve all users")
-    public void iRetrieveAllUsers() {
+    @When("I send a GET request to {string}")
+    public void iRetrieveAllUsers(String endpoint) {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
-                .exchange("/users/",
+                .exchange(endpoint,
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
@@ -37,6 +38,14 @@ public class UserSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
+    @When("I send a POST request to {string}")
+    public void iCreateANewUser(String endpoint) {
+        response = restTemplate
+                .exchange("/users/",
+                        HttpMethod.POST,
+                        new HttpEntity<>(requestBody, httpHeaders),
+                        String.class);
+    }
 
     @And("the user data is valid")
     public void theUserDataIsValid() throws JsonProcessingException {
@@ -52,19 +61,11 @@ public class UserSteps extends BaseSteps {
         requestBody = mapper.writeValueAsString(user);
     }
 
-    @When("I create a new user")
-    public void iCreateANewUser() {
-        response = restTemplate
-                .exchange("/users/",
-                        HttpMethod.POST,
-                        new HttpEntity<>(requestBody, httpHeaders),
-                        String.class);
-    }
-
     @Then("the user should be created successfully")
     public void theUserShouldBeCreatedSuccessfully() {
         Assertions.assertEquals(400, response.getStatusCode().value()); // 201
     }
+
 
     @And("the user data is invalid")
     public void theUserDataIsInvalid() {
@@ -78,25 +79,16 @@ public class UserSteps extends BaseSteps {
         user.setPassword("");
     }
 
-    @When("I create a new user with invalid data")
-    public void iCreateANewUserWithInvalidData() {
-        response = restTemplate
-                .exchange("/users/",
-                        HttpMethod.POST,
-                        new HttpEntity<>(requestBody, httpHeaders),
-                        String.class);
-    }
-
     @Then("the creation of the user should fail")
     public void theCreationOfTheUserShouldFail() {
         Assertions.assertEquals(400, response.getStatusCode().value());
     }
 
 
-    @When("I retrieve the user by ID {int}")
-    public void iRetrieveTheUserByID(int id) {
+    @When("I send a GET request to {string} with ID {int}")
+    public void iRetrieveTheUserByID(String endpoint, int id) {
         response = restTemplate
-                .exchange("/users/{id}",
+                .exchange(endpoint,
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class,
@@ -105,7 +97,7 @@ public class UserSteps extends BaseSteps {
         System.out.println("Response Body: " + response.getBody());
     }
 
-    @Then("I should receive the user details")
+    @Then("I should receive the user details of that user")
     public void iShouldReceiveTheUserDetails() {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
@@ -189,8 +181,8 @@ public class UserSteps extends BaseSteps {
         Assertions.assertEquals(403, response.getStatusCode().value());
     }
 
-    @When("I try to login with valid credentials")
-    public void iTryToLoginWithValidCredentials() throws JsonProcessingException{
+    @When("I send a POST request to {string} with valid credentials")
+    public void iTryToLoginWithValidCredentials(String endpoint) throws JsonProcessingException{
         LoginRequestDTO requestDTO = new LoginRequestDTO();
         requestDTO.setUsername("JohnDoe");
         requestDTO.setPassword("test");
@@ -201,7 +193,7 @@ public class UserSteps extends BaseSteps {
         httpHeaders.add("Authorization", "Bearer " + userToken);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/users/login",
+                .exchange(endpoint,
                         HttpMethod.POST,
                         entity,
                         String.class);
@@ -224,8 +216,8 @@ public class UserSteps extends BaseSteps {
         System.out.println("Response Body: " + response.getBody());
     }
 
-    @When("I try to login with invalid credentials")
-    public void iTryToLoginWithInvalidCredentials() throws JsonProcessingException {
+    @When("I send a POST request to {string} with invalid credentials")
+    public void iTryToLoginWithInvalidCredentials(String endpoint) throws JsonProcessingException {
         LoginRequestDTO requestDTO = new LoginRequestDTO();
         requestDTO.setUsername("JohnDoe");
         requestDTO.setPassword("test123");
@@ -235,7 +227,7 @@ public class UserSteps extends BaseSteps {
         httpHeaders.add("Authorization", "Bearer " + userToken);
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/users/login",
+                .exchange(endpoint,
                         HttpMethod.POST,
                         entity,
                         String.class);
@@ -247,11 +239,11 @@ public class UserSteps extends BaseSteps {
         Assertions.assertEquals(403, response.getStatusCode().value());
     }
 
-    @When("I retrieve all unapproved users")
-    public void iRetrieveAllUnapprovedUsers() {
+    @When("I send a GET request to {string} to retrieve all unapproved users")
+    public void iRetrieveAllUnapprovedUsers(String endpoint) {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
         response = restTemplate
-                .exchange("/users/getUnapprovedUsers",
+                .exchange(endpoint,
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
@@ -264,8 +256,25 @@ public class UserSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
-    @When("I approve a user with ID {string} And set the limits")
-    public void iAcceptUserAsAdmin(String id) throws JsonProcessingException{
+    @When("send a GET request to {string} to retrieve unapproved users without being a admin")
+    public void iRetrieveAllUsersWithoutBeingAAdmin(String endpoint) {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
+        response = restTemplate
+                .exchange(endpoint,
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
+
+        System.out.println("Response Body: " + response.getBody());
+    }
+
+    @Then("retrieve unapproved users should fail")
+    public void retrieveUnapprovedUsersShouldFail() {
+        Assertions.assertEquals(403, response.getStatusCode().value());
+    }
+
+    @When("I Send a PUT request to {string} to approve user with ID {int}")
+    public void iAcceptUserAsAdmin(String endpoint, int id) throws JsonProcessingException{
         httpHeaders.add("Authorization", "Bearer " + adminToken);
 
         AcceptUserRequestDTO requestDTO = new AcceptUserRequestDTO();
@@ -277,40 +286,42 @@ public class UserSteps extends BaseSteps {
 
         HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
         this.response = restTemplate
-                .exchange("/users/acceptUser/" + id,
+                .exchange(endpoint,
                         HttpMethod.PUT,
                         entity,
-                        String.class);
+                        String.class, id);
     }
 
-    @Then("I should receive user accepted message")
+    @Then("User should be approved")
     public void iShouldReceiveUserAcceptedMessage() {
         System.out.println("Response Body: " + response.getBody());
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
-    @When("I retrieve all users without bank accounts")
-    public void iRetrieveAllUsersWithoutBankAccounts() {
-        httpHeaders.add("Authorization", "Bearer " + adminToken);
-        response = restTemplate
-                .exchange("/users/getUsersWithoutBankAccount",
-                        HttpMethod.GET,
-                        new HttpEntity<>(null, httpHeaders),
-                        String.class);
+    @When("I send a PUT request to {string} to approve user with ID {int} without being an admin")
+    public void iApproveUserWithoutBeingAnAdmin(String endpoint, int id) throws JsonProcessingException {
+        httpHeaders.add("Authorization", "Bearer " + userToken);
 
-        System.out.println("Response Body: " + response.getBody());
+        AcceptUserRequestDTO requestDTO = new AcceptUserRequestDTO();
+        requestDTO.setDailyTransferLimit(new BigDecimal(1000));
+        requestDTO.setAbsoluteLimit(new BigDecimal(1000));
+
+        ObjectMapper mapper = new ObjectMapper();
+        String requestBody = mapper.writeValueAsString(requestDTO);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, httpHeaders);
+        this.response = restTemplate
+                .exchange(endpoint,
+                        HttpMethod.PUT,
+                        entity,
+                        String.class, id);
     }
 
-    @Then("I should retrieve a succes message for retrieving all accounts")
-    public void iShouldRetrieveASuccesMessageForRetrievingAllAccounts() {
-        Assertions.assertEquals(200, response.getStatusCode().value());
-    }
-
-    @When("I retrieve the bank accounts of a user")
-    public void iRetrieveTheBankAccountsOfUser() {
+    @When("I send a GET request to {string} to retrieve the bank accounts of user")
+    public void iRetrieveTheBankAccountsOfUser(String endpoint) {
         httpHeaders.add("Authorization", "Bearer " + userToken);
         response = restTemplate
-                .exchange("/users/myAccounts",
+                .exchange(endpoint,
                         HttpMethod.GET,
                         new HttpEntity<>(null, httpHeaders),
                         String.class);
@@ -323,8 +334,15 @@ public class UserSteps extends BaseSteps {
         Assertions.assertEquals(200, response.getStatusCode().value());
     }
 
+    @When("I send a GET request to {string} to retrieve the bank accounts of user without being logged in")
+    public void iRetrieveTheBankAccountsOfUserWithoutBeingLoggedIn(String endpoint) {
+        response = restTemplate
+                .exchange(endpoint,
+                        HttpMethod.GET,
+                        new HttpEntity<>(null, httpHeaders),
+                        String.class);
 
-
-
+        System.out.println("Response Body: " + response.getBody());
+    }
 
 }
