@@ -83,16 +83,8 @@ public class UserService {
         return userRepository.findUserByUsername(username).orElseThrow(EntityNotFoundException::new);
     }
 
-    public List<User> getUsersWithoutBankAccount() {
-        if(userRepository.findByAccountsIsEmpty(Role.ROLE_USER).isEmpty()) {
-            throw new EntityNotFoundException();
-        }
-        return userRepository.findByAccountsIsEmpty(Role.ROLE_USER);
-    }
-
     public User findByUsername(String username) {
         return userRepository.findUserByUsername(username).orElse(null);
     }
-
 
 }

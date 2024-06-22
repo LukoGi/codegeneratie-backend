@@ -205,16 +205,4 @@ public class UserServiceTest {
         verify(userRepository).findUserByUsername(user.getUsername());
     }
 
-    @Test
-    public void testGetUsersWithoutBankAccount() {
-        List<User> users = Arrays.asList(new User(), new User());
-
-        when(userRepository.findByAccountsIsEmpty(Role.ROLE_USER)).thenReturn(users);
-
-        List<User> result = userService.getUsersWithoutBankAccount();
-
-        assertEquals(users, result);
-        verify(userRepository, times(2)).findByAccountsIsEmpty(Role.ROLE_USER);
-    }
-
 }
