@@ -17,10 +17,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.is_approved = false")
     List<User> findUnapprovedUsers();
 
-    @Query("SELECT u FROM User u WHERE u.accounts IS EMPTY AND :role MEMBER OF u.roles")
-    List<User> findByAccountsIsEmpty(@Param("role") Role role);
-
-
-
-
 }

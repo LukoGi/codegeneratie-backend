@@ -36,7 +36,10 @@ public class UserServiceTest {
     @Mock
     private JwtProvider jwtProvider;
 
+
+
     private UserService userService;
+
 
     @BeforeEach
     public void setUp() {
@@ -144,7 +147,7 @@ public class UserServiceTest {
 
     private User createUser() {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(2);
         user.setFirst_name("Jan");
         user.setLast_name("Pan");
         user.setUsername("JanPan");
@@ -161,7 +164,7 @@ public class UserServiceTest {
 
     private User createUpdatedUser() {
         User updatedUser = new User();
-        updatedUser.setUser_id(1);
+        updatedUser.setUser_id(2);
         updatedUser.setFirst_name("JanUpdated");
         updatedUser.setLast_name("PanUpdated");
         updatedUser.setUsername("JanPanUpdated");
@@ -194,7 +197,7 @@ public class UserServiceTest {
     @Test
     public void testGetUserByUsername() {
         User user = new User();
-        user.setUser_id(1);
+        user.setUser_id(2);
         user.setUsername("JanPan");
 
         when(userRepository.findUserByUsername(user.getUsername())).thenReturn(Optional.of(user));
@@ -203,18 +206,6 @@ public class UserServiceTest {
 
         assertEquals(user, result);
         verify(userRepository).findUserByUsername(user.getUsername());
-    }
-
-    @Test
-    public void testGetUsersWithoutBankAccount() {
-        List<User> users = Arrays.asList(new User(), new User());
-
-        when(userRepository.findByAccountsIsEmpty(Role.ROLE_USER)).thenReturn(users);
-
-        List<User> result = userService.getUsersWithoutBankAccount();
-
-        assertEquals(users, result);
-        verify(userRepository, times(2)).findByAccountsIsEmpty(Role.ROLE_USER);
     }
 
 }
