@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class TransactionHistoryDTO {
-    private BankAccount to_account;
-    private User initiator_user;
-    private BigDecimal transfer_amount;
+    private BankAccount toAccount;
+    private User initiatorUser;
+    private BigDecimal transferAmount;
     private LocalDateTime date;
     private String description;
 }

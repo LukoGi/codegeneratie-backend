@@ -16,19 +16,19 @@ public class TransactionUpdateRequestDTO {
 
     @NonNull
     @NotNull
-    private Integer to_account_id;
+    private Integer toAccountId;
 
     @NonNull
     @NotNull
-    private Integer from_account_id;
+    private Integer fromAccountId;
 
     @NonNull
     @NotNull
-    private Integer initiator_user_id;
+    private Integer initiatorUserId;
 
     @NonNull
     @NotNull
-    private BigDecimal transfer_amount;
+    private BigDecimal transferAmount;
 
     @NonNull
     @NotNull

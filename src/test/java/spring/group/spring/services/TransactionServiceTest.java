@@ -58,7 +58,7 @@ public class TransactionServiceTest {
 
         when(userRepository.findById(any(Integer.class))).thenReturn(Optional.of(mockFromUser));
         when(bankAccountRepository.findByIban(any(String.class))).thenReturn(mockToBankAccount);
-        when(bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(any(Integer.class), eq(AccountType.CHECKINGS), eq(true)))
+        when(bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(any(Integer.class), eq(AccountType.CHECKINGS), eq(true)))
                 .thenReturn(Optional.of(mockFromBankAccount));
         when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
@@ -66,11 +66,11 @@ public class TransactionServiceTest {
         TransactionResponseDTO response = transactionService.customerCreateTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
-        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
+        assertEquals(expectedTransaction.getTransactionId(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFromAccount(), response.getFromAccount());
+        assertEquals(expectedTransaction.getToAccount(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
@@ -106,11 +106,11 @@ public class TransactionServiceTest {
         TransactionResponseDTO response = transactionService.customerCreateInternalTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
-        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
+        assertEquals(expectedTransaction.getTransactionId(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFromAccount(), response.getFromAccount());
+        assertEquals(expectedTransaction.getToAccount(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
@@ -146,11 +146,11 @@ public class TransactionServiceTest {
         TransactionResponseDTO response = transactionService.employeeCreateTransaction(request);
 
         // Assert
-        assertEquals(expectedTransaction.getTransaction_id(), response.getTransactionId());
-        assertEquals(expectedTransaction.getFrom_account(), response.getFromAccount());
-        assertEquals(expectedTransaction.getTo_account(), response.getToAccount());
-        assertEquals(expectedTransaction.getInitiator_user(), response.getInitiatorUser());
-        assertEquals(expectedTransaction.getTransfer_amount(), response.getTransferAmount());
+        assertEquals(expectedTransaction.getTransactionId(), response.getTransactionId());
+        assertEquals(expectedTransaction.getFromAccount(), response.getFromAccount());
+        assertEquals(expectedTransaction.getToAccount(), response.getToAccount());
+        assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
+        assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
     }
 
@@ -196,16 +196,16 @@ public class TransactionServiceTest {
 
     private User createMockUser(String firstName, String lastName, String username, String email, String password, String bsnNumber, String phoneNumber, List<Role> roles, boolean isApproved, boolean isArchived, BigDecimal dailyTransferLimit) {
         User mockUser = new User();
-        mockUser.setFirst_name(firstName);
-        mockUser.setLast_name(lastName);
+        mockUser.setFirstName(firstName);
+        mockUser.setLastName(lastName);
         mockUser.setUsername(username);
         mockUser.setEmail(email);
         mockUser.setPassword(password);
-        mockUser.setBsn_number(bsnNumber);
-        mockUser.setPhone_number(phoneNumber);
+        mockUser.setBsnNumber(bsnNumber);
+        mockUser.setPhoneNumber(phoneNumber);
         mockUser.setRoles(roles);
-        mockUser.setIs_approved(isApproved);
-        mockUser.setIs_archived(isArchived);
+        mockUser.setIsApproved(isApproved);
+        mockUser.setIsArchived(isArchived);
         mockUser.setDailyTransferLimit(dailyTransferLimit);
         return mockUser;
     }
@@ -223,10 +223,10 @@ public class TransactionServiceTest {
 
     private Transaction createExpectedTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser, BigDecimal transferAmount, String description) {
         Transaction expectedTransaction = new Transaction();
-        expectedTransaction.setFrom_account(fromAccount);
-        expectedTransaction.setTo_account(toAccount);
-        expectedTransaction.setInitiator_user(initiatorUser);
-        expectedTransaction.setTransfer_amount(transferAmount);
+        expectedTransaction.setFromAccount(fromAccount);
+        expectedTransaction.setToAccount(toAccount);
+        expectedTransaction.setInitiatorUser(initiatorUser);
+        expectedTransaction.setTransferAmount(transferAmount);
         expectedTransaction.setDescription(description);
         return expectedTransaction;
     }

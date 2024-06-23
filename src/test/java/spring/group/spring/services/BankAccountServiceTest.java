@@ -175,7 +175,7 @@ class BankAccountServiceTest {
         existingBankAccount.setPincode("1111");
 
         User user = new User();
-        user.setUser_id(1);
+        user.setUserId(1);
         existingBankAccount.setUser(user);
         return existingBankAccount;
     }
@@ -191,7 +191,7 @@ class BankAccountServiceTest {
         existingBankAccount.setPincode("1111");
 
         User user = new User();
-        user.setUser_id(1);
+        user.setUserId(1);
         existingBankAccount.setUser(user);
         return existingBankAccount;
     }
@@ -212,9 +212,9 @@ class BankAccountServiceTest {
         bankAccount.setPincode(pincode);
 
         User user = new User();
-        user.setUser_id(1);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
+        user.setUserId(1);
+        user.setFirstName("John");
+        user.setLastName("Doe");
         bankAccount.setUser(user);
         return bankAccount;
     }

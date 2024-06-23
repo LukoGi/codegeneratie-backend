@@ -94,16 +94,16 @@ public class DataSeeder implements ApplicationRunner {
 
     private User seedUser() {
         User user1 = new User();
-        user1.setFirst_name("John");
-        user1.setLast_name("Doe");
+        user1.setFirstName("John");
+        user1.setLastName("Doe");
         user1.setUsername("JohnDoe");
         user1.setEmail("John@gmail.com");
         user1.setPassword("test");
-        user1.setBsn_number("123456789");
-        user1.setPhone_number("0612345678");
+        user1.setBsnNumber("123456789");
+        user1.setPhoneNumber("0612345678");
         user1.setRoles(List.of(Role.ROLE_USER));
-        user1.setIs_approved(true);
-        user1.setIs_archived(false);
+        user1.setIsApproved(true);
+        user1.setIsArchived(false);
         user1.setDailyTransferLimit(new BigDecimal("1000.00"));
         userService.createUser(user1);
         return user1;
@@ -111,16 +111,16 @@ public class DataSeeder implements ApplicationRunner {
 
     private User seedSecondUser() {
         User user = new User();
-        user.setFirst_name("Hans");
-        user.setLast_name("Pan");
+        user.setFirstName("Hans");
+        user.setLastName("Pan");
         user.setUsername("HansPan");
         user.setEmail("Hans@gmail.com");
         user.setPassword("test");
-        user.setBsn_number("123456787");
-        user.setPhone_number("0612345678");
+        user.setBsnNumber("123456787");
+        user.setPhoneNumber("0612345678");
         user.setRoles(List.of(Role.ROLE_USER));
-        user.setIs_approved(false);
-        user.setIs_archived(false);
+        user.setIsApproved(false);
+        user.setIsArchived(false);
         user.setDailyTransferLimit(new BigDecimal("1000.00"));
         userService.createUser(user);
         return user;
@@ -129,16 +129,16 @@ public class DataSeeder implements ApplicationRunner {
 
     private User seedAnotherUser() {
         User user2 = new User();
-        user2.setFirst_name("Jane");
-        user2.setLast_name("Doe");
+        user2.setFirstName("Jane");
+        user2.setLastName("Doe");
         user2.setUsername("JaneDoe");
         user2.setEmail("Jane@gmail.com");
         user2.setPassword("test");
-        user2.setBsn_number("987654321");
-        user2.setPhone_number("0687654321");
+        user2.setBsnNumber("987654321");
+        user2.setPhoneNumber("0687654321");
         user2.setRoles(List.of(Role.ROLE_USER));
-        user2.setIs_approved(true);
-        user2.setIs_archived(false);
+        user2.setIsApproved(true);
+        user2.setIsArchived(false);
         user2.setDailyTransferLimit(new BigDecimal("200.00"));
         userService.createUser(user2);
         return user2;
@@ -147,16 +147,16 @@ public class DataSeeder implements ApplicationRunner {
 
     private User seedAdminUser() {
         User user3 = new User();
-        user3.setFirst_name("Admin");
-        user3.setLast_name("Admin");
+        user3.setFirstName("Admin");
+        user3.setLastName("Admin");
         user3.setUsername("Admin");
         user3.setEmail(null);
         user3.setPassword("admin");
-        user3.setBsn_number(null);
-        user3.setPhone_number(null);
+        user3.setBsnNumber(null);
+        user3.setPhoneNumber(null);
         user3.setRoles(List.of(Role.ROLE_ADMIN));
-        user3.setIs_approved(true);
-        user3.setIs_archived(false);
+        user3.setIsApproved(true);
+        user3.setIsArchived(false);
         user3.setDailyTransferLimit(null);
         userService.createUser(user3);
         return user3;
@@ -165,19 +165,19 @@ public class DataSeeder implements ApplicationRunner {
 
     private void seedTransactions(BankAccount fromAccount, BankAccount toAccount, User user) {
         Transaction transaction1 = new Transaction();
-        transaction1.setTo_account(toAccount);
-        transaction1.setFrom_account(fromAccount);
-        transaction1.setInitiator_user(user);
-        transaction1.setTransfer_amount(new BigDecimal("50.00"));
+        transaction1.setToAccount(toAccount);
+        transaction1.setFromAccount(fromAccount);
+        transaction1.setInitiatorUser(user);
+        transaction1.setTransferAmount(new BigDecimal("50.00"));
         transaction1.setDate(LocalDateTime.now());
         transaction1.setDescription("Test Transaction 1");
         transactionRepository.save(transaction1);
 
         Transaction transaction2 = new Transaction();
-        transaction2.setTo_account(fromAccount);
-        transaction2.setFrom_account(toAccount);
-        transaction2.setInitiator_user(user);
-        transaction2.setTransfer_amount(new BigDecimal("100.00"));
+        transaction2.setToAccount(fromAccount);
+        transaction2.setFromAccount(toAccount);
+        transaction2.setInitiatorUser(user);
+        transaction2.setTransferAmount(new BigDecimal("100.00"));
         transaction2.setDate(LocalDateTime.now());
         transaction2.setDescription("Test Transaction 2");
         transactionRepository.save(transaction2);

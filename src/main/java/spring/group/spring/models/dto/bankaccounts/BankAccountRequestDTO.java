@@ -16,7 +16,7 @@ public class BankAccountRequestDTO {
 
     //
     @NotNull
-    private Integer user_id;
+    private Integer userId;
 
     @NotBlank
     private String iban;

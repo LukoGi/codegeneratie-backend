@@ -11,15 +11,15 @@ public class UserResponse {
 
     private String username;
 
-    private String first_name;
+    private String firstName;
 
-    private String last_name;
+    private String lastName;
 
     private String email;
 
     private String password;
 
-    private String bsn_number;
+    private String bsnNumber;
 
-    private String phone_number;
+    private String phoneNumber;
 }

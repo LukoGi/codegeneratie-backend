@@ -64,7 +64,7 @@ public class BankAccountService {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUserId(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
         updateBalance(bankAccount, amount.negate());
         return createWithdrawDepositResponseDTO(bankAccount);
@@ -75,7 +75,7 @@ public class BankAccountService {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUserId(), amount, "Deposit");
         transactionService.createTransaction(transactionRequestDTO);
         updateBalance(bankAccount, amount);
         return createWithdrawDepositResponseDTO(bankAccount);
@@ -165,7 +165,7 @@ public class BankAccountService {
             throw new IncorrectIbanException();
         }
 
-        String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
+        String fullName = bankAccount.getUser().getFirstName() + " " + bankAccount.getUser().getLastName();
         if (!fullName.equals(loginRequest.getFullname())) {
             throw new IncorrectFullnameOnCardException();
         }
