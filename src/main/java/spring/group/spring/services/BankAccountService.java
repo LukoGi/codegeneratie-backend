@@ -32,8 +32,8 @@ public class BankAccountService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
-        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
-        bankAccount.setPincode(encryptedPassword);
+        String encryptedPassword = passwordEncoder.encode(bankAccount.getPinCode());
+        bankAccount.setPinCode(encryptedPassword);
         validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
@@ -48,7 +48,7 @@ public class BankAccountService {
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
-        validateAndEncodePincode(bankAccount);
+        validateAndEncodepinCode(bankAccount);
         validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
@@ -117,7 +117,7 @@ public class BankAccountService {
         bankAccount.setUser(user);
         bankAccount.setIsActive(true);
         bankAccount.setBalance(BigDecimal.ZERO);
-        bankAccount.setPincode("1111");
+        bankAccount.setPinCode("1111");
         bankAccount.setAccountType(accountType);
         bankAccount.setAbsoluteLimit(absoluteLimit);
 
@@ -133,20 +133,20 @@ public class BankAccountService {
         }
         List<BankAccount> bankAccounts = bankAccountRepository.findByUser(user);
         if (bankAccounts.isEmpty()) {
-            throw new ResourceNotFoundException();
+            throw new BankAccountNotFoundException();
         }
         return bankAccounts;
     }
-    private void validateAndEncodePincode(BankAccount bankAccount) {
-        String pincode = bankAccountRepository.findById(bankAccount.getAccountId())
+    private void validateAndEncodepinCode(BankAccount bankAccount) {
+        String pinCode = bankAccountRepository.findById(bankAccount.getAccountId())
                 .orElseThrow(EntityNotFoundException::new)
-                .getPincode();
+                .getPinCode();
 
-        if ((!passwordEncoder.matches(bankAccount.getPincode(), pincode)) && !bankAccount.getPincode().equals(pincode)) {
-            String newPincode = passwordEncoder.encode(bankAccount.getPincode());
-            bankAccount.setPincode(newPincode);
+        if ((!passwordEncoder.matches(bankAccount.getPinCode(), pinCode)) && !bankAccount.getPinCode().equals(pinCode)) {
+            String newPinCode = passwordEncoder.encode(bankAccount.getPinCode());
+            bankAccount.setPinCode(newPinCode);
         } else {
-            bankAccount.setPincode(pincode);
+            bankAccount.setPinCode(pinCode);
         }
     }
 
@@ -166,11 +166,11 @@ public class BankAccountService {
         }
 
         String fullName = bankAccount.getUser().getFirstName() + " " + bankAccount.getUser().getLastName();
-        if (!fullName.equals(loginRequest.getFullname())) {
-            throw new IncorrectFullnameOnCardException();
+        if (!fullName.equals(loginRequest.getFullName())) {
+            throw new IncorrectFullNameOnCardException();
         }
-        if (!passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
-            throw new IncorrectPincodeException();
+        if (!passwordEncoder.matches(loginRequest.getPinCode().toString(), bankAccount.getPinCode())) {
+            throw new IncorrectPinCodeException();
         }
 
         return bankAccount;

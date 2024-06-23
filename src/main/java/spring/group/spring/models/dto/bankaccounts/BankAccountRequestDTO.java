@@ -34,6 +34,6 @@ public class BankAccountRequestDTO {
     private BigDecimal absoluteLimit;
 
     @NotBlank
-    private String pincode;
+    private String pinCode;
 
 }

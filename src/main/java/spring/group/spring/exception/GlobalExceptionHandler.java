@@ -94,8 +94,8 @@ public class GlobalExceptionHandler {
     }
 
     // Start all Forbidden Error handling here
-    @ExceptionHandler(value = {IncorrectFullnameOnCardException.class})
-    public ResponseEntity<Object> handleIncorrectFullnameOnCardException(IncorrectFullnameOnCardException e){
+    @ExceptionHandler(value = {IncorrectFullNameOnCardException.class})
+    public ResponseEntity<Object> handleIncorrectfullNameOnCardException(IncorrectFullNameOnCardException e){
         ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
@@ -106,8 +106,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
-    @ExceptionHandler(value = {IncorrectPincodeException.class})
-    public ResponseEntity<Object> handleIncorrectPincodeException(IncorrectPincodeException e){
+    @ExceptionHandler(value = {IncorrectPinCodeException.class})
+    public ResponseEntity<Object> handleIncorrectPinCodeException(IncorrectPinCodeException e){
         ApiError apiError = new ApiError(HttpStatus.FORBIDDEN, e.getMessage());
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }

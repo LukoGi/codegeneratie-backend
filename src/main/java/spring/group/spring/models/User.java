@@ -49,8 +49,6 @@ public class User {
 
     private BigDecimal dailyTransferLimit;
 
-
-
     @OneToMany(mappedBy = "user")
     private Set<BankAccount> accounts = new HashSet<>();
 

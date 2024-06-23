@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class BankAccountATMLoginRequest {
     @NotBlank
-    private String fullname;
+    private String fullName;
     @NotBlank
     private String iban;
     @NotNull
-    private Integer pincode;
+    private Integer pinCode;
 }

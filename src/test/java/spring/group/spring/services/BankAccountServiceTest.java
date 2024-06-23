@@ -6,7 +6,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import spring.group.spring.exception.exceptions.ResourceNotFoundException;
+import spring.group.spring.exception.exceptions.BankAccountNotFoundException;
 import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
@@ -80,7 +80,7 @@ class BankAccountServiceTest {
         // Assert
         assertEquals(updatedBankAccount.getAccountId(), resultBankAccount.getAccountId());
         assertEquals(updatedBankAccount.getIban(), resultBankAccount.getIban());
-        assertEquals(updatedBankAccount.getPincode(), resultBankAccount.getPincode());
+        assertEquals(updatedBankAccount.getPinCode(), resultBankAccount.getPinCode());
     }
 
     @Test
@@ -172,7 +172,7 @@ class BankAccountServiceTest {
         existingBankAccount.setAccountType(AccountType.CHECKINGS);
         existingBankAccount.setIsActive(true);
         existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
-        existingBankAccount.setPincode("1111");
+        existingBankAccount.setPinCode("1111");
 
         User user = new User();
         user.setUserId(1);
@@ -188,7 +188,7 @@ class BankAccountServiceTest {
         existingBankAccount.setAccountType(AccountType.CHECKINGS);
         existingBankAccount.setIsActive(true);
         existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
-        existingBankAccount.setPincode("1111");
+        existingBankAccount.setPinCode("1111");
 
         User user = new User();
         user.setUserId(1);
@@ -199,8 +199,8 @@ class BankAccountServiceTest {
     private BankAccountATMLoginRequest arrangeBankAccountATMLoginRequest() {
         BankAccountATMLoginRequest bankAccountATMLoginRequest = new BankAccountATMLoginRequest();
         bankAccountATMLoginRequest.setIban("NL91ABNA0417164305");
-        bankAccountATMLoginRequest.setFullname("John Doe");
-        bankAccountATMLoginRequest.setPincode(1111);
+        bankAccountATMLoginRequest.setFullName("John Doe");
+        bankAccountATMLoginRequest.setPinCode(1111);
         return bankAccountATMLoginRequest;
     }
 
@@ -208,8 +208,8 @@ class BankAccountServiceTest {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setAccountId(1);
         bankAccount.setIban("NL91ABNA0417164305");
-        String pincode = passwordEncoder.encode("1111");
-        bankAccount.setPincode(pincode);
+        String pinCode = passwordEncoder.encode("1111");
+        bankAccount.setPinCode(pinCode);
 
         User user = new User();
         user.setUserId(1);
@@ -257,6 +257,6 @@ class BankAccountServiceTest {
         when(bankAccountRepository.findByUser(user)).thenReturn(account );
         // Act Assert
 
-        assertThrows(ResourceNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+        assertThrows(BankAccountNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
     }
 }
