@@ -19,6 +19,7 @@ import spring.group.spring.security.JwtProvider;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -126,17 +127,20 @@ public class BankAccountService {
 
     // Julian
 
-    public List<BankAccount> getIbanByUsername(String username)  {
+    public List<String> getIbanByUsername(String username)  {
         User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException();
+            throw new EntityNotFoundException("User not found");
         }
-        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(user);
-        if (bankAccounts.isEmpty()) {
-            throw new BankAccountNotFoundException();
+
+        List<String> ibans = bankAccountRepository.findIbansByUser(user, AccountType.CHECKINGS);
+        if (ibans.isEmpty()) {
+            throw new EntityNotFoundException("IBANs not found for the user");
         }
-        return bankAccounts;
+
+        return ibans;
     }
+
     private void validateAndEncodepinCode(BankAccount bankAccount) {
         String pinCode = bankAccountRepository.findById(bankAccount.getAccountId())
                 .orElseThrow(EntityNotFoundException::new)

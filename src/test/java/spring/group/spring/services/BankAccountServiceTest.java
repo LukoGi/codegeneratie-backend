@@ -233,7 +233,7 @@ class BankAccountServiceTest {
         when(userService.getUserByUsername(username)).thenReturn(user);
         when(bankAccountRepository.findByUser(user)).thenReturn(account);
         // Act
-        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
+        List<String> bankAccounts = bankAccountService.getIbanByUsername(username);
 
         // Assert
         assertEquals(bankAccounts.size(),1);

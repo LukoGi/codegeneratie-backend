@@ -25,7 +25,7 @@ public class TransactionController {
 
     @GetMapping("/")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<TransactionHistoryDTO> getAllTransactions(
+    public List<TransactionDTO> getAllTransactions(
             @RequestParam(required = false) String date,
             @RequestParam(required = false) BigDecimal minAmount,
             @RequestParam(required = false) BigDecimal maxAmount,
@@ -36,7 +36,7 @@ public class TransactionController {
 
         Page<Transaction> transactions = transactionService.getAllTransactions(dateTime, minAmount, maxAmount, iban, offset, limit);
         return transactions.getContent().stream()
-                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class))
                 .toList();
     }
 
@@ -52,7 +52,8 @@ public class TransactionController {
     }
 
     @GetMapping("/account/{accountId}")
-    public List<TransactionHistoryDTO> getTransactionsByAccountId(
+
+    public List<TransactionDTO> getTransactionsByAccountId(
             @PathVariable Integer accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -63,13 +64,13 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") Integer limit) {
         Page<Transaction> transactions = transactionService.getTransactionsByAccountId(accountId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
         return transactions.getContent().stream()
-                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class))
                 .toList();
     }
 
     @GetMapping("/users/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<TransactionHistoryDTO> getTransactionsByUserId(
+    public List<TransactionDTO> getTransactionsByUserId(
             @PathVariable Integer userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
@@ -80,7 +81,7 @@ public class TransactionController {
             @RequestParam(defaultValue = "10") Integer limit) {
         Page<Transaction> transactions = transactionService.getTransactionsByUserId(userId, startDate, endDate, minAmount, maxAmount, iban, offset, limit);
         return transactions.getContent().stream()
-                .map(transaction -> modelMapper.map(transaction, TransactionHistoryDTO.class))
+                .map(transaction -> modelMapper.map(transaction, TransactionDTO.class))
                 .toList();
     }
 

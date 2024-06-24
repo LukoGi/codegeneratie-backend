@@ -20,4 +20,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Intege
 
     @Query("SELECT b FROM BankAccount b WHERE b.user = :user AND b.accountType = :accountType")
     Optional<BankAccount> findByUserAndAccountType(@Param("user") User user, @Param("accountType") AccountType accountType);
+
+    @Query("SELECT b.iban FROM BankAccount b WHERE b.user = :user AND b.accountType = :accountType")
+    List<String> findIbansByUser(@Param("user") User user, @Param("accountType") AccountType accountType);
 }
