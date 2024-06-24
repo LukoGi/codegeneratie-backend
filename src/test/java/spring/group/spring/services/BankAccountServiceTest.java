@@ -7,6 +7,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import spring.group.spring.exception.exceptions.BankAccountNotFoundException;
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
 import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
@@ -223,8 +224,10 @@ class BankAccountServiceTest {
     void getIbanByUsername() {
         // Arrange
         String username = "JohnDoe";
+        String iban = "NL91ABNA0417164305";
 
         BankAccount bankAccount = new BankAccount();
+        bankAccount.setIban(iban);
         List<BankAccount> account= List.of(bankAccount);
         User user = new User();
         user.setUsername(username);
@@ -232,11 +235,14 @@ class BankAccountServiceTest {
 
         when(userService.getUserByUsername(username)).thenReturn(user);
         when(bankAccountRepository.findByUser(user)).thenReturn(account);
+        when(bankAccountRepository.findIbansByUser(user, AccountType.CHECKINGS)).thenReturn(List.of(iban));
+
         // Act
-        List<String> bankAccounts = bankAccountService.getIbanByUsername(username);
+        List<String> ibans = bankAccountService.getIbanByUsername(username);
 
         // Assert
-        assertEquals(bankAccounts.size(),1);
+        assertEquals(ibans.size(),1);
+        assertEquals(iban, ibans.get(0));
     }
     @Test
     void Throw_when_user_is_unknown() {
@@ -244,7 +250,7 @@ class BankAccountServiceTest {
         String username = "JohnDoe";
         when(userService.getUserByUsername(username)).thenReturn(null);
         // Act Assert
-        assertThrows(UserNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+        assertThrows(EntityNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
     }
     @Test
     void Throw_when_user_has_no_bank_account() {
@@ -257,6 +263,6 @@ class BankAccountServiceTest {
         when(bankAccountRepository.findByUser(user)).thenReturn(account );
         // Act Assert
 
-        assertThrows(BankAccountNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+        assertThrows(EntityNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
     }
 }
