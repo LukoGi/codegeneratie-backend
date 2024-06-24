@@ -21,9 +21,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class BankAccountCrudSteps extends BaseSteps {
 
-    private final String adminToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBZG1pbiIsImF1dGgiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3MTkyNTY1NzIsImV4cCI6MTcxOTI2MDE3Mn0.cUnSYFdtWKZgzcReRYUkLYyGKgLbe7UGcTWBDxkZlsHzW5KpgpkhTVje31XHU17_ILIm6YEv6KD9XoaHsxpMfjFRCHK1RP_QI1I82ahDT73ExaauutrC444z565cPsfg4Szg7GyAToT8ZogEx4R5naunZILlGN9N_s78kttiAHKhwvATDEzMl5P2sAdopmKL4iR-jKqiCniSdhjNWE3pZsUrbDq-qbkOLEzJIa1N6SB-G-5Y_rU3tcEDm6LZDlU_v26OrFH8YPe-biXw_BC60MGqr4q89CpY7M4oOgYo3nlf-DaQEVyZBRJIUqGmAFh7EjApJzpPL7rUdYKsYvfqNA";
-    private final String userToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKYW5lRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE5MjU2NDk1LCJleHAiOjE3MTkyNjAwOTV9.NJo2V-ebwK8ts_vUv1p1Tm9Ag8_xNdrmSAWv2MC_caKjYRXS09jcnxxlbntGfdCf1bLno4sPzuzS0aUWEJgTShUEp4iFNSgScXfCRhYcJELovIu7ndsjyl63b6jIkluoyctf56B9iN8EqF-BVdUcN1TsokNQ21ieKwrcAzTWNc6GR2H9dR1Kz6Ws7cb9VLu5WYrOQxQ3Uby01K8vHXnN6r7OjcIWjrOVCvQ5vaM0-yrWb5iBjQIJNaPXT5l36QChwyGkNTxpB7sGGsV7QuCobdv00CRr5jJogaP-s_j3cAT8rQcSGcbipOIwUaUdOHPQbPl-RkyaxeNBpsvPFXTMdA";
-
+    private final String adminToken = System.getenv("ADMIN_TOKEN");
+    private final String userToken = System.getenv("USER_TOKEN");
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
