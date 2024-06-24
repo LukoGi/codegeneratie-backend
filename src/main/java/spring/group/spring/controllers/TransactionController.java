@@ -40,6 +40,7 @@ public class TransactionController {
                 .toList();
     }
 
+    // deze onder de comment kan weg?
     @GetMapping("/{id}")
     public Transaction getTransactionById(@PathVariable Integer id) {
         return transactionService.getTransactionById(id);
@@ -52,7 +53,7 @@ public class TransactionController {
     }
 
     @GetMapping("/account/{accountId}")
-
+    @PreAuthorize("hasRole('ROLE_USER')")
     public List<TransactionDTO> getTransactionsByAccountId(
             @PathVariable Integer accountId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
