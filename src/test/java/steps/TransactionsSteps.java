@@ -18,68 +18,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TransactionsSteps extends BaseSteps {
 
-    private final String adminToken = System.getenv("ADMIN_TOKEN");
-    private final String userToken = System.getenv("USER_TOKEN");
-    private final String janeUserToken = System.getenv("JANE_USER_TOKEN");
+    private final String adminToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBZG1pbiIsImF1dGgiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3MTkyNTY1NzIsImV4cCI6MTcxOTI2MDE3Mn0.cUnSYFdtWKZgzcReRYUkLYyGKgLbe7UGcTWBDxkZlsHzW5KpgpkhTVje31XHU17_ILIm6YEv6KD9XoaHsxpMfjFRCHK1RP_QI1I82ahDT73ExaauutrC444z565cPsfg4Szg7GyAToT8ZogEx4R5naunZILlGN9N_s78kttiAHKhwvATDEzMl5P2sAdopmKL4iR-jKqiCniSdhjNWE3pZsUrbDq-qbkOLEzJIa1N6SB-G-5Y_rU3tcEDm6LZDlU_v26OrFH8YPe-biXw_BC60MGqr4q89CpY7M4oOgYo3nlf-DaQEVyZBRJIUqGmAFh7EjApJzpPL7rUdYKsYvfqNA";
+    private final String janeUserToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKYW5lRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE5MjU2NDk1LCJleHAiOjE3MTkyNjAwOTV9.NJo2V-ebwK8ts_vUv1p1Tm9Ag8_xNdrmSAWv2MC_caKjYRXS09jcnxxlbntGfdCf1bLno4sPzuzS0aUWEJgTShUEp4iFNSgScXfCRhYcJELovIu7ndsjyl63b6jIkluoyctf56B9iN8EqF-BVdUcN1TsokNQ21ieKwrcAzTWNc6GR2H9dR1Kz6Ws7cb9VLu5WYrOQxQ3Uby01K8vHXnN6r7OjcIWjrOVCvQ5vaM0-yrWb5iBjQIJNaPXT5l36QChwyGkNTxpB7sGGsV7QuCobdv00CRr5jJogaP-s_j3cAT8rQcSGcbipOIwUaUdOHPQbPl-RkyaxeNBpsvPFXTMdA";
+    private final String userToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKb2huRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE5MjU2NzgwLCJleHAiOjE3MTkyNjAzODB9.bDYpQqpiQgHyhqBAY6N9LybpPYFGwGNM30Hib09Kz_ORoxpN5khBjYRPX7Omut5iXwix5mYvYs54xliowJAT0nBtsSF8D9I30EJZF728oazJMIcqAd-lx9kc7MjxwmPGlVphKmhWThXY4llfVYtvdekrh7_MRqk5Hb_byEFCAy5eRpSCmI9f1FUrcQKmKGiUiQRtA-4Y_cpou5U-XVoJ6_Q25BF5LV_ymHlI6J2jSZiKjTUB-b--AaYhYwnTTLGHEj-15D09sPDWOuC5l5uA1SlQoSM3qn-P9vM7W8GU9XJKFpR7xj-52PSGRDhDH44ML-XhETdDywNh5sJ9k6ZtOg";
 
-    @When("I retrieve all transactions")
-    public void iRetrieveAllTransactions() {
-
-    }
-
-    @Then("I should receive all transactions")
-    public void iShouldReceiveAllTransactions() {
-    }
-
-    @And("the transaction data is valid")
-    public void theTransactionDataIsValid() {
-    }
-
-    @When("I create a new transaction")
-    public void iCreateANewTransaction() {
-    }
-
-    @And("the transaction data is invalid")
-    public void theTransactionDataIsInvalid() {
-    }
-
-    @When("I create a new transaction with invalid data")
-    public void iCreateANewTransactionWithInvalidData() {
-    }
-
-    @And("the transaction ID {int} exists")
-    public void theTransactionIDExists(int arg0) {
-    }
-
-    @When("I retrieve the transaction by ID {int}")
-    public void iRetrieveTheTransactionByID(int arg0) {
-    }
-
-    @Then("I should receive the transaction details")
-    public void iShouldReceiveTheTransactionDetails() {
-    }
-
-    @And("the transaction ID {int} does not exist")
-    public void theTransactionIDDoesNotExist(int arg0) {
-    }
-
-    @Then("I should receive a transaction error message")
-    public void iShouldReceiveATransactionErrorMessage() {
-    }
-
-    @When("I update the transaction with ID {int}")
-    public void iUpdateTheTransactionWithID(int arg0) {
-    }
-
-    @Then("the transaction should be updated successfully")
-    public void theTransactionShouldBeUpdatedSuccessfully() {
-    }
-
-    @Then("the update of the transaction should fail")
-    public void theUpdateOfTheTransactionShouldFail() {
-    }
-
-    // NEW STUFF
 
     @When("I request to get transactions by the user admin")
     public void iRequestToGetTransactionsByTheUserAdmin() {
@@ -92,8 +34,13 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive transactions")
-    public void iShouldReceiveTransactions() {
+    public void iShouldReceiveTransactions() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO[] transactions = mapper.readValue(response.getBody(), TransactionResponseDTO[].class);
+
+        Assertions.assertNotNull(transactions, "Transactions should not be null");
+        Assertions.assertTrue(transactions.length > 0, "Transactions list should not be empty");
     }
 
     @When("I request to get transactions by the user")
@@ -107,8 +54,13 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive my transactions")
-    public void iShouldReceiveMyTransactions() {
+    public void iShouldReceiveMyTransactions() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO[] transactions = mapper.readValue(response.getBody(), TransactionResponseDTO[].class);
+
+        Assertions.assertNotNull(transactions, "Transactions should not be null");
+        Assertions.assertTrue(transactions.length > 0, "Transactions list should not be empty");
     }
 
     @When("I request to get transactions as admin of a user")
@@ -122,8 +74,12 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive my transactions by id")
-    public void iShouldReceiveMyTransactionsById() {
+    public void iShouldReceiveMyTransactionsById() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO transaction = mapper.readValue(response.getBody(), TransactionResponseDTO.class);
+
+        Assertions.assertNotNull(transaction.getTransactionId(), "Transaction ID should not be null");
     }
 
     // Successfully Create transaction with valid IBAN as customer HERE
