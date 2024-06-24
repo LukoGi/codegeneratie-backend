@@ -165,19 +165,19 @@ public class DataSeeder implements ApplicationRunner {
 
     private void seedTransactions(BankAccount fromAccount, BankAccount toAccount, User user) {
         Transaction transaction1 = new Transaction();
-        transaction1.setTo_account(toAccount);
-        transaction1.setFrom_account(fromAccount);
-        transaction1.setInitiator_user(user);
-        transaction1.setTransfer_amount(new BigDecimal("50.00"));
+        transaction1.setToAccount(toAccount);
+        transaction1.setFromAccount(fromAccount);
+        transaction1.setInitiatorUser(user);
+        transaction1.setTransferAmount(new BigDecimal("50.00"));
         transaction1.setDate(LocalDateTime.now());
         transaction1.setDescription("Test Transaction 1");
         transactionRepository.save(transaction1);
 
         Transaction transaction2 = new Transaction();
-        transaction2.setTo_account(fromAccount);
-        transaction2.setFrom_account(toAccount);
-        transaction2.setInitiator_user(user);
-        transaction2.setTransfer_amount(new BigDecimal("100.00"));
+        transaction2.setToAccount(fromAccount);
+        transaction2.setFromAccount(toAccount);
+        transaction2.setInitiatorUser(user);
+        transaction2.setTransferAmount(new BigDecimal("100.00"));
         transaction2.setDate(LocalDateTime.now());
         transaction2.setDescription("Test Transaction 2");
         transactionRepository.save(transaction2);

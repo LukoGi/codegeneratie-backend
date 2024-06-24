@@ -15,9 +15,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 
     @Query("SELECT t FROM Transaction t WHERE "
             + "(:date IS NULL OR t.date >= :date) AND "
-            + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
-            + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
-            + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
+            + "(:minAmount IS NULL OR t.transferAmount >= :minAmount) AND "
+            + "(:maxAmount IS NULL OR t.transferAmount <= :maxAmount) AND "
+            + "(:iban IS NULL OR t.toAccount.iban = :iban OR t.fromAccount.iban = :iban)")
     Page<Transaction> findAllTransactionsWithFilters(
             @Param("date") LocalDateTime date,
             @Param("minAmount") BigDecimal minAmount,
@@ -26,12 +26,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             Pageable pageable);
 
 
-    @Query("SELECT t FROM Transaction t WHERE t.initiator_user.user_id = :customerId AND "
+    @Query("SELECT t FROM Transaction t WHERE t.initiatorUser.user_id = :customerId AND "
             + "(:startDate IS NULL OR t.date >= :startDate) AND "
             + "(:endDate IS NULL OR t.date <= :endDate) AND "
-            + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
-            + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
-            + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
+            + "(:minAmount IS NULL OR t.transferAmount >= :minAmount) AND "
+            + "(:maxAmount IS NULL OR t.transferAmount <= :maxAmount) AND "
+            + "(:iban IS NULL OR t.toAccount.iban = :iban OR t.fromAccount.iban = :iban)")
     Page<Transaction> findAllByInitiatorUserIdWithFilters(
             @Param("customerId") Integer customerId,
             @Param("startDate") LocalDateTime startDate,
@@ -42,12 +42,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE "
-            + "(:accountId IS NULL OR t.to_account.accountId = :accountId OR t.from_account.accountId = :accountId) AND "
+            + "(:accountId IS NULL OR t.toAccount.accountId = :accountId OR t.fromAccount.accountId = :accountId) AND "
             + "(:startDate IS NULL OR t.date >= :startDate) AND "
             + "(:endDate IS NULL OR t.date <= :endDate) AND "
-            + "(:minAmount IS NULL OR t.transfer_amount >= :minAmount) AND "
-            + "(:maxAmount IS NULL OR t.transfer_amount <= :maxAmount) AND "
-            + "(:iban IS NULL OR t.to_account.iban = :iban OR t.from_account.iban = :iban)")
+            + "(:minAmount IS NULL OR t.transferAmount >= :minAmount) AND "
+            + "(:maxAmount IS NULL OR t.transferAmount <= :maxAmount) AND "
+            + "(:iban IS NULL OR t.toAccount.iban = :iban OR t.fromAccount.iban = :iban)")
     Page<Transaction> findAllTransactionsWithAccountIdAndFilters(
             @Param("accountId") Integer accountId,
             @Param("startDate") LocalDateTime startDate,
