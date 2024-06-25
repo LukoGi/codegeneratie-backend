@@ -58,7 +58,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDTO updateUser(@PathVariable Integer id, @Valid @RequestBody UserRequest userRequestDTO) {
         User user = mapper.map(userRequestDTO, User.class);
-        user.setUser_id(id);
+        user.setUserId(id);
         User updatedUser = userService.updateUser(user);
         return mapper.map(updatedUser, UserDTO.class);
     }
@@ -73,7 +73,7 @@ public class UserController {
         BankAccount savingsAccount = bankAccountService.createBankAccountEntity(user, AccountType.SAVINGS, BigDecimal.ZERO);
         bankAccountService.createBankAccount(savingsAccount);
 
-        user.setIs_approved(true);
+        user.setIsApproved(true);
         user.setDailyTransferLimit(acceptUserRequestDTO.getDailyTransferLimit());
         User updatedUser = userService.updateUser(user);
 
@@ -116,6 +116,6 @@ public class UserController {
         String username = auth.getName();
 
         User user = userService.getUserByUsername(username);
-        return bankAccountService.getBankAccountsByUserId(user.getUser_id());
+        return bankAccountService.getBankAccountsByUserId(user.getUserId());
     }
 }

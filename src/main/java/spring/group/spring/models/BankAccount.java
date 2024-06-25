@@ -50,19 +50,19 @@ public class BankAccount {
     @NonNull
     @Column(nullable = false)
     @NotBlank
-    private String pincode;
+    private String pinCode;
 
     @ManyToOne
     @NotNull
     private User user;
 
-    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull AccountType accountType, @NonNull Boolean isActive, BigDecimal absoluteLimit, @NonNull String pincode, User user) {
+    public BankAccount(@NonNull String iban, @NonNull BigDecimal balance, @NonNull AccountType accountType, @NonNull Boolean isActive, BigDecimal absoluteLimit, @NonNull String pinCode, User user) {
         this.iban = iban;
         this.balance = balance;
         this.accountType = accountType;
         this.isActive = isActive;
         this.absoluteLimit = absoluteLimit;
-        this.pincode = pincode;
+        this.pinCode = pinCode;
         this.user = user;
     }
 }

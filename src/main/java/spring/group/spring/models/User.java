@@ -16,14 +16,14 @@ public class User {
 
     @Id
     @GeneratedValue
-    private Integer user_id;
+    private Integer userId;
 
     @NonNull
     private String username;
 
-    private String first_name;
+    private String firstName;
 
-    private String last_name;
+    private String lastName;
 
 
     private String email;
@@ -32,24 +32,22 @@ public class User {
     private String password;
 
 
-    private String bsn_number;
+    private String bsnNumber;
 
 
-    private String phone_number;
+    private String phoneNumber;
 
     @NonNull
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
 
     @NonNull
-    private Boolean is_approved;
+    private Boolean isApproved;
 
     @NonNull
-    private Boolean is_archived;
+    private Boolean isArchived;
 
     private BigDecimal dailyTransferLimit;
-
-
 
     @OneToMany(mappedBy = "user")
     private Set<BankAccount> accounts = new HashSet<>();

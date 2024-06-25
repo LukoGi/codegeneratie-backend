@@ -36,6 +36,6 @@ public class CustomPermissionEvaluator {
         String username = authentication.getName();
         User user = userService.findByUsername(username);
 
-        return user != null && user.getUser_id().equals(userId);
+        return user != null && user.getUserId().equals(userId);
     }
 }

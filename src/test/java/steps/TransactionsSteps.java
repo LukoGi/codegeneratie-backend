@@ -22,65 +22,6 @@ public class TransactionsSteps extends BaseSteps {
     private final String userToken = System.getenv("USER_TOKEN");
     private final String janeUserToken = System.getenv("JANE_USER_TOKEN");
 
-    @When("I retrieve all transactions")
-    public void iRetrieveAllTransactions() {
-
-    }
-
-    @Then("I should receive all transactions")
-    public void iShouldReceiveAllTransactions() {
-    }
-
-    @And("the transaction data is valid")
-    public void theTransactionDataIsValid() {
-    }
-
-    @When("I create a new transaction")
-    public void iCreateANewTransaction() {
-    }
-
-    @And("the transaction data is invalid")
-    public void theTransactionDataIsInvalid() {
-    }
-
-    @When("I create a new transaction with invalid data")
-    public void iCreateANewTransactionWithInvalidData() {
-    }
-
-    @And("the transaction ID {int} exists")
-    public void theTransactionIDExists(int arg0) {
-    }
-
-    @When("I retrieve the transaction by ID {int}")
-    public void iRetrieveTheTransactionByID(int arg0) {
-    }
-
-    @Then("I should receive the transaction details")
-    public void iShouldReceiveTheTransactionDetails() {
-    }
-
-    @And("the transaction ID {int} does not exist")
-    public void theTransactionIDDoesNotExist(int arg0) {
-    }
-
-    @Then("I should receive a transaction error message")
-    public void iShouldReceiveATransactionErrorMessage() {
-    }
-
-    @When("I update the transaction with ID {int}")
-    public void iUpdateTheTransactionWithID(int arg0) {
-    }
-
-    @Then("the transaction should be updated successfully")
-    public void theTransactionShouldBeUpdatedSuccessfully() {
-    }
-
-    @Then("the update of the transaction should fail")
-    public void theUpdateOfTheTransactionShouldFail() {
-    }
-
-    // NEW STUFF
-
     @When("I request to get transactions by the user admin")
     public void iRequestToGetTransactionsByTheUserAdmin() {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
@@ -92,8 +33,13 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive transactions")
-    public void iShouldReceiveTransactions() {
+    public void iShouldReceiveTransactions() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO[] transactions = mapper.readValue(response.getBody(), TransactionResponseDTO[].class);
+
+        Assertions.assertNotNull(transactions, "Transactions should not be null");
+        Assertions.assertTrue(transactions.length > 0, "Transactions list should not be empty");
     }
 
     @When("I request to get transactions by the user")
@@ -107,8 +53,13 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive my transactions")
-    public void iShouldReceiveMyTransactions() {
+    public void iShouldReceiveMyTransactions() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO[] transactions = mapper.readValue(response.getBody(), TransactionResponseDTO[].class);
+
+        Assertions.assertNotNull(transactions, "Transactions should not be null");
+        Assertions.assertTrue(transactions.length > 0, "Transactions list should not be empty");
     }
 
     @When("I request to get transactions as admin of a user")
@@ -122,8 +73,12 @@ public class TransactionsSteps extends BaseSteps {
     }
 
     @Then("I should receive my transactions by id")
-    public void iShouldReceiveMyTransactionsById() {
+    public void iShouldReceiveMyTransactionsById() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
+
+        TransactionResponseDTO transaction = mapper.readValue(response.getBody(), TransactionResponseDTO.class);
+
+        Assertions.assertNotNull(transaction.getTransactionId(), "Transaction ID should not be null");
     }
 
     // Successfully Create transaction with valid IBAN as customer HERE

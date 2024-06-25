@@ -23,7 +23,6 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     private final String adminToken = System.getenv("ADMIN_TOKEN");
     private final String userToken = System.getenv("USER_TOKEN");
-
     @When("I retrieve all bank accounts")
     public void iRetrieveAllBankAccounts() {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
@@ -402,7 +401,6 @@ public class BankAccountCrudSteps extends BaseSteps {
 
     @When("I retrieve the iban by user name {string} as user")
     public void iRetrieveTheBankAccountByUsernameAsUser(String username) {
-        // httpHeaders.add("Authorization", "Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKb2huRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE4MTQxNjY2LCJleHAiOjE3MTgxNDUyNjZ9.EEA2ZvMSJ0A0ydzmcV0YHXcdKt6oxnqkLBm0OZEO655ayCpjvbP9Ig7Iek3lUO_Uco9CGmjGs_Vo2RUGoAiTc3zkVxrnVUSHKOaQcipn9aZ_XUcronZwyvfvyDvD_jLXhFL7HSD-lbFIqcZq0_bdj2SGkYbplkZbcnAtfF2BmAdhjAYvwADt0p11CwLf6a2PZpYRdtL1xzhaX_w2Yo2ac_5qirkhxZNslWsbvCPNyg_g1dOtXGgahXaSb-G7vptu0RzXWQXCFJNGAPHIk8WFj9kLqOA8bQsv3H3W54MVYQCswIW2GV7ZaLdj5PwL6miVyM1xdgZGskGncQ_CnV3q_Q");
         httpHeaders.add("Authorization", "Bearer " + userToken);
         response = restTemplate
                 .exchange("/accounts/username/JohnDoe",
@@ -416,6 +414,8 @@ public class BankAccountCrudSteps extends BaseSteps {
     @Then("I should receive the iban")
     public void iShouldReceiveTheIban() {
         Assertions.assertEquals(200, response.getStatusCode().value());
+        String responseBody = response.getBody();
+        Assertions.assertNotNull(responseBody, "Response body should not be null");
     }
 
     @When("I retrieve bank account by admin as user")
@@ -430,9 +430,14 @@ public class BankAccountCrudSteps extends BaseSteps {
     }
 
     @Then("I should receive the bank accounts")
-    public void iShouldReceiveTheBankAccounts() {
+    public void iShouldReceiveTheBankAccounts() throws JsonProcessingException {
         Assertions.assertEquals(200, response.getStatusCode().value());
-    }
 
-    // JJ
+            BankAccountResponseDTO[] bankAccounts = mapper.readValue(response.getBody(), BankAccountResponseDTO[].class);
+
+            for (BankAccountResponseDTO bankAccount : bankAccounts) {
+                Assertions.assertNotNull(bankAccount.getAccountId(), "Account ID should not be null");
+                Assertions.assertNotNull(bankAccount.getIban(), "IBAN should not be null");
+            }
+    }
 }

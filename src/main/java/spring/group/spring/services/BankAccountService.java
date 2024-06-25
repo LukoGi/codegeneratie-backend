@@ -19,6 +19,7 @@ import spring.group.spring.security.JwtProvider;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -32,8 +33,8 @@ public class BankAccountService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     public BankAccount createBankAccount(BankAccount bankAccount) {
-        String encryptedPassword = passwordEncoder.encode(bankAccount.getPincode());
-        bankAccount.setPincode(encryptedPassword);
+        String encryptedPassword = passwordEncoder.encode(bankAccount.getPinCode());
+        bankAccount.setPinCode(encryptedPassword);
         validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
@@ -48,7 +49,7 @@ public class BankAccountService {
     }
 
     public BankAccount updateBankAccount(BankAccount bankAccount) {
-        validateAndEncodePincode(bankAccount);
+        validateAndEncodepinCode(bankAccount);
         validateData(bankAccount);
         return bankAccountRepository.save(bankAccount);
     }
@@ -64,7 +65,7 @@ public class BankAccountService {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUser_id(), amount, "Withdraw");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(null, id, bankAccount.getUser().getUserId(), amount, "Withdraw");
         transactionService.createTransaction(transactionRequestDTO);
         updateBalance(bankAccount, amount.negate());
         return createWithdrawDepositResponseDTO(bankAccount);
@@ -75,7 +76,7 @@ public class BankAccountService {
         validateAmount(amount);
         BankAccount bankAccount = bankAccountRepository.findById(id)
                 .orElseThrow(EntityNotFoundException::new);
-        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUser_id(), amount, "Deposit");
+        TransactionRequestDTO transactionRequestDTO = transactionService.createTransactionRequestDTO(id, null, bankAccount.getUser().getUserId(), amount, "Deposit");
         transactionService.createTransaction(transactionRequestDTO);
         updateBalance(bankAccount, amount);
         return createWithdrawDepositResponseDTO(bankAccount);
@@ -117,7 +118,7 @@ public class BankAccountService {
         bankAccount.setUser(user);
         bankAccount.setIsActive(true);
         bankAccount.setBalance(BigDecimal.ZERO);
-        bankAccount.setPincode("1111");
+        bankAccount.setPinCode("1111");
         bankAccount.setAccountType(accountType);
         bankAccount.setAbsoluteLimit(absoluteLimit);
 
@@ -126,27 +127,30 @@ public class BankAccountService {
 
     // Julian
 
-    public List<BankAccount> getIbanByUsername(String username)  {
+    public List<String> getIbanByUsername(String username)  {
         User user = userService.getUserByUsername(username);
         if (user == null) {
-            throw new UserNotFoundException();
+            throw new EntityNotFoundException("User not found");
         }
-        List<BankAccount> bankAccounts = bankAccountRepository.findByUser(user);
-        if (bankAccounts.isEmpty()) {
-            throw new ResourceNotFoundException();
-        }
-        return bankAccounts;
-    }
-    private void validateAndEncodePincode(BankAccount bankAccount) {
-        String pincode = bankAccountRepository.findById(bankAccount.getAccountId())
-                .orElseThrow(EntityNotFoundException::new)
-                .getPincode();
 
-        if ((!passwordEncoder.matches(bankAccount.getPincode(), pincode)) && !bankAccount.getPincode().equals(pincode)) {
-            String newPincode = passwordEncoder.encode(bankAccount.getPincode());
-            bankAccount.setPincode(newPincode);
+        List<String> ibans = bankAccountRepository.findIbansByUser(user, AccountType.CHECKINGS);
+        if (ibans.isEmpty()) {
+            throw new EntityNotFoundException("IBANs not found for the user");
+        }
+
+        return ibans;
+    }
+
+    private void validateAndEncodepinCode(BankAccount bankAccount) {
+        String pinCode = bankAccountRepository.findById(bankAccount.getAccountId())
+                .orElseThrow(EntityNotFoundException::new)
+                .getPinCode();
+
+        if ((!passwordEncoder.matches(bankAccount.getPinCode(), pinCode)) && !bankAccount.getPinCode().equals(pinCode)) {
+            String newPinCode = passwordEncoder.encode(bankAccount.getPinCode());
+            bankAccount.setPinCode(newPinCode);
         } else {
-            bankAccount.setPincode(pincode);
+            bankAccount.setPinCode(pinCode);
         }
     }
 
@@ -165,12 +169,12 @@ public class BankAccountService {
             throw new IncorrectIbanException();
         }
 
-        String fullName = bankAccount.getUser().getFirst_name() + " " + bankAccount.getUser().getLast_name();
-        if (!fullName.equals(loginRequest.getFullname())) {
-            throw new IncorrectFullnameOnCardException();
+        String fullName = bankAccount.getUser().getFirstName() + " " + bankAccount.getUser().getLastName();
+        if (!fullName.equals(loginRequest.getFullName())) {
+            throw new IncorrectFullNameOnCardException();
         }
-        if (!passwordEncoder.matches(loginRequest.getPincode().toString(), bankAccount.getPincode())) {
-            throw new IncorrectPincodeException();
+        if (!passwordEncoder.matches(loginRequest.getPinCode().toString(), bankAccount.getPinCode())) {
+            throw new IncorrectPinCodeException();
         }
 
         return bankAccount;

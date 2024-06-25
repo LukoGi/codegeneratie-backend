@@ -21,10 +21,10 @@ public class UserRequest {
     private String username;
 
     @NotBlank
-    private String first_name;
+    private String firstName;
 
     @NotBlank
-    private String last_name;
+    private String lastName;
 
     @NotBlank
     private String email;
@@ -33,20 +33,20 @@ public class UserRequest {
     private String password;
 
     @NotBlank
-    private String bsn_number;
+    private String bsnNumber;
 
     @NotBlank
-    private String phone_number;
+    private String phoneNumber;
 
     @NotNull
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Role> roles;
 
     @NotNull
-    private Boolean is_approved;
+    private Boolean isApproved;
 
     @NotNull
-    private Boolean is_archived;
+    private Boolean isArchived;
 
     private BigDecimal dailyTransferLimit;
 }
