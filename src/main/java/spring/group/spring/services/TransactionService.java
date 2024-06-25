@@ -206,21 +206,25 @@ public class TransactionService {
 
     private BankAccount getBankAccountByUserAndType(User user, AccountType accountType) {
         return bankAccountRepository.findByUserAndAccountType(user, accountType)
-                .orElseThrow(() -> new IllegalArgumentException(accountType + " account not found for user " + user.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException(accountType + " account not found for user " + user.getUserId()));
     }
 
     private User getUserById(Integer userId) {
         return userRepository.findById(userId)
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
     }
 
     private BankAccount getBankAccountByIban(String iban) {
-        return bankAccountRepository.findByIban(iban);
+        BankAccount bankAccount = bankAccountRepository.findByIban(iban);
+        if (bankAccount == null) {
+            throw new EntityNotFoundException("Bank account not found for IBAN: " + iban);
+        }
+        return bankAccount;
     }
 
     private BankAccount getBankAccountByUserId(Integer userId) {
         return bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
-                .orElseThrow(ActiveCheckingAccountNotFoundException::new);
+                .orElseThrow(() -> new ActiveCheckingAccountNotFoundException("Active checking account not found for user ID: " + userId));
     }
 
     private void validateTransaction(BankAccount toAccount, BankAccount fromAccount, BigDecimal amount) {
