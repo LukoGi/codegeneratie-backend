@@ -58,7 +58,7 @@ public class TransactionServiceTest {
 
         when(userRepository.findById(any(Integer.class))).thenReturn(Optional.of(mockFromUser));
         when(bankAccountRepository.findByIban(any(String.class))).thenReturn(mockToBankAccount);
-        when(bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(any(Integer.class), eq(AccountType.CHECKINGS), eq(true)))
+        when(bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(any(Integer.class), eq(AccountType.CHECKINGS), eq(true)))
                 .thenReturn(Optional.of(mockFromBankAccount));
         when(transactionRepository.save(any(Transaction.class))).thenReturn(expectedTransaction);
 
@@ -196,16 +196,16 @@ public class TransactionServiceTest {
 
     private User createMockUser(String firstName, String lastName, String username, String email, String password, String bsnNumber, String phoneNumber, List<Role> roles, boolean isApproved, boolean isArchived, BigDecimal dailyTransferLimit) {
         User mockUser = new User();
-        mockUser.setFirst_name(firstName);
-        mockUser.setLast_name(lastName);
+        mockUser.setFirstName(firstName);
+        mockUser.setLastName(lastName);
         mockUser.setUsername(username);
         mockUser.setEmail(email);
         mockUser.setPassword(password);
-        mockUser.setBsn_number(bsnNumber);
-        mockUser.setPhone_number(phoneNumber);
+        mockUser.setBsnNumber(bsnNumber);
+        mockUser.setPhoneNumber(phoneNumber);
         mockUser.setRoles(roles);
-        mockUser.setIs_approved(isApproved);
-        mockUser.setIs_archived(isArchived);
+        mockUser.setIsApproved(isApproved);
+        mockUser.setIsArchived(isArchived);
         mockUser.setDailyTransferLimit(dailyTransferLimit);
         return mockUser;
     }

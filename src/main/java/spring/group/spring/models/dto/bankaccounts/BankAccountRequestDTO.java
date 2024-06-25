@@ -16,7 +16,7 @@ public class BankAccountRequestDTO {
 
     //
     @NotNull
-    private Integer user_id;
+    private Integer userId;
 
     @NotBlank
     private String iban;
@@ -34,6 +34,6 @@ public class BankAccountRequestDTO {
     private BigDecimal absoluteLimit;
 
     @NotBlank
-    private String pincode;
+    private String pinCode;
 
 }

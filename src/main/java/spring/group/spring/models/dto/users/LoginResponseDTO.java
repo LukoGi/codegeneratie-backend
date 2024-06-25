@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class LoginResponseDTO {
     private String token;
-    private Integer user_id;
+    private Integer userId;
     private List<Role> roles;
     private String username;
 }

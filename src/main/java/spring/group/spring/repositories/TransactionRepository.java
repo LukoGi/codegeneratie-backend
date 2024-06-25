@@ -26,7 +26,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
             Pageable pageable);
 
 
-    @Query("SELECT t FROM Transaction t WHERE t.initiatorUser.user_id = :customerId AND "
+    @Query("SELECT t FROM Transaction t WHERE t.initiatorUser.userId = :customerId AND "
             + "(:startDate IS NULL OR t.date >= :startDate) AND "
             + "(:endDate IS NULL OR t.date <= :endDate) AND "
             + "(:minAmount IS NULL OR t.transferAmount >= :minAmount) AND "

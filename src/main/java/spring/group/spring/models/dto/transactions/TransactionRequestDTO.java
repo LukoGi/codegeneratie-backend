@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class TransactionRequestDTO {
 
-    private Integer to_account_id;
-    private Integer from_account_id;
-    private Integer initiator_user_id;
+    private Integer toAccountId;
+    private Integer fromAccountId;
+    private Integer initiatorUserId;
     @NotNull
-    private BigDecimal transfer_amount;
+    private BigDecimal transferAmount;
     @NotNull
     private LocalDateTime date;
     @NotBlank

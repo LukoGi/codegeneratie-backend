@@ -6,7 +6,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import spring.group.spring.exception.exceptions.ResourceNotFoundException;
+import spring.group.spring.exception.exceptions.BankAccountNotFoundException;
+import spring.group.spring.exception.exceptions.EntityNotFoundException;
 import spring.group.spring.exception.exceptions.UserNotFoundException;
 import spring.group.spring.models.AccountType;
 import spring.group.spring.models.BankAccount;
@@ -80,7 +81,7 @@ class BankAccountServiceTest {
         // Assert
         assertEquals(updatedBankAccount.getAccountId(), resultBankAccount.getAccountId());
         assertEquals(updatedBankAccount.getIban(), resultBankAccount.getIban());
-        assertEquals(updatedBankAccount.getPincode(), resultBankAccount.getPincode());
+        assertEquals(updatedBankAccount.getPinCode(), resultBankAccount.getPinCode());
     }
 
     @Test
@@ -172,10 +173,10 @@ class BankAccountServiceTest {
         existingBankAccount.setAccountType(AccountType.CHECKINGS);
         existingBankAccount.setIsActive(true);
         existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
-        existingBankAccount.setPincode("1111");
+        existingBankAccount.setPinCode("1111");
 
         User user = new User();
-        user.setUser_id(1);
+        user.setUserId(1);
         existingBankAccount.setUser(user);
         return existingBankAccount;
     }
@@ -188,10 +189,10 @@ class BankAccountServiceTest {
         existingBankAccount.setAccountType(AccountType.CHECKINGS);
         existingBankAccount.setIsActive(true);
         existingBankAccount.setAbsoluteLimit(BigDecimal.valueOf(-150.00));
-        existingBankAccount.setPincode("1111");
+        existingBankAccount.setPinCode("1111");
 
         User user = new User();
-        user.setUser_id(1);
+        user.setUserId(1);
         existingBankAccount.setUser(user);
         return existingBankAccount;
     }
@@ -199,8 +200,8 @@ class BankAccountServiceTest {
     private BankAccountATMLoginRequest arrangeBankAccountATMLoginRequest() {
         BankAccountATMLoginRequest bankAccountATMLoginRequest = new BankAccountATMLoginRequest();
         bankAccountATMLoginRequest.setIban("NL91ABNA0417164305");
-        bankAccountATMLoginRequest.setFullname("John Doe");
-        bankAccountATMLoginRequest.setPincode(1111);
+        bankAccountATMLoginRequest.setFullName("John Doe");
+        bankAccountATMLoginRequest.setPinCode(1111);
         return bankAccountATMLoginRequest;
     }
 
@@ -208,13 +209,13 @@ class BankAccountServiceTest {
         BankAccount bankAccount = new BankAccount();
         bankAccount.setAccountId(1);
         bankAccount.setIban("NL91ABNA0417164305");
-        String pincode = passwordEncoder.encode("1111");
-        bankAccount.setPincode(pincode);
+        String pinCode = passwordEncoder.encode("1111");
+        bankAccount.setPinCode(pinCode);
 
         User user = new User();
-        user.setUser_id(1);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
+        user.setUserId(1);
+        user.setFirstName("John");
+        user.setLastName("Doe");
         bankAccount.setUser(user);
         return bankAccount;
     }
@@ -223,8 +224,10 @@ class BankAccountServiceTest {
     void getIbanByUsername() {
         // Arrange
         String username = "JohnDoe";
+        String iban = "NL91ABNA0417164305";
 
         BankAccount bankAccount = new BankAccount();
+        bankAccount.setIban(iban);
         List<BankAccount> account= List.of(bankAccount);
         User user = new User();
         user.setUsername(username);
@@ -232,11 +235,14 @@ class BankAccountServiceTest {
 
         when(userService.getUserByUsername(username)).thenReturn(user);
         when(bankAccountRepository.findByUser(user)).thenReturn(account);
+        when(bankAccountRepository.findIbansByUser(user, AccountType.CHECKINGS)).thenReturn(List.of(iban));
+
         // Act
-        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
+        List<String> ibans = bankAccountService.getIbanByUsername(username);
 
         // Assert
-        assertEquals(bankAccounts.size(),1);
+        assertEquals(ibans.size(),1);
+        assertEquals(iban, ibans.get(0));
     }
     @Test
     void Throw_when_user_is_unknown() {
@@ -244,7 +250,7 @@ class BankAccountServiceTest {
         String username = "JohnDoe";
         when(userService.getUserByUsername(username)).thenReturn(null);
         // Act Assert
-        assertThrows(UserNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+        assertThrows(EntityNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
     }
     @Test
     void Throw_when_user_has_no_bank_account() {
@@ -257,6 +263,6 @@ class BankAccountServiceTest {
         when(bankAccountRepository.findByUser(user)).thenReturn(account );
         // Act Assert
 
-        assertThrows(ResourceNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
+        assertThrows(EntityNotFoundException.class, () -> bankAccountService.getIbanByUsername(username));
     }
 }

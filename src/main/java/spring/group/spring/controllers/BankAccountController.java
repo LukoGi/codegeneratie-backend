@@ -47,11 +47,8 @@ public class BankAccountController {
 
     @GetMapping("/username/{username}")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public List<BankAccountResponseDTO> getIbanByUsername(@PathVariable String username) {
-        List<BankAccount> bankAccounts = bankAccountService.getIbanByUsername(username);
-        return bankAccounts.stream()
-                .map(bankAccount -> mapper.map(bankAccount, BankAccountResponseDTO.class))
-                .toList();
+    public List<String> getIbanByUsername(@PathVariable String username) {
+        return bankAccountService.getIbanByUsername(username);
     }
 
 

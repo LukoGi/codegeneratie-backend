@@ -58,7 +58,7 @@ public class UserService {
         if (passwordEncoder.matches(rawPassword, encodedPassword)) {
             LoginResponseDTO response = new LoginResponseDTO();
             response.setToken(jwtProvider.createToken(user.getUsername(), user.getRoles()));
-            response.setUser_id(user.getUser_id());
+            response.setUserId(user.getUserId());
             response.setRoles(user.getRoles());
             response.setUsername(user.getUsername());
             return response;
@@ -69,13 +69,13 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getUser_id()).orElseThrow(EntityNotFoundException::new);
+        User existingUser = userRepository.findById(user.getUserId()).orElseThrow(EntityNotFoundException::new);
 
-        existingUser.setFirst_name(user.getFirst_name());
-        existingUser.setLast_name(user.getLast_name());
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
         existingUser.setEmail(user.getEmail());
-        existingUser.setPhone_number(user.getPhone_number());
-        existingUser.setBsn_number(user.getBsn_number());
+        existingUser.setPhoneNumber(user.getPhoneNumber());
+        existingUser.setBsnNumber(user.getBsnNumber());
         return userRepository.save(existingUser);
     }
 

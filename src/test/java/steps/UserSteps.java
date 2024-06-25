@@ -18,9 +18,8 @@ import java.math.BigDecimal;
 
 public class UserSteps extends BaseSteps {
 
-    private final String adminToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJBZG1pbiIsImF1dGgiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE3MTc5MzExMTksImV4cCI6MTc0OTQ2NzExOX0.PE_4iw1798iiNdHta6v3FwT4ZBQ1ZDXQ0eH_yuTlDFlW8hGNwjg7MLNQ2Imj83iAANPJvv3vy0ItIZ6yHUhyxoQSAueqSI4KXk1EJoSb1Tecwf2CAJu3Z_Gj2QAKNB1h8WI0_Ly5MjOnRO9wIFWphYYI-iXT-NTD_9HCU-NQ_LqBzLv4uPQZKRbDYmNkEiqPjkCV6I0b8bdvGvKHiZDJe7OF9R4z2UYzSftfJxR6WXKFXfDHI28dlTBcl6-edi1_j1-V-LAoJBO4jRxycHMo1OFkaao4mp5euvriamii1GcKoufxkQeoFykDvgRTTn5D9zUltSJ7bpHwdWorHKkCzg";
-    private final String userToken = "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJKYW5lRG9lIiwiYXV0aCI6WyJST0xFX1VTRVIiXSwiaWF0IjoxNzE4MTMwNDI1LCJleHAiOjE3NDk2NjY0MjV9.VGWYzuwuD1xXQHcy2gezmU-0parNPH2433odW1baycx_TV3qM1YY8Ri1S1SNM4qEp-0r7uky7c1Rfvvmd_z-Te9iyFy2rCvGimkcPAJqKeG1wXjzUEbU3DpYzvFP1w1KCj_nkts5PRivnj_DBJ-W7Z5C5gLoXBbXftnKL8IHGcoYx8nSiMVDkkX1tplh8rhJq_0MqhmA_jZ4Zoabn9gKwKbuIyJE6716cEAxS-0qAVA47K85bXcZ41fr4w77F9etfVwQfo0eZpRBHH-MzcIzb3eTZasa8y_RBqGk0BWDPB6Qz_VESp3Fs0T76GdoVvmFZt5rY_trnrPHskVmVrnOBQ";
-
+    private final String adminToken = System.getenv("ADMIN_TOKEN");
+    private final String userToken = System.getenv("USER_TOKEN");
     @When("I send a GET request to {string}")
     public void iRetrieveAllUsers(String endpoint) {
         httpHeaders.add("Authorization", "Bearer " + adminToken);
@@ -50,12 +49,12 @@ public class UserSteps extends BaseSteps {
     @And("the user data is valid")
     public void theUserDataIsValid() throws JsonProcessingException {
         User user = new User();
-        user.setUser_id(5);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
+        user.setUserId(5);
+        user.setFirstName("John");
+        user.setLastName("Doe");
         user.setEmail("john@doe.com");
-        user.setPhone_number("1234567890");
-        user.setBsn_number("123456789");
+        user.setPhoneNumber("1234567890");
+        user.setBsnNumber("123456789");
         user.setPassword("password");
 
         requestBody = mapper.writeValueAsString(user);
@@ -70,12 +69,12 @@ public class UserSteps extends BaseSteps {
     @And("the user data is invalid")
     public void theUserDataIsInvalid() {
         User user = new User();
-        user.setUser_id(2);
-        user.setFirst_name("John");
-        user.setLast_name("Doe");
+        user.setUserId(2);
+        user.setFirstName("John");
+        user.setLastName("Doe");
         user.setEmail("john@doe.com");
-        user.setPhone_number("1234567890");
-        user.setBsn_number("123456789");
+        user.setPhoneNumber("1234567890");
+        user.setBsnNumber("123456789");
         user.setPassword("");
     }
 

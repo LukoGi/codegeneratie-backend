@@ -59,20 +59,20 @@ public class TransactionService {
         BankAccount fromAccount = null;
         User initiatorUser = null;
 
-        if (transactionRequestDTO.getTo_account_id() != null) {
-            toAccount = bankAccountRepository.findById(transactionRequestDTO.getTo_account_id())
-                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getTo_account_id() + " not found"));
+        if (transactionRequestDTO.getToAccountId() != null) {
+            toAccount = bankAccountRepository.findById(transactionRequestDTO.getToAccountId())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getToAccountId() + " not found"));
         }
 
-        if (transactionRequestDTO.getFrom_account_id() != null) {
-            fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFrom_account_id())
-                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFrom_account_id() + " not found"));
+        if (transactionRequestDTO.getFromAccountId() != null) {
+            fromAccount = bankAccountRepository.findById(transactionRequestDTO.getFromAccountId())
+                    .orElseThrow(() -> new IllegalArgumentException("BankAccount with ID " + transactionRequestDTO.getFromAccountId() + " not found"));
             validateAndApplyTransferLimits(fromAccount, toAccount, transactionRequestDTO);
         }
 
-        if (transactionRequestDTO.getInitiator_user_id() != null) {
-            initiatorUser = userRepository.findById(transactionRequestDTO.getInitiator_user_id())
-                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionRequestDTO.getInitiator_user_id() + " not found"));
+        if (transactionRequestDTO.getInitiatorUserId() != null) {
+            initiatorUser = userRepository.findById(transactionRequestDTO.getInitiatorUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("User with ID " + transactionRequestDTO.getInitiatorUserId() + " not found"));
         }
 
         Transaction transaction = createAndSaveTransaction(toAccount, fromAccount, initiatorUser, transactionRequestDTO);
@@ -91,21 +91,21 @@ public class TransactionService {
 
     public TransactionRequestDTO createTransactionRequestDTO(Integer toAccountId, Integer fromAccountId, Integer initiatorUserId, BigDecimal transferAmount, String description) {
         TransactionRequestDTO transactionRequestDTO = new TransactionRequestDTO();
-        transactionRequestDTO.setTo_account_id(toAccountId);
-        transactionRequestDTO.setFrom_account_id(fromAccountId);
-        transactionRequestDTO.setInitiator_user_id(initiatorUserId);
-        transactionRequestDTO.setTransfer_amount(transferAmount);
+        transactionRequestDTO.setToAccountId(toAccountId);
+        transactionRequestDTO.setFromAccountId(fromAccountId);
+        transactionRequestDTO.setInitiatorUserId(initiatorUserId);
+        transactionRequestDTO.setTransferAmount(transferAmount);
         transactionRequestDTO.setDate(LocalDateTime.now());
         transactionRequestDTO.setDescription(description);
         return transactionRequestDTO;
     }
 
     private void validateAndApplyTransferLimits(BankAccount fromAccount, BankAccount toAccount, TransactionRequestDTO transactionRequestDTO) {
-        checkIfAbsoluteLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
-        if (transactionRequestDTO.getTo_account_id() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
-            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
-        } else if (transactionRequestDTO.getTo_account_id() == null) {
-            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransfer_amount());
+        checkIfAbsoluteLimitIsExceeded(fromAccount, transactionRequestDTO.getTransferAmount());
+        if (transactionRequestDTO.getToAccountId() != null && !toAccount.getUser().equals(fromAccount.getUser())) {
+            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransferAmount());
+        } else if (transactionRequestDTO.getToAccountId() == null) {
+            checkIfDailyLimitIsExceeded(fromAccount, transactionRequestDTO.getTransferAmount());
         }
     }
 
@@ -114,7 +114,7 @@ public class TransactionService {
         transaction.setToAccount(toAccount);
         transaction.setFromAccount(fromAccount);
         transaction.setInitiatorUser(initiatorUser);
-        transaction.setTransferAmount(transactionRequestDTO.getTransfer_amount());
+        transaction.setTransferAmount(transactionRequestDTO.getTransferAmount());
         transaction.setDate(transactionRequestDTO.getDate());
         transaction.setDescription(transactionRequestDTO.getDescription());
 
@@ -206,7 +206,7 @@ public class TransactionService {
 
     private BankAccount getBankAccountByUserAndType(User user, AccountType accountType) {
         return bankAccountRepository.findByUserAndAccountType(user, accountType)
-                .orElseThrow(() -> new IllegalArgumentException(accountType + " account not found for user " + user.getUser_id()));
+                .orElseThrow(() -> new IllegalArgumentException(accountType + " account not found for user " + user.getUserId()));
     }
 
     private User getUserById(Integer userId) {
@@ -219,7 +219,7 @@ public class TransactionService {
     }
 
     private BankAccount getBankAccountByUserId(Integer userId) {
-        return bankAccountRepository.findByUserUser_idAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
+        return bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
                 .orElseThrow(ActiveCheckingAccountNotFoundException::new);
     }
 
