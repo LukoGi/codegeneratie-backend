@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class EmployeeTransactionRequestDTO {
     private String fromAccountIban;
     private String toAccountIban;
-    private Integer employeeId;
+    private Integer initiatorUserId;
     private BigDecimal transferAmount;
     private String description;
 }

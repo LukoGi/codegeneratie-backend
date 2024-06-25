@@ -82,7 +82,7 @@ public class TransactionServiceTest {
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164308", new BigDecimal("1800.00"), AccountType.SAVINGS, true, new BigDecimal("200.00"), mockUser);
 
         InternalTransactionRequestDTO request = new InternalTransactionRequestDTO();
-        request.setUserId(2);
+        request.setInitiatorUserId(2);
         request.setFromAccountType("CHECKINGS");
         request.setToAccountType("SAVINGS");
         request.setTransferAmount(new BigDecimal(2));
@@ -125,7 +125,7 @@ public class TransactionServiceTest {
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164306", new BigDecimal("1800.00"), AccountType.CHECKINGS, true, new BigDecimal("-200.00"), mockToUser);
 
         EmployeeTransactionRequestDTO request = new EmployeeTransactionRequestDTO();
-        request.setEmployeeId(3);
+        request.setInitiatorUserId(3);
         request.setFromAccountIban("NL91ABNA0417164305");
         request.setToAccountIban("NL91ABNA0417164306");
         request.setTransferAmount(new BigDecimal(1));
