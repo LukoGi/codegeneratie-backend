@@ -72,6 +72,12 @@ public class TransactionServiceTest {
         assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
         assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
+
+        // Verify
+        verify(userRepository, times(1)).findById(request.getInitiatorUserId());
+        verify(bankAccountRepository, times(1)).findByIban(request.getToAccountIban());
+        verify(bankAccountRepository, times(1)).findByUseruserIdAndAccountTypeAndIsActive(request.getInitiatorUserId(), AccountType.CHECKINGS, true);
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
 
     @Test
@@ -112,6 +118,12 @@ public class TransactionServiceTest {
         assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
         assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
+
+        // Verify
+        verify(userRepository, times(1)).findById(request.getInitiatorUserId());
+        verify(bankAccountRepository, times(1)).findByUserAndAccountType(mockUser, AccountType.CHECKINGS);
+        verify(bankAccountRepository, times(1)).findByUserAndAccountType(mockUser, AccountType.SAVINGS);
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
 
     @Test
@@ -152,6 +164,13 @@ public class TransactionServiceTest {
         assertEquals(expectedTransaction.getInitiatorUser(), response.getInitiatorUser());
         assertEquals(expectedTransaction.getTransferAmount(), response.getTransferAmount());
         assertEquals(expectedTransaction.getDescription(), response.getDescription());
+
+        // Verify
+        verify(userRepository, times(1)).findById(request.getInitiatorUserId());
+        verify(bankAccountRepository, times(1)).findByIban(request.getFromAccountIban());
+        verify(bankAccountRepository, times(1)).findByIban(request.getToAccountIban());
+        verify(bankAccountRepository, times(2)).save(any(BankAccount.class));
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
     }
 
     @Test
