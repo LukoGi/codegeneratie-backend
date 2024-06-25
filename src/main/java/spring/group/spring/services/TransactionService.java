@@ -42,7 +42,17 @@ public class TransactionService {
         return responseDTO;
     }
 
+    private Transaction createTransactionEntity(BankAccount toAccount, BankAccount fromAccount, User initiatorUser, CustomerTransactionRequestDTO customerTransactionRequestDTO) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccount(toAccount);
+        transaction.setFromAccount(fromAccount);
+        transaction.setInitiatorUser(initiatorUser);
+        transaction.setTransferAmount(customerTransactionRequestDTO.getTransferAmount());
+        transaction.setDate(LocalDateTime.now());
+        transaction.setDescription(customerTransactionRequestDTO.getDescription());
 
+        return transactionRepository.save(transaction);
+    }
 
     public TransactionResponseDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
         BankAccount toAccount = null;
@@ -165,19 +175,6 @@ public class TransactionService {
         return createTransactionResponseDTO(transaction);
     }
 
-    private Transaction createAndSaveTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser,
-                                                 BigDecimal transferAmount, String description) {
-        Transaction transaction = new Transaction();
-        transaction.setToAccount(toAccount);
-        transaction.setFromAccount(fromAccount);
-        transaction.setInitiatorUser(initiatorUser);
-        transaction.setTransferAmount(transferAmount);
-        transaction.setDate(LocalDateTime.now());
-        transaction.setDescription(description);
-
-        return transactionRepository.save(transaction);
-    }
-
     public TransactionResponseDTO customerCreateInternalTransaction(InternalTransactionRequestDTO internalTransactionRequestDTO) {
         User initiatorUser = getUserById(internalTransactionRequestDTO.getInitiatorUserId());
         BankAccount fromAccount = getBankAccountByUserAndType(initiatorUser, AccountType.valueOf(internalTransactionRequestDTO.getFromAccountType().toUpperCase()));
@@ -230,7 +227,18 @@ public class TransactionService {
         bankAccountRepository.save(toAccount);
     }
 
+    private Transaction createAndSaveTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser,
+                                                 BigDecimal transferAmount, String description) {
+        Transaction transaction = new Transaction();
+        transaction.setToAccount(toAccount);
+        transaction.setFromAccount(fromAccount);
+        transaction.setInitiatorUser(initiatorUser);
+        transaction.setTransferAmount(transferAmount);
+        transaction.setDate(LocalDateTime.now());
+        transaction.setDescription(description);
 
+        return transactionRepository.save(transaction);
+    }
 
     private BankAccount getBankAccountByUserAndType(User user, AccountType accountType) {
         return bankAccountRepository.findByUserAndAccountType(user, accountType)
