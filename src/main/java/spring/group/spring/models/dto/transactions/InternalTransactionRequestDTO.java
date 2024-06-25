@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Data
 public class InternalTransactionRequestDTO {
-    private Integer userId;
+    private Integer initiatorUserId;
     private String fromAccountType;
     private String toAccountType;
     private BigDecimal transferAmount;

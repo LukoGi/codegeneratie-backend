@@ -161,87 +161,59 @@ public class TransactionService {
     // Luko - Begin
 
     public TransactionResponseDTO customerCreateTransaction(CustomerTransactionRequestDTO customerTransactionRequestDTO) {
-        User initiatorUser = getInitiatorUser(customerTransactionRequestDTO.getInitiatorUserId());
-        BankAccount toAccount = getToAccount(customerTransactionRequestDTO.getToAccountIban());
-        BankAccount fromAccount = getFromAccount(customerTransactionRequestDTO.getInitiatorUserId());
+        User initiatorUser = getUserById(customerTransactionRequestDTO.getInitiatorUserId());
+        BankAccount toAccount = getBankAccountByIban(customerTransactionRequestDTO.getToAccountIban());
+        BankAccount fromAccount = getBankAccountByUserId(customerTransactionRequestDTO.getInitiatorUserId());
 
-        if (toAccount.getAccountType() == AccountType.SAVINGS) {
-            throw new TransactionWithSavingsAccountException();
-        }
-
-        checkAccountBalance(fromAccount, customerTransactionRequestDTO.getTransferAmount());
-
-        if (!toAccount.getUser().equals(fromAccount.getUser())) {
-            checkIfDailyLimitIsExceeded(fromAccount, customerTransactionRequestDTO.getTransferAmount());
-        }
-        checkIfAbsoluteLimitIsExceeded(fromAccount, customerTransactionRequestDTO.getTransferAmount());
+        validateTransaction(fromAccount, toAccount, customerTransactionRequestDTO.getTransferAmount());
 
         updateAccountBalances(fromAccount, toAccount, customerTransactionRequestDTO.getTransferAmount());
 
-        Transaction transaction = createTransactionEntity(toAccount, fromAccount, initiatorUser, customerTransactionRequestDTO);
+        Transaction transaction = createAndSaveTransaction(toAccount, fromAccount, initiatorUser,
+                customerTransactionRequestDTO.getTransferAmount(), customerTransactionRequestDTO.getDescription());
 
         return createTransactionResponseDTO(transaction);
     }
 
     public TransactionResponseDTO customerCreateInternalTransaction(InternalTransactionRequestDTO internalTransactionRequestDTO) {
-        User user = userRepository.findById(internalTransactionRequestDTO.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User user = getUserById(internalTransactionRequestDTO.getInitiatorUserId());
+        BankAccount fromAccount = getBankAccountByUserAndType(user, AccountType.valueOf(internalTransactionRequestDTO.getFromAccountType().toUpperCase()));
+        BankAccount toAccount = getBankAccountByUserAndType(user, AccountType.valueOf(internalTransactionRequestDTO.getToAccountType().toUpperCase()));
 
-        BankAccount fromAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(internalTransactionRequestDTO.getFromAccountType().toUpperCase()))
-                .orElseThrow(() -> new IllegalArgumentException("From account not found"));
+        validateTransaction(fromAccount, toAccount, internalTransactionRequestDTO.getTransferAmount());
 
-        BankAccount toAccount = bankAccountRepository.findByUserAndAccountType(user, AccountType.valueOf(internalTransactionRequestDTO.getToAccountType().toUpperCase()))
-                .orElseThrow(() -> new IllegalArgumentException("To account not found"));
+        updateAccountBalances(fromAccount, toAccount, internalTransactionRequestDTO.getTransferAmount());
 
-        checkIfAbsoluteLimitIsExceeded(fromAccount, internalTransactionRequestDTO.getTransferAmount());
-
-        fromAccount.setBalance(fromAccount.getBalance().subtract(internalTransactionRequestDTO.getTransferAmount()));
-        toAccount.setBalance(toAccount.getBalance().add(internalTransactionRequestDTO.getTransferAmount()));
-
-        bankAccountRepository.save(fromAccount);
-        bankAccountRepository.save(toAccount);
-
-        Transaction transaction = new Transaction();
-        transaction.setFromAccount(fromAccount);
-        transaction.setToAccount(toAccount);
-        transaction.setInitiatorUser(user);
-        transaction.setTransferAmount(internalTransactionRequestDTO.getTransferAmount());
-        transaction.setDate(LocalDateTime.now());
-        transaction.setDescription("Transfer between checkings/savings accounts");
-
-        transactionRepository.save(transaction);
+        Transaction transaction = createAndSaveTransaction(fromAccount, toAccount, user,
+                internalTransactionRequestDTO.getTransferAmount(), "Transfer between checkings/savings accounts");
 
         return createTransactionResponseDTO(transaction);
     }
 
     public TransactionResponseDTO employeeCreateTransaction(EmployeeTransactionRequestDTO employeeTransactionRequestDTO) {
-        BankAccount fromAccount = validateAndGetAccount(employeeTransactionRequestDTO.getFromAccountIban());
-        BankAccount toAccount = validateAndGetAccount(employeeTransactionRequestDTO.getToAccountIban());
-        validateTransferDetails(fromAccount, employeeTransactionRequestDTO.getTransferAmount());
+        BankAccount fromAccount = getBankAccountByIban(employeeTransactionRequestDTO.getFromAccountIban());
+        BankAccount toAccount = getBankAccountByIban(employeeTransactionRequestDTO.getToAccountIban());
 
-        performTransfer(fromAccount, toAccount, employeeTransactionRequestDTO.getTransferAmount());
+        validateTransaction(fromAccount, toAccount, employeeTransactionRequestDTO.getTransferAmount());
 
-        return createAndSaveEmployeeTransaction(fromAccount, toAccount, employeeTransactionRequestDTO);
+        updateAccountBalances(fromAccount, toAccount, employeeTransactionRequestDTO.getTransferAmount());
+
+        Transaction transaction = createAndSaveTransaction(fromAccount, toAccount, getUserById(employeeTransactionRequestDTO.getInitiatorUserId()),
+                employeeTransactionRequestDTO.getTransferAmount(), employeeTransactionRequestDTO.getDescription());
+
+        return createTransactionResponseDTO(transaction);
     }
 
-    private User getInitiatorUser(Integer userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(EntityNotFoundException::new);
-    }
+    private void validateTransaction(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
+        if (!toAccount.getUser().equals(fromAccount.getUser())) {
+            checkIfDailyLimitIsExceeded(fromAccount, transferAmount);
 
-    private BankAccount getToAccount(String iban) {
-        return bankAccountRepository.findByIban(iban);
-    }
-
-    private BankAccount getFromAccount(Integer userId) {
-        return bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
-                .orElseThrow(ActiveCheckingAccountNotFoundException::new);
-    }
-
-    private void checkAccountBalance(BankAccount fromAccount, BigDecimal transferAmount) {
-        if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
-            throw new InsufficientFundsException();
+            if (fromAccount.getAccountType() == AccountType.SAVINGS || toAccount.getAccountType() == AccountType.SAVINGS) {
+                throw new TransactionWithSavingsAccountException();
+            }
         }
+
+        checkIfAbsoluteLimitIsExceeded(fromAccount, transferAmount);
     }
 
     private void updateAccountBalances(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
@@ -255,48 +227,40 @@ public class TransactionService {
         bankAccountRepository.save(toAccount);
     }
 
-    private BankAccount validateAndGetAccount(String iban) {
-        BankAccount account = bankAccountRepository.findByIban(iban);
-        if (account == null || account.getAccountType() != AccountType.CHECKINGS) {
-            throw new EntityNotFoundException();
-        }
-        return account;
-    }
-
-    private void validateTransferDetails(BankAccount fromAccount, BigDecimal transferAmount) {
-        if (fromAccount.getBalance().compareTo(transferAmount) < 0) {
-            throw new InsufficientFundsException();
-        }
-        checkTransferLimits(fromAccount, transferAmount);
-    }
-
-    private void checkTransferLimits(BankAccount fromAccount, BigDecimal transferAmount) {
-        checkIfDailyLimitIsExceeded(fromAccount, transferAmount);
-        checkIfAbsoluteLimitIsExceeded(fromAccount, transferAmount);
-    }
-
-    private void performTransfer(BankAccount fromAccount, BankAccount toAccount, BigDecimal transferAmount) {
-        fromAccount.setBalance(fromAccount.getBalance().subtract(transferAmount));
-        toAccount.setBalance(toAccount.getBalance().add(transferAmount));
-        bankAccountRepository.save(fromAccount);
-        bankAccountRepository.save(toAccount);
-    }
-
-    private TransactionResponseDTO createAndSaveEmployeeTransaction(BankAccount fromAccount, BankAccount toAccount, EmployeeTransactionRequestDTO employeeTransactionRequestDTO) {
-        User employee = userRepository.findById(employeeTransactionRequestDTO.getEmployeeId())
-                .orElseThrow(EntityNotFoundException::new);
-
+    private Transaction createAndSaveTransaction(BankAccount fromAccount, BankAccount toAccount, User initiatorUser,
+                                                 BigDecimal transferAmount, String description) {
         Transaction transaction = new Transaction();
-        transaction.setFromAccount(fromAccount);
         transaction.setToAccount(toAccount);
-        transaction.setInitiatorUser(employee);
-        transaction.setTransferAmount(employeeTransactionRequestDTO.getTransferAmount());
+        transaction.setFromAccount(fromAccount);
+        transaction.setInitiatorUser(initiatorUser);
+        transaction.setTransferAmount(transferAmount);
         transaction.setDate(LocalDateTime.now());
-        transaction.setDescription(employeeTransactionRequestDTO.getDescription());
+        transaction.setDescription(description);
 
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
+    }
 
-        return createTransactionResponseDTO(transaction);
+    private BankAccount getBankAccountByUserAndType(User user, AccountType accountType) {
+        return bankAccountRepository.findByUserAndAccountType(user, accountType)
+                .orElseThrow(() -> new EntityNotFoundException(accountType + " account not found for user " + user.getUserId()));
+    }
+
+    private User getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + userId));
+    }
+
+    private BankAccount getBankAccountByIban(String iban) {
+        BankAccount bankAccount = bankAccountRepository.findByIban(iban);
+        if (bankAccount == null) {
+            throw new EntityNotFoundException("Bank account not found for IBAN: " + iban);
+        }
+        return bankAccount;
+    }
+
+    private BankAccount getBankAccountByUserId(Integer userId) {
+        return bankAccountRepository.findByUseruserIdAndAccountTypeAndIsActive(userId, AccountType.CHECKINGS, true)
+                .orElseThrow(() -> new ActiveCheckingAccountNotFoundException("Active checking account not found for user ID: " + userId));
     }
 
     // Luko - Einde

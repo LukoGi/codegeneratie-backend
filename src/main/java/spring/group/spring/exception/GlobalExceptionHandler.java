@@ -57,6 +57,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, apiError.getStatus());
     }
 
+    @ExceptionHandler(value = {TransactionWithSavingsAccountException.class})
+    public ResponseEntity<Object> handleTransactionWithSavingsAccountException(TransactionWithSavingsAccountException e) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
+    @ExceptionHandler(value = {ActiveCheckingAccountNotFoundException.class})
+    public ResponseEntity<Object> handleActiveCheckingAccountNotFoundException(ActiveCheckingAccountNotFoundException e) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        return new ResponseEntity<>(apiError, apiError.getStatus());
+    }
+
     /**
      * MethodArgumentNotValidException
      * The format of the error message is as follows:

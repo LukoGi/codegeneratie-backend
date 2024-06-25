@@ -162,7 +162,7 @@ public class TransactionsSteps extends BaseSteps {
     @And("the internal transaction data is valid")
     public void theInternalTransactionDataIsValid() throws JsonProcessingException {
         InternalTransactionRequestDTO requestDTO = new InternalTransactionRequestDTO();
-        requestDTO.setUserId(2);
+        requestDTO.setInitiatorUserId(2);
         requestDTO.setFromAccountType("CHECKINGS");
         requestDTO.setToAccountType("SAVINGS");
         requestDTO.setTransferAmount(new BigDecimal(2));
@@ -203,7 +203,7 @@ public class TransactionsSteps extends BaseSteps {
     @And("the internal transaction data is invalid")
     public void theInternalTransactionDataIsInvalid() throws JsonProcessingException {
         InternalTransactionRequestDTO requestDTO = new InternalTransactionRequestDTO();
-        requestDTO.setUserId(-1); // Invalid user ID
+        requestDTO.setInitiatorUserId(-1); // Invalid user ID
         requestDTO.setFromAccountType("INVALID"); // Invalid account type
         requestDTO.setToAccountType("INVALID"); // Invalid account type
         requestDTO.setTransferAmount(new BigDecimal(-1)); // Invalid transfer amount
@@ -236,7 +236,7 @@ public class TransactionsSteps extends BaseSteps {
     @And("the employee transaction data is valid")
     public void theEmployeeTransactionDataIsValid() throws JsonProcessingException {
         EmployeeTransactionRequestDTO requestDTO = new EmployeeTransactionRequestDTO();
-        requestDTO.setEmployeeId(3);
+        requestDTO.setInitiatorUserId(3);
         requestDTO.setFromAccountIban("NL91ABNA0417164305");
         requestDTO.setToAccountIban("NL91ABNA0417164306");
         requestDTO.setTransferAmount(new BigDecimal(1));
@@ -262,7 +262,7 @@ public class TransactionsSteps extends BaseSteps {
     @And("the employee transaction data is invalid")
     public void theEmployeeTransactionDataIsInvalid() throws JsonProcessingException {
         EmployeeTransactionRequestDTO requestDTO = new EmployeeTransactionRequestDTO();
-        requestDTO.setEmployeeId(-1); // Invalid employee ID
+        requestDTO.setInitiatorUserId(-1); // Invalid employee ID
         requestDTO.setFromAccountIban("INVALID_IBAN"); // Invalid IBAN
         requestDTO.setToAccountIban("INVALID_IBAN"); // Invalid IBAN
         requestDTO.setTransferAmount(new BigDecimal(-1)); // Invalid transfer amount

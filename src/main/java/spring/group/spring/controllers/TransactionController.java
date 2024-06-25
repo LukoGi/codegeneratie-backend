@@ -40,12 +40,6 @@ public class TransactionController {
                 .toList();
     }
 
-    // deze onder de comment kan weg?
-    @GetMapping("/{id}")
-    public Transaction getTransactionById(@PathVariable Integer id) {
-        return transactionService.getTransactionById(id);
-    }
-
     @PostMapping("/")
     @PreAuthorize("hasRole('ROLE_USER')")
     public TransactionResponseDTO createTransaction(@Valid @RequestBody TransactionRequestDTO transactionResponseDTO) {
@@ -95,7 +89,7 @@ public class TransactionController {
     }
 
     @PostMapping("/customer/internal")
-    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #internalTransactionRequestDTO.userId)")
+    @PreAuthorize("hasRole('ROLE_USER') and @customPermissionEvaluator.isRequestValid(authentication, #internalTransactionRequestDTO.initiatorUserId)")
     public TransactionResponseDTO customerCreateInternalTransaction(@RequestBody InternalTransactionRequestDTO internalTransactionRequestDTO) {
         return transactionService.customerCreateInternalTransaction(internalTransactionRequestDTO);
     }

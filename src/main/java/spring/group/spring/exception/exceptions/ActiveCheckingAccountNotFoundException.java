@@ -4,4 +4,8 @@ public class ActiveCheckingAccountNotFoundException extends RuntimeException {
     public ActiveCheckingAccountNotFoundException() {
         super("User does not have an active checking account");
     }
+
+    public ActiveCheckingAccountNotFoundException(String message) {
+        super(message);
+    }
 }
