@@ -162,8 +162,8 @@ public class TransactionService {
 
     public TransactionResponseDTO customerCreateTransaction(CustomerTransactionRequestDTO customerTransactionRequestDTO) {
         User initiatorUser = getUserById(customerTransactionRequestDTO.getInitiatorUserId());
+        BankAccount fromAccount = getBankAccountByUserId(initiatorUser.getUserId());
         BankAccount toAccount = getBankAccountByIban(customerTransactionRequestDTO.getToAccountIban());
-        BankAccount fromAccount = getBankAccountByUserId(customerTransactionRequestDTO.getInitiatorUserId());
 
         validateTransaction(fromAccount, toAccount, customerTransactionRequestDTO.getTransferAmount());
 
@@ -176,15 +176,15 @@ public class TransactionService {
     }
 
     public TransactionResponseDTO customerCreateInternalTransaction(InternalTransactionRequestDTO internalTransactionRequestDTO) {
-        User user = getUserById(internalTransactionRequestDTO.getInitiatorUserId());
-        BankAccount fromAccount = getBankAccountByUserAndType(user, AccountType.valueOf(internalTransactionRequestDTO.getFromAccountType().toUpperCase()));
-        BankAccount toAccount = getBankAccountByUserAndType(user, AccountType.valueOf(internalTransactionRequestDTO.getToAccountType().toUpperCase()));
+        User initiatorUser = getUserById(internalTransactionRequestDTO.getInitiatorUserId());
+        BankAccount fromAccount = getBankAccountByUserAndType(initiatorUser, AccountType.valueOf(internalTransactionRequestDTO.getFromAccountType().toUpperCase()));
+        BankAccount toAccount = getBankAccountByUserAndType(initiatorUser, AccountType.valueOf(internalTransactionRequestDTO.getToAccountType().toUpperCase()));
 
         validateTransaction(fromAccount, toAccount, internalTransactionRequestDTO.getTransferAmount());
 
         updateAccountBalances(fromAccount, toAccount, internalTransactionRequestDTO.getTransferAmount());
 
-        Transaction transaction = createAndSaveTransaction(fromAccount, toAccount, user,
+        Transaction transaction = createAndSaveTransaction(fromAccount, toAccount, initiatorUser,
                 internalTransactionRequestDTO.getTransferAmount(), "Transfer between checkings/savings accounts");
 
         return createTransactionResponseDTO(transaction);
