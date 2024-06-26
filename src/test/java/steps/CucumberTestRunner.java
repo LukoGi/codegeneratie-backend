@@ -5,7 +5,7 @@ import io.cucumber.junit.CucumberOptions;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
-@Ignore
+@Ignore // ik hoop dat dit werkt
 @RunWith(Cucumber.class)
 @CucumberOptions(
         features = "src/test/resources/cucumber/features",
