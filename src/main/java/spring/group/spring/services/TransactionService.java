@@ -169,7 +169,7 @@ public class TransactionService {
 
         updateAccountBalances(fromAccount, toAccount, customerTransactionRequestDTO.getTransferAmount());
 
-        Transaction transaction = createAndSaveTransaction(toAccount, fromAccount, initiatorUser,
+        Transaction transaction = createAndSaveTransaction(fromAccount, toAccount, initiatorUser,
                 customerTransactionRequestDTO.getTransferAmount(), customerTransactionRequestDTO.getDescription());
 
         return createTransactionResponseDTO(transaction);
