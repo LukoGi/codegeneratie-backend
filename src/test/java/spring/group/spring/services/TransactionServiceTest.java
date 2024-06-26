@@ -44,8 +44,10 @@ public class TransactionServiceTest {
     public void testCustomerCreateTransaction() {
         // Arrange
         User mockFromUser = createMockUser("John", "Doe", "JohnDoe", "John@gmail.com", "test", "123456789", "0612345678", List.of(Role.ROLE_USER), false, false, new BigDecimal("1000.00"));
+       mockFromUser.setUserId(1);
         BankAccount mockFromBankAccount = createMockBankAccount("NL91ABNA0417164305", new BigDecimal("500.00"), AccountType.CHECKINGS, true, new BigDecimal("-100.00"), mockFromUser);
         User mockToUser = createMockUser("Jane", "Doe", "JaneDoe", "Jane@gmail.com", "test", "987654321", "0687654321", List.of(Role.ROLE_USER), true, false, new BigDecimal("200.00"));
+        mockToUser.setUserId(2);
         BankAccount mockToBankAccount = createMockBankAccount("NL91ABNA0417164306", new BigDecimal("1800.00"), AccountType.CHECKINGS, true, new BigDecimal("-200.00"), mockToUser);
 
         CustomerTransactionRequestDTO request = new CustomerTransactionRequestDTO();
